@@ -1,42 +1,45 @@
-# AHK v1 to v2 Converter
+<div align="center"><kbd></kbd><kbd>🧩 VS Code Extension</kbd> <kbd>🔁 AHK v1 → v2</kbd> <kbd>📂 Open Source</kbd><kbd></kbd></div>
+<h1 align="center">AHK Converter <sup><sup><kbd>v0.1.5</kbd></sup></sup></h1>
 
-Convert AutoHotkey v1 scripts to v2 inside VS Code. Works offline.
+<div align="center">
+    <strong>Convert AutoHotkey v1 scripts to v2 inside VS Code</strong>
+  <img src="media/AHK_Convert_mini.png" alt="AHK Converter icon">
+</div>
+<div align="center">
+  <p>
+    <a href="#features"><img src="https://img.shields.io/badge/Features-blue?style=for-the-badge" alt="Features"></a>
+    <a href="#installation"><img src="https://img.shields.io/badge/Install-green?style=for-the-badge" alt="Installation"></a>
+    <a href="#usage"><img src="https://img.shields.io/badge/Usage-purple?style=for-the-badge" alt="Usage"></a>
+    <a href="#settings"><img src="https://img.shields.io/badge/Settings-orange?style=for-the-badge" alt="Settings"></a>
+  </p>
+</div>
 
-![AHK Converter](media/AHK_Convert.png)
+## Features
 
-## What this does
+- Convert an open AHK v1 script to v2 using the community converter
+- Open the result in a new tab, replace the current file, or view a diff
+- Works offline
 
-* Reads the open editor text and writes a temp file.
-* Runs the community converter script using AutoHotkey v2.
-* Loads the generated output file and shows it to you.
+## Installation
 
-## Commands
+1. Install AutoHotkey v2.
+2. Install this VS Code extension (from VSIX or by opening the folder in VS Code and pressing F5 to launch the Extension Host).
+3. Optional: set the configuration values below.
 
-* AHK: Convert v1 to v2 - open in new tab
-* AHK: Convert v1 to v2 - replace current file
-* AHK: Convert v1 to v2 - show diff
+## Usage
+
+1. Open a v1 `.ahk` file in VS Code.
+2. Run one of the commands:
+   - AHK: Convert v1 to v2 - open in new tab
+   - AHK: Convert v1 to v2 - replace current file
+   - AHK: Convert v1 to v2 - show diff
 
 ## Settings
 
-* `ahkConverter.autoHotkeyV2Path` path to AutoHotkey v2 exe. Leave empty to use AutoHotkey64.exe on PATH.
-* `ahkConverter.converterScriptPath` path to v2converter.ahk. Defaults to the bundled vendor file.
-* `ahkConverter.strictWindowsOnly` warn if not on Windows.
-
-## Requirements
-
-* Windows and AutoHotkey v2 installed or set a full path.
-* The real converter script file. Replace `vendor/v2converter.ahk` with the official version or point the setting to it.
-
-## Related projects and examples
-
-* CloudAHK code runner repo: [https://github.com/G33kDude/CloudAHK](https://github.com/G33kDude/CloudAHK)
-* AHK v1 to v2 converter repo: [https://github.com/mmikeww/AHK-v2-script-converter](https://github.com/mmikeww/AHK-v2-script-converter)
-* Converter example on the wiki: [https://autohotkey.wiki/guides%3Av1_v2_cheat_sheet](https://autohotkey.wiki/guides%3Av1_v2_cheat_sheet)
-* Geek’s wiki page: [https://autohotkey.wiki/user%3Ageek](https://autohotkey.wiki/user%3Ageek)
+- `ahkConverter.autoHotkeyV2Path`: Path to the AutoHotkey v2 executable. If empty, uses `AutoHotkey64.exe` from PATH.
+- `ahkConverter.converterScriptPath`: Path to `v2converter.ahk`. Defaults to the bundled file at `${extensionPath}/vendor/v2converter.ahk`.
+- `ahkConverter.strictWindowsOnly`: If true, warn on non-Windows platforms.
 
 ## Notes
 
-* The converter writes `<input>_newV2.ahk` next to the input. The extension uses a temp folder so your files are not touched unless you choose Replace.
-
-
-
+- The converter writes `<input>_newV2.ahk` next to the input. The extension uses a temp folder so your files are not touched unless you choose Replace.
