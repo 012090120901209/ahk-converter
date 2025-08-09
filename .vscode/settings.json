@@ -1,0 +1,9 @@
+{
+  "files.readonlyInclude": [
+    "README.md"
+  ],
+  "files.watcherExclude": {
+    "**/README.md": true
+  }
+}
+
