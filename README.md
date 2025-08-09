@@ -4,6 +4,7 @@
 <div align="center">
   <strong>Convert AutoHotkey v1 scripts to v2 inside VS Code</strong>
   <br>
+  <br>
   <p align="center"><img src="media/AHK_Convert_mini.png" alt="AHK Converter icon" width="196"></p>
 </div>
 
