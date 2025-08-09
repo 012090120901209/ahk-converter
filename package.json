@@ -1,7 +1,7 @@
 {
   "name": "ahk-converter",
   "displayName": "AHK Converter",
-  "icon": "media/AHK_Convert_Mini.png",
+  "icon": "media/AHK_Convert_mini.png",
   "description": "Convert AutoHotkey v1 scripts to v2 using the community converter and AutoHotkey v2.",
   "publisher": "TrueCrimeAudit",
   "version": "0.1.5",
@@ -11,13 +11,12 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:ahk.convertV1toV2",
-    "onCommand:ahk.convertV1toV2.replace",
-    "onCommand:ahk.convertV1toV2.diff",
-    "onLanguage:ahk"
-  ],
   "contributes": {
+    "activationEvents": [
+      "onCommand:ahk.convertV1toV2",
+      "onCommand:ahk.convertV1toV2.replace",
+      "onCommand:ahk.convertV1toV2.diff"
+    ],
     "commands": [
       {
         "command": "ahk.convertV1toV2",
@@ -55,6 +54,7 @@
   },
   "main": "./dist/extension.js",
   "scripts": {
+    "prepare": "husky install",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
@@ -63,6 +63,7 @@
   "devDependencies": {
     "@types/node": "^20.11.30",
     "@types/vscode": "^1.84.0",
+    "husky": "^9.1.7",
     "typescript": "^5.4.0",
     "vsce": "^2.15.0"
   },
