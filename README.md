@@ -2,10 +2,12 @@
 <h1 align="center">AHK Converter <sup><sup><kbd>v0.1.5</kbd></sup></sup></h1>
 
 <div align="center">
-    <strong>Convert AutoHotkey v1 scripts to v2 inside VS Code</strong>
-    
-  <img src="media/AHK_Convert_mini.png" alt="AHK Converter icon" style="display:block;margin:0 auto;max-width:100%;height:auto;">
+  <strong>Convert AutoHotkey v1 scripts to v2 inside VS Code</strong>
+  <br>
+  <p align="center"><img src="media/AHK_Convert_mini.png" alt="AHK Converter icon"></p>
 </div>
+<br>
+
 <div align="center">
   <p>
     <a href="#features"><img src="https://img.shields.io/badge/Features-blue?style=for-the-badge" alt="Features"></a>
