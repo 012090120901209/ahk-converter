@@ -11,12 +11,10 @@
   "categories": [
     "Other"
   ],
+  "activationEvents": [
+    "onLanguage:ahk"
+  ],
   "contributes": {
-    "activationEvents": [
-      "onCommand:ahk.convertV1toV2",
-      "onCommand:ahk.convertV1toV2.replace",
-      "onCommand:ahk.convertV1toV2.diff"
-    ],
     "commands": [
       {
         "command": "ahk.convertV1toV2",
