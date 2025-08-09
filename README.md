@@ -1,9 +1,10 @@
-<div align="center"><kbd></kbd><kbd>🧩 VS Code Extension</kbd> <kbd>🔁 AHK v1 → v2</kbd> <kbd>📂 Open Source</kbd><kbd></kbd></div>
+<div align="center"><kbd></kbd>  <kbd>🧩 VS Code Extension</kbd> <kbd>🔁 AHK v1 → v2</kbd> <kbd>📂 Open Source</kbd>  <kbd></kbd></div>
 <h1 align="center">AHK Converter <sup><sup><kbd>v0.1.5</kbd></sup></sup></h1>
 
 <div align="center">
     <strong>Convert AutoHotkey v1 scripts to v2 inside VS Code</strong>
-  <img src="media/AHK_Convert_mini.png" alt="AHK Converter icon">
+    
+  <img src="media/AHK_Convert_mini.png" alt="AHK Converter icon" style="display:block;margin:0 auto;max-width:100%;height:auto;">
 </div>
 <div align="center">
   <p>
