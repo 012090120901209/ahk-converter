@@ -2,6 +2,35 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Package VSIX (vsce package)",
+      "type": "shell",
+      "command": "npm run package",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Publish latest VSIX to VS Code Marketplace",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "$ErrorActionPreference = 'Stop'; $vsix = Get-ChildItem -Path '${workspaceFolder}' -Filter *.vsix -Recurse | Sort-Object LastWriteTime -Descending | Select-Object -First 1; if (-not $vsix) { Write-Error 'No .vsix file found. Run the \"Package VSIX\" task first.'; exit 1 }; if (-not $env:VSCE_PAT) { Write-Error 'Environment variable VSCE_PAT is not set. Create a Personal Access Token and set it before running this task.'; exit 1 }; Write-Host 'Publishing' $vsix.FullName; npx --yes vsce publish --packagePath \"$($vsix.FullName)\" --skip-duplicate | cat"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
+
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
       "type": "npm",
       "script": "compile",
       "group": {
