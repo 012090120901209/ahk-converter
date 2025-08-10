@@ -4,7 +4,7 @@
   "icon": "media/AHK_Convert_mini.png",
   "description": "Convert AutoHotkey v1 scripts to v2 using the community converter and AutoHotkey v2.",
   "publisher": "TrueCrimeAudit",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -15,6 +15,12 @@
     "onLanguage:ahk"
   ],
   "contributes": {
+    "submenus": [
+      {
+        "id": "ahkConverter.menu",
+        "label": "AutoHotkey v2: Converter"
+      }
+    ],
     "commands": [
       {
         "command": "ahk.convertV1toV2",
@@ -29,6 +35,51 @@
         "title": "AHK: Convert v1 to v2 - show diff"
       }
     ],
+    "menus": {
+      "editor/context": [
+        {
+          "submenu": "ahk2.context",
+          "group": "navigation@60",
+          "when": "resourceLangId == ahk && ahk.lspPresent"
+        },
+        {
+          "submenu": "ahkConverter.menu",
+          "group": "navigation@60",
+          "when": "resourceLangId == ahk && !ahk.lspPresent"
+        }
+      ],
+      "ahk2.context": [
+        {
+          "command": "ahk.convertV1toV2",
+          "group": "9_converter@10",
+          "when": "resourceLangId == ahk && ahk.lspPresent"
+        },
+        {
+          "command": "ahk.convertV1toV2.replace",
+          "group": "9_converter@20",
+          "when": "resourceLangId == ahk && ahk.lspPresent"
+        },
+        {
+          "command": "ahk.convertV1toV2.diff",
+          "group": "9_converter@30",
+          "when": "resourceLangId == ahk && ahk.lspPresent"
+        }
+      ],
+      "ahkConverter.menu": [
+        {
+          "command": "ahk.convertV1toV2",
+          "group": "1_convert@10"
+        },
+        {
+          "command": "ahk.convertV1toV2.replace",
+          "group": "1_convert@20"
+        },
+        {
+          "command": "ahk.convertV1toV2.diff",
+          "group": "1_convert@30"
+        }
+      ]
+    },
     "configuration": {
       "title": "AHK v1 to v2 Converter",
       "properties": {
