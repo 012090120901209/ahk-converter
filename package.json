@@ -4,7 +4,7 @@
   "icon": "media/AHK_Convert_mini.png",
   "description": "Convert AutoHotkey v1 scripts to v2 using the community converter and AutoHotkey v2.",
   "publisher": "TrueCrimeAudit",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -12,7 +12,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:ahk"
+    "onLanguage:ahk",
+    "onLanguage:ahk2",
+    "onStartupFinished"
   ],
   "contributes": {
     "submenus": [
@@ -40,29 +42,29 @@
         {
           "submenu": "ahk2.context",
           "group": "navigation@60",
-          "when": "resourceLangId == ahk && ahk.lspPresent"
+          "when": "editorLangId == ahk2 && ahk.lspPresent"
         },
         {
           "submenu": "ahkConverter.menu",
           "group": "navigation@60",
-          "when": "resourceLangId == ahk && !ahk.lspPresent"
+          "when": "(editorLangId == ahk2 || editorLangId == ahk) && !ahk.lspPresent"
         }
       ],
       "ahk2.context": [
         {
           "command": "ahk.convertV1toV2",
           "group": "9_converter@10",
-          "when": "resourceLangId == ahk && ahk.lspPresent"
+          "when": "editorLangId == ahk2 && ahk.lspPresent"
         },
         {
           "command": "ahk.convertV1toV2.replace",
           "group": "9_converter@20",
-          "when": "resourceLangId == ahk && ahk.lspPresent"
+          "when": "editorLangId == ahk2 && ahk.lspPresent"
         },
         {
           "command": "ahk.convertV1toV2.diff",
           "group": "9_converter@30",
-          "when": "resourceLangId == ahk && ahk.lspPresent"
+          "when": "editorLangId == ahk2 && ahk.lspPresent"
         }
       ],
       "ahkConverter.menu": [
@@ -90,7 +92,7 @@
         },
         "ahkConverter.converterScriptPath": {
           "type": "string",
-          "default": "${extensionPath}/vendor/v2converter.ahk",
+          "default": "${extensionPath}/vendor/v2converter_silent.ahk",
           "description": "Path to v2converter.ahk."
         },
         "ahkConverter.strictWindowsOnly": {
