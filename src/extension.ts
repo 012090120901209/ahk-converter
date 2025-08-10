@@ -7,6 +7,8 @@ import * as path from 'path';
 type RunResult = { stdout: string; stderr: string; code: number };
 
 let output: vscode.OutputChannel | undefined;
+let lastDiffLeftUri: vscode.Uri | undefined;
+let lastDiffRightUri: vscode.Uri | undefined;
 function getOutput(): vscode.OutputChannel {
   if (!output) output = vscode.window.createOutputChannel('AHK Converter');
   return output;
@@ -119,7 +121,7 @@ async function getPaths(ctx: vscode.ExtensionContext) {
   const configuredConverter = (cfg.get<string>('converterScriptPath') || '').replace(/"/g, '');
   const resolvedConverter = configuredConverter
     ? configuredConverter.replace('${extensionPath}', ctx.extensionPath)
-    : path.join(ctx.extensionPath, 'vendor', 'v2converter.ahk');
+    : path.join(ctx.extensionPath, 'vendor', 'v2converter_silent.ahk');
   return { ahkExe, converter: resolvedConverter };
 }
 
@@ -179,9 +181,15 @@ async function showDiff(outText: string, left: vscode.TextDocument) {
   edit.insert(rightUri, new vscode.Position(0, 0), outText);
   await vscode.workspace.applyEdit(edit);
   await vscode.commands.executeCommand('vscode.diff', left.uri, rightUri, 'AHK v1 ↔ v2');
+  lastDiffLeftUri = left.uri;
+  lastDiffRightUri = rightUri;
 }
 
 export function activate(ctx: vscode.ExtensionContext) {
+  // Expose presence of thqby.vscode-autohotkey2-lsp to menus via context key
+  const hasAhkLsp = !!vscode.extensions.getExtension('thqby.vscode-autohotkey2-lsp');
+  void vscode.commands.executeCommand('setContext', 'ahk.lspPresent', hasAhkLsp);
+
   output = vscode.window.createOutputChannel('AHK Converter');
   const doConvert = async (mode: 'new' | 'replace' | 'diff') => {
     if (!(await ensureWindowsIfStrict())) return;
@@ -196,10 +204,13 @@ export function activate(ctx: vscode.ExtensionContext) {
       const outText = await convertText(ctx, ed.document.getText());
       if (mode === 'replace') {
         await replaceCurrentEditor(outText, ed);
+        vscode.window.setStatusBarMessage('AHK Converter: replaced with v2 output', 3000);
       } else if (mode === 'diff') {
         await showDiff(outText, ed.document);
+        vscode.window.setStatusBarMessage('AHK Converter: opened diff (v1 ↔ v2)', 3000);
       } else {
         await openInNewTab(outText);
+        vscode.window.setStatusBarMessage('AHK Converter: opened v2 output in new tab', 3000);
       }
     } catch (err: any) {
       vscode.window.showErrorMessage(err?.message || String(err));
@@ -209,7 +220,27 @@ export function activate(ctx: vscode.ExtensionContext) {
   ctx.subscriptions.push(
     vscode.commands.registerCommand('ahk.convertV1toV2', () => doConvert('new')),
     vscode.commands.registerCommand('ahk.convertV1toV2.replace', () => doConvert('replace')),
-    vscode.commands.registerCommand('ahk.convertV1toV2.diff', () => doConvert('diff'))
+    vscode.commands.registerCommand('ahk.convertV1toV2.diff', () => doConvert('diff')),
+    vscode.commands.registerCommand('ahk.convertV1toV2.acceptDiff', async () => {
+      try {
+        if (!lastDiffLeftUri || !lastDiffRightUri) {
+          vscode.window.showErrorMessage('No conversion diff to accept.');
+          return;
+        }
+        const leftDoc = await vscode.workspace.openTextDocument(lastDiffLeftUri);
+        const rightDoc = await vscode.workspace.openTextDocument(lastDiffRightUri);
+        const replaceRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(leftDoc.lineCount, 0));
+        const we = new vscode.WorkspaceEdit();
+        we.replace(leftDoc.uri, replaceRange, rightDoc.getText());
+        const ok = await vscode.workspace.applyEdit(we);
+        if (ok) {
+          await leftDoc.save();
+          vscode.window.setStatusBarMessage('AHK Converter: accepted conversion into file', 3000);
+        }
+      } catch (err: any) {
+        vscode.window.showErrorMessage(err?.message || String(err));
+      }
+    })
   );
 }
 
