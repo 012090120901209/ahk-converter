@@ -337,7 +337,11 @@ CompVscV2(*)
         FileDelete TempAhkFileV1
     }
     FileAppend V1Edit.Text, TempAhkFileV1
-    Run "C:\Users\" A_UserName "\AppData\Local\Programs\Microsoft VS Code\Code.exe -d `"" TempAhkFileV1 "`" `"" TempAhkFileV2 "`""
+    VsCodePath := GetVSCodePath()
+    if (VsCodePath)
+        Run '"' VsCodePath '" -d "' TempAhkFileV1 '" "' TempAhkFileV2 '"'
+    else
+        MsgBox("VS Code not found. Please install VS Code or check the path.")
     Return
 }
 CompVscV2E(*)
@@ -358,7 +362,11 @@ CompVscV2E(*)
         FileDelete TempAhkFileV2E
     }
     FileAppend V2ExpectedEdit.Text, TempAhkFileV2E
-    Run "C:\Users\" A_UserName "\AppData\Local\Programs\Microsoft VS Code\Code.exe -d `"" TempAhkFileV2E "`" `"" TempAhkFileV2 "`""
+    VsCodePath := GetVSCodePath()
+    if (VsCodePath)
+        Run '"' VsCodePath '" -d "' TempAhkFileV2E '" "' TempAhkFileV2 '"'
+    else
+        MsgBox("VS Code not found. Please install VS Code or check the path.")
     Return
 }
 Edit_Change(*)
@@ -659,7 +667,7 @@ GuiTest(strV1Script := "")
     ButtonCompDiffV2.OnEvent("Click", CompDiffV2)
     ButtonCompVscV2 := MyGui.Add("Button", " x+10 yp w80", "Compare VSC")
     ButtonCompVscV2.StatusBar := "Compare V1 and V2 code in VS Code"
-    if !FileExist("C:\Users\" A_UserName "\AppData\Local\Programs\Microsoft VS Code\Code.exe") {
+    if !GetVSCodePath() {
         ButtonCompVscV2.Visible := 0
     }
     ButtonCompVscV2.OnEvent("Click", CompVscV2)
@@ -1158,6 +1166,29 @@ ViewV2E(*)
         WinMove(, , Width - 3, , MyGui)
     }
     IniWrite(CheckBoxV2E.Value, "QuickConvertorV2.ini", "Convertor", "ViewExpectedCode")
+}
+GetVSCodePath()
+{
+    ; Try common installation paths for VS Code
+    vscPaths := [
+        A_LocalAppData "\Programs\Microsoft VS Code\Code.exe",
+        "C:\Program Files\Microsoft VS Code\Code.exe",
+        "C:\Program Files (x86)\Microsoft VS Code\Code.exe"
+    ]
+
+    for path in vscPaths {
+        if FileExist(path)
+            return path
+    }
+
+    ; Try to find in PATH
+    try {
+        result := ComObjCreate("WScript.Shell").Exec("where code").StdOut.ReadAll()
+        if (result && InStr(result, "Code.exe"))
+            return Trim(StrSplit(result, "`n")[1])
+    }
+
+    return ""
 }
 ;***************
 ;*** HOTKEYS ***
