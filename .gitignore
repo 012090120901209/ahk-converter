@@ -2,4 +2,16 @@ dist
 node_modules
 *.vsix
 
+# IDE/Editor files
+.history/
+.vscode/*.log
 
+# Generated log files
+vendor/conversion_log.txt
+vendor/conversion_errors.log
+logs/
+
+# Temporary test files
+Test_*_newV2.ahk
+**/temp*.ahk
+**/test*.ahk

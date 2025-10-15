@@ -1,24 +1,2 @@
-Conversion failed for C:\Users\uphol\Documents\Design\Coding\AutoHotGPT\required\convert\lib\_GuiCtlExt.ahk: Invalid index.
-Conversion failed for C:\Users\uphol\Documents\Design\Coding\AutoHotGPT\required\convert\lib\scintilla.ahk: Invalid index.
-Conversion failed for C:\Users\uphol\Documents\Design\Coding\AutoHotGPT\required\Include\Properties.ahk: Parameter #2 of InStr is invalid.
-Conversion failed for C:\Users\uphol\Documents\Design\Coding\AutoHotGPT\required\Include\ToolsDialog.ahk: Parameter #2 of InStr is invalid.
-Conversion failed for C:\Users\uphol\Documents\Design\Coding\AutoHotGPT\required\Lib\_GuiCtlExt.ahk: Invalid index.
-Conversion failed for C:\Users\uphol\Documents\Design\Coding\AutoHotGPT\required\Lib\Toolbar.ahk: Parameter #2 of InStr is invalid.
-Conversion failed for C:\Users\uphol\Documents\Design\Coding\AutoHotGPT\src\ui\StatusBarManager.ahk: Invalid index.
-Source file not found: ./changes_of_note/__ConvertFuncs_v1.ahk Error BB
-Source file not found: ./changes_of_note/__trash_v1.ahk Error BB
-Source file not found: ./required/Tools/Directives_v1.ahk Error BB
-Source file not found: ./required/Tools/ErrorView_v1.ahk Error BB
-Source file not found: ./required/Tools/Expressive_v1.ahk Error BB
-Source file not found: ./required/Tools/Find\ in\ Files_v1.ahk Error BB
-Source file not found: ./required/Tools/Scripts\ Manager_v1.ahk Error BB
-Source file not found: ./required/Tools/Structor_v1.ahk Error BB
-Source file not found: ./changes_of_note/__ConvertFuncs_v1.ahk Error BB
-Source file not found: ./changes_of_note/__trash_v1.ahk Error BB
-Source file not found: ./required/Tools/Directives_v1.ahk Error BB
-Source file not found: ./required/Tools/ErrorView_v1.ahk Error BB
-Source file not found: ./required/Tools/Expressive_v1.ahk Error BB
-Source file not found: ./required/Tools/Find in Files_v1.ahk Error BB
-Source file not found: ./required/Tools/Scripts Manager_v1.ahk Error BB
-Source file not found: ./required/Tools/Structor_v1.ahk Error BB
-No source file specified. Error AA
+# Error log is generated at runtime and contains absolute paths from previous runs
+# This file is cleared to remove user-specific paths
