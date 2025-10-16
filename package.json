@@ -4,7 +4,7 @@
   "icon": "media/AHK_Convert_mini.png",
   "description": "Comprehensive toolbox for AutoHotkey v2 development with script conversion, metadata exploration, and productivity tools.",
   "publisher": "TrueCrimeAudit",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "engines": {
     "vscode": "^1.84.0"
   },
