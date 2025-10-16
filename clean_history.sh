@@ -5,9 +5,9 @@ git filter-branch --force --index-filter \
 "git rm --cached --ignore-unmatch .vscode/launch.json" \
 --prune-empty --tag-name-filter cat -- --all
 
-# Remove any instances of the username "uphol"
+# Remove any instances of the username "USER"
 git filter-branch --force --index-filter \
-"git ls-files -z | xargs -0 sed -i 's/uphol/USER/g'" \
+"git ls-files -z | xargs -0 sed -i 's/USER/USER/g'" \
 --prune-empty --tag-name-filter cat -- --all
 
 # Remove absolute file paths
