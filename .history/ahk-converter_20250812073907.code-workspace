@@ -1,0 +1,45 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "workbench.colorCustomizations": {
+      "activityBar.foreground": "#15202b",
+      "activityBar.inactiveForeground": "#15202b99",
+      "activityBarBadge.background": "#06b9a5",
+      "activityBarBadge.foreground": "#15202b",
+      "commandCenter.border": "#15202b99",
+      "titleBar.activeBackground": "#007acc",
+      "titleBar.activeForeground": "#15202b",
+      "badge.background": "#007acc",
+      "badge.foreground": "#ffffff",
+      "editor.foreground": "#ffffff",
+      "editor.foldBackground": "#00000000",
+      "editor.lineHighlightBackground": "#1073cf2d",
+      "editor.lineHighlightBorder": "#9fced11f",
+      "sash.hoverBorder": "#fbed80",
+      "terminal.background": "#1D1F21",
+      "terminal.foreground": "#c3c3c3ff",
+      "terminalCursor.background": "#C5C8C6",
+      "terminalCursor.foreground": "#C5C8C6",
+      "terminal.ansiBlack": "#1D1F21",
+      "terminal.ansiBlue": "#3971ED",
+      "terminal.ansiBrightBlack": "#969896",
+      "terminal.ansiBrightBlue": "#3971ED",
+      "terminal.ansiBrightCyan": "#3971ED",
+      "terminal.ansiBrightGreen": "#198844",
+      "terminal.ansiBrightMagenta": "#A36AC7",
+      "terminal.ansiBrightRed": "#CC342B",
+      "terminal.ansiBrightWhite": "#FFFFFF",
+      "terminal.ansiBrightYellow": "#FBA922",
+      "terminal.ansiCyan": "#3971ED",
+      "terminal.ansiGreen": "#198844",
+      "terminal.ansiMagenta": "#A36AC7",
+      "terminal.ansiRed": "#CC342B",
+      "terminal.ansiWhite": "#C5C8C6",
+      "terminal.ansiYellow": "#FBA922"
+    }
+  }
+}

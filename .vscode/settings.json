@@ -1,9 +1,42 @@
 {
-  "files.readonlyInclude": [
-    "README.md"
-  ],
-  "files.watcherExclude": {
-    "**/README.md": true
+  // Configure GitHub MCP server for Cline/Claude using Docker.
+  // This fixes the "command not found" error by splitting command and args properly.
+  "cline.mcpServers": {
+    "github": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    }
+  },
+  // Same config for the Claude VS Code extension, if you're using it instead.
+  "claude.mcpServers": {
+    "github": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    }
+  },
+  "workbench.colorCustomizations": {
+    "debugConsole.infoForeground": "#00FF00",
+    "debugConsole.warningForeground": "#fdec34ff",
+    "debugConsole.errorForeground": "#ff2828ff"
   }
 }
-

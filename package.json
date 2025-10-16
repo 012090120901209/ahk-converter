@@ -4,7 +4,7 @@
   "icon": "media/AHK_Convert_mini.png",
   "description": "Convert AutoHotkey v1 scripts to v2 using the community converter and AutoHotkey v2.",
   "publisher": "TrueCrimeAudit",
-  "version": "0.9.2",
+  "version": "0.3.0",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -12,73 +12,93 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:ahk",
-    "onLanguage:ahk2",
-    "onStartupFinished"
+    "onCommand:ahk.extractFunctionMetadata",
+    "onCommand:ahk.convertV1toV2",
+    "onCommand:ahk.convertV1toV2.replace",
+    "onCommand:ahk.convertV1toV2.diff",
+    "onCommand:ahk.convertV1toV2.acceptDiff",
+    "onCommand:ahk.convertV1toV2.batch",
+    "onCommand:ahk.launchDebugReader",
+    "onCommand:ahk.runTests",
+    "onCommand:ahk.formatDocument",
+    "onCommand:ahk.applyFormattingFix"
   ],
   "contributes": {
-    "submenus": [
-      {
-        "id": "ahkConverter.menu",
-        "label": "AutoHotkey v2: Converter"
-      }
-    ],
     "commands": [
       {
         "command": "ahk.convertV1toV2",
-        "title": "AHK: Convert v1 to v2 - open in new tab"
+        "title": "AHK: Convert v1 to v2 - open in new tab",
+        "category": "AHK Converter"
       },
       {
         "command": "ahk.convertV1toV2.replace",
-        "title": "AHK: Convert v1 to v2 - replace current file"
+        "title": "AHK: Convert v1 to v2 - replace current file",
+        "category": "AHK Converter"
       },
       {
         "command": "ahk.convertV1toV2.diff",
-        "title": "AHK: Convert v1 to v2 - show diff"
+        "title": "AHK: Convert v1 to v2 - show enhanced diff",
+        "category": "AHK Converter"
+      },
+      {
+        "command": "ahk.convertV1toV2.acceptDiff",
+        "title": "AHK: Accept v1 → v2 Diff",
+        "category": "AHK Converter"
+      },
+      {
+        "command": "ahk.convertV1toV2.batch",
+        "title": "AHK: Convert multiple files (batch)",
+        "category": "AHK Converter"
+      },
+      {
+        "command": "ahk.launchDebugReader",
+        "title": "AHK: Launch Debugger Window Reader",
+        "category": "AHK Converter"
+      },
+      {
+        "command": "ahk.runTests",
+        "title": "AHK: Run Tests",
+        "category": "AHK Converter"
+      },
+      {
+        "command": "ahk.formatDocument",
+        "title": "AHK: Format Document",
+        "category": "AHK Converter"
+      },
+      {
+        "command": "ahk.applyFormattingFix",
+        "title": "AHK: Apply Formatting Fix",
+        "category": "AHK Converter"
+      },
+      {
+        "command": "ahk.extractFunctionMetadata",
+        "title": "AHK: Extract Function Metadata",
+        "category": "AHK Converter"
       }
     ],
     "menus": {
       "editor/context": [
         {
-          "submenu": "ahk2.context",
-          "group": "navigation@60",
-          "when": "editorLangId == ahk2 && ahk.lspPresent"
+          "when": "resourceLangId == ahk",
+          "command": "ahk.convertV1toV2",
+          "group": "1_modification@1"
         },
         {
-          "submenu": "ahkConverter.menu",
-          "group": "navigation@60",
-          "when": "(editorLangId == ahk2 || editorLangId == ahk) && !ahk.lspPresent"
+          "when": "resourceLangId == ahk",
+          "command": "ahk.convertV1toV2.replace",
+          "group": "1_modification@2"
+        },
+        {
+          "when": "resourceLangId == ahk",
+          "command": "ahk.convertV1toV2.diff",
+          "group": "1_modification@3"
         }
       ],
-      "ahk2.context": [
+      "explorer/context": [
         {
-          "command": "ahk.convertV1toV2",
-          "group": "9_converter@10",
-          "when": "editorLangId == ahk2 && ahk.lspPresent"
-        },
-        {
-          "command": "ahk.convertV1toV2.replace",
-          "group": "9_converter@20",
-          "when": "editorLangId == ahk2 && ahk.lspPresent"
-        },
-        {
-          "command": "ahk.convertV1toV2.diff",
-          "group": "9_converter@30",
-          "when": "editorLangId == ahk2 && ahk.lspPresent"
-        }
-      ],
-      "ahkConverter.menu": [
-        {
-          "command": "ahk.convertV1toV2",
-          "group": "1_convert@10"
-        },
-        {
-          "command": "ahk.convertV1toV2.replace",
-          "group": "1_convert@20"
-        },
-        {
-          "command": "ahk.convertV1toV2.diff",
-          "group": "1_convert@30"
+          "when": "resourceLangId == ahk",
+          "command": "ahk.convertV1toV2.batch",
+          "group": "1_modification@1"
         }
       ]
     },
@@ -88,20 +108,123 @@
         "ahkConverter.autoHotkeyV2Path": {
           "type": "string",
           "default": "",
-          "description": "Path to AutoHotkey v2 executable. If empty, uses AutoHotkey64.exe from PATH."
+          "description": "Path to AutoHotkey v2 executable. If empty, uses AutoHotkey64.exe from PATH.",
+          "scope": "window"
         },
         "ahkConverter.converterScriptPath": {
           "type": "string",
-          "default": "${extensionPath}/vendor/v2converter_silent.ahk",
-          "description": "Path to v2converter.ahk."
+          "default": "${extensionPath}/vendor/v2converter.ahk",
+          "description": "Path to v2converter.ahk.",
+          "scope": "window"
         },
         "ahkConverter.strictWindowsOnly": {
           "type": "boolean",
           "default": true,
-          "description": "If true, warn on non-Windows platforms."
+          "description": "If true, warn on non-Windows platforms.",
+          "scope": "window"
+        },
+        "ahkConverter.defaultOutputNaming": {
+          "type": "string",
+          "enum": ["suffix", "directory", "prompt"],
+          "default": "suffix",
+          "description": "How to name converted files in batch mode.",
+          "enumDescriptions": [
+            "Add '_v2' suffix to original filename",
+            "Save to a separate 'v2' subdirectory",
+            "Prompt for filename each time"
+          ]
+        },
+        "ahkConverter.enableEnhancedDiff": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable enhanced diff view with better highlighting and options.",
+          "scope": "window"
+        },
+        "ahkConverter.showConversionStats": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show detailed conversion statistics in status bar.",
+          "scope": "window"
+        },
+        "ahkConverter.autoSaveAfterConversion": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically save files after successful conversion.",
+          "scope": "window"
+        },
+        "ahkConverter.validationLevel": {
+          "type": "string",
+          "enum": ["strict", "normal", "lenient"],
+          "default": "normal",
+          "description": "Level of validation to perform on AHK files.",
+          "enumDescriptions": [
+            "Strict validation with detailed checks",
+            "Normal validation with standard checks",
+            "Lenient validation with minimal checks"
+          ]
+        },
+        "ahkConverter.enableNotifications": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show enhanced notifications with actionable options.",
+          "scope": "window"
+        },
+        "ahkConverter.batchOutputDirectory": {
+          "type": "string",
+          "default": "",
+          "description": "Default output directory for batch conversions. If empty, prompts for directory.",
+          "scope": "window"
+        },
+        "ahkConverter.diffViewOptions": {
+          "type": "object",
+          "default": {
+            "showLineNumbers": true,
+            "highlightChanges": true,
+            "ignoreWhitespace": false,
+            "contextLines": 3
+          },
+          "description": "Options for diff view display.",
+          "properties": {
+            "showLineNumbers": {
+              "type": "boolean",
+              "default": true,
+              "description": "Show line numbers in diff view."
+            },
+            "highlightChanges": {
+              "type": "boolean",
+              "default": true,
+              "description": "Highlight changes with color coding."
+            },
+            "ignoreWhitespace": {
+              "type": "boolean",
+              "default": false,
+              "description": "Ignore whitespace changes in diff."
+            },
+            "contextLines": {
+              "type": "number",
+              "default": 3,
+              "minimum": 0,
+              "maximum": 10,
+              "description": "Number of context lines to show around changes."
+            }
+          }
         }
       }
-    }
+    },
+    "keybindings": [
+      {
+        "command": "ahk.convertV1toV2",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a",
+        "when": "editorTextFocus && resourceLangId == ahk"
+      },
+      {
+        "command": "ahk.convertV1toV2.diff",
+        "key": "ctrl+shift+d",
+        "mac": "cmd+shift+d",
+        "when": "editorTextFocus && resourceLangId == ahk"
+      }
+    ]
   },
   "main": "./dist/extension.js",
   "scripts": {
@@ -109,6 +232,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "dev": "npm run watch",
     "package": "vsce package",
     "publish": "vsce publish --skip-duplicate"
   },

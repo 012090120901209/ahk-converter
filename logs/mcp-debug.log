@@ -1,0 +1,50 @@
+# AutoHotkey MCP debug log
+# Shows recent high-level actions to assist with troubleshooting
+[2025-10-13T21:37:05.208Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-13T21:37:05.213Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-13T21:37:05.213Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-13T21:37:05.214Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-13T21:37:05.664Z] | tools.list | START | Standard tool listing
+[2025-10-13T21:37:05.665Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-13T21:37:09.610Z] | resources.list | START | Enumerating exposed resources
+[2025-10-13T21:37:09.611Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-15T13:10:40.780Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-15T13:10:40.784Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-15T13:10:40.785Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-15T13:10:40.786Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-15T13:10:40.947Z] | tools.list | START | Standard tool listing
+[2025-10-15T13:10:40.947Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-15T13:10:40.999Z] | resources.list | START | Enumerating exposed resources
+[2025-10-15T13:10:41.000Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-15T22:56:55.266Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-15T22:56:55.270Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-15T22:56:55.270Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-15T22:56:55.271Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-15T22:56:55.360Z] | tools.list | START | Standard tool listing
+[2025-10-15T22:56:55.361Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-15T22:56:55.488Z] | resources.list | START | Enumerating exposed resources
+[2025-10-15T22:56:55.489Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-16T00:36:25.534Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-16T00:36:25.537Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-16T00:36:25.538Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-16T00:36:25.538Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-16T00:36:25.655Z] | tools.list | START | Standard tool listing
+[2025-10-16T00:36:25.655Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-16T00:36:25.705Z] | resources.list | START | Enumerating exposed resources
+[2025-10-16T00:36:25.706Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-16T00:51:07.858Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-16T00:51:07.869Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-16T00:51:07.873Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-16T00:51:07.878Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-16T00:51:07.893Z] | tools.list | START | Standard tool listing
+[2025-10-16T00:51:08.009Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-16T00:51:11.109Z] | resources.list | START | Enumerating exposed resources
+[2025-10-16T00:51:11.112Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-16T14:40:17.704Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-16T14:40:17.711Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-16T14:40:17.714Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-16T14:40:17.717Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-16T14:40:19.697Z] | tools.list | START | Standard tool listing
+[2025-10-16T14:40:19.700Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-16T14:40:21.048Z] | resources.list | START | Enumerating exposed resources
+[2025-10-16T14:40:21.050Z] | resources.list | SUCCESS | Returned 11 resources
