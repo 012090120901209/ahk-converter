@@ -1,8 +1,8 @@
 {
-  "name": "ahk-converter",
-  "displayName": "AHK Converter",
+  "name": "ahkv2-toolbox",
+  "displayName": "AHKv2 Toolbox",
   "icon": "media/AHK_Convert_mini.png",
-  "description": "Convert AutoHotkey v1 scripts to v2 using the community converter and AutoHotkey v2.",
+  "description": "Comprehensive toolbox for AutoHotkey v2 development with script conversion, metadata exploration, and productivity tools.",
   "publisher": "TrueCrimeAudit",
   "version": "0.3.0",
   "engines": {
@@ -12,6 +12,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onView:ahkv2Toolbox",
     "onCommand:ahk.extractFunctionMetadata",
     "onCommand:ahk.convertV1toV2",
     "onCommand:ahk.convertV1toV2.replace",
@@ -24,7 +25,40 @@
     "onCommand:ahk.applyFormattingFix"
   ],
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ahkv2-toolbox",
+          "title": "AHKv2 Toolbox",
+          "icon": "media/ahk-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "ahkv2-toolbox": [
+        {
+          "id": "ahkv2Toolbox",
+          "name": "Toolbox",
+          "type": "webview"
+        },
+        {
+          "id": "scriptConverter",
+          "name": "Script Converter",
+          "type": "webview"
+        },
+        {
+          "id": "functionMetadata",
+          "name": "Function Metadata",
+          "type": "webview"
+        }
+      ]
+    },
     "commands": [
+      {
+        "command": "ahkv2Toolbox.open",
+        "title": "Open AHKv2 Toolbox",
+        "category": "AHKv2 Toolbox"
+      },
       {
         "command": "ahk.convertV1toV2",
         "title": "AHK: Convert v1 to v2 - open in new tab",
@@ -125,7 +159,11 @@
         },
         "ahkConverter.defaultOutputNaming": {
           "type": "string",
-          "enum": ["suffix", "directory", "prompt"],
+          "enum": [
+            "suffix",
+            "directory",
+            "prompt"
+          ],
           "default": "suffix",
           "description": "How to name converted files in batch mode.",
           "enumDescriptions": [
@@ -154,7 +192,11 @@
         },
         "ahkConverter.validationLevel": {
           "type": "string",
-          "enum": ["strict", "normal", "lenient"],
+          "enum": [
+            "strict",
+            "normal",
+            "lenient"
+          ],
           "default": "normal",
           "description": "Level of validation to perform on AHK files.",
           "enumDescriptions": [
@@ -237,9 +279,11 @@
     "publish": "vsce publish --skip-duplicate"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.10",
     "@types/node": "^20.11.30",
     "@types/vscode": "^1.84.0",
     "husky": "^9.1.7",
+    "mocha": "^11.7.4",
     "typescript": "^5.4.0",
     "vsce": "^2.15.0"
   },

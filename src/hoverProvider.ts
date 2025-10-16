@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { AHKFunctionAnalyzer } from './functionAnalyzer';
+import { FunctionAnalyzer } from './functionAnalyzer';
 import { FunctionMetadata } from './functionMetadata';
 
 export class AHKHoverProvider implements vscode.HoverProvider {
@@ -8,7 +8,7 @@ export class AHKHoverProvider implements vscode.HoverProvider {
     position: vscode.Position, 
     token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Hover> {
-    const functionMetadata = AHKFunctionAnalyzer.getFunctionMetadataAtPosition(document, position);
+    const functionMetadata = FunctionAnalyzer.getFunctionMetadataAtPosition(document, position);
     
     if (!functionMetadata) return null;
 

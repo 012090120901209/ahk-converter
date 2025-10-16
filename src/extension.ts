@@ -8,8 +8,9 @@ import { PerformanceOptimizer, PerformanceReporter } from './performanceOptimize
 import { TelemetryManager, getTelemetryManager } from './telemetry';
 import { DebuggerIntegration } from './debuggerIntegration';
 import { FunctionHoverProvider } from './functionHoverProvider';
+import { AHKv2ToolboxWebview } from './sidebarWebview';
 import { FunctionMetadataHandler } from './functionMetadataHandler';
-import { AHKFunctionAnalyzer } from './functionAnalyzer';
+import { FunctionAnalyzer } from './functionAnalyzer';
 import { FunctionMetadata } from './functionMetadata';
 import { registerTestCommand } from './test/testCommand';
 import { AHKCodeFormatter } from './ahkCodeFormatter';
@@ -753,6 +754,13 @@ async function saveBatchResults(results: BatchConversionResult[], outputDirector
 }
 
 export function activate(ctx: vscode.ExtensionContext) {
+  // Initialize Toolbox Webview
+  const toolboxWebview = AHKv2ToolboxWebview.getInstance(ctx);
+  ctx.subscriptions.push(
+    vscode.commands.registerCommand('ahkv2Toolbox.open', () => {
+      toolboxWebview.createOrShowPanel();
+    })
+  );
   // Function Metadata Extraction
   ctx.subscriptions.push(
     vscode.commands.registerCommand('ahk.extractFunctionMetadata', async () => {
@@ -767,7 +775,7 @@ export function activate(ctx: vscode.ExtensionContext) {
           return;
         }
 
-        const metadata = AHKFunctionAnalyzer.extractFunctionMetadata(editor.document);
+        const metadata = FunctionAnalyzer.extractFunctionMetadata(editor.document);
         
         // Create a markdown view for the metadata
         const metadataContent = metadata.map(func => {
@@ -1035,7 +1043,7 @@ export function activate(ctx: vscode.ExtensionContext) {
           warnings: 0,
           errors: 0,
           conversionMode: 'new'
-        });
+        } as any);
 
         const { result: outText, stats } = await convertWithProfile(ctx, ed.document.getText(), profile);
         

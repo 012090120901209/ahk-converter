@@ -1,4 +1,6 @@
 import * as assert from 'assert';
+import { suite, test } from 'mocha';
+import { FunctionMetadata } from '../models/functionMetadata';
 import * as vscode from 'vscode';
 import { FunctionAnalyzer } from '../functionAnalyzer';
 import { FunctionMetadataHandler } from '../functionMetadataHandler';
@@ -98,11 +100,11 @@ SimpleFunction(x, y = 0) {
     const handler = FunctionMetadataHandler.getInstance();
 
     // First call should extract metadata
-    const firstMetadata = handler.getFunctionMetadata(doc.uri);
+    const firstMetadata = handler.getFunctionMetadata(doc.uri) as FunctionMetadata[];
     assert.strictEqual(firstMetadata.length, 1, 'Should extract metadata');
 
     // Second call should use cached metadata
-    const cachedMetadata = handler.getFunctionMetadata(doc.uri);
+    const cachedMetadata = handler.getFunctionMetadata(doc.uri) as FunctionMetadata[];
     assert.strictEqual(cachedMetadata.length, 1, 'Should return cached metadata');
   });
 });
