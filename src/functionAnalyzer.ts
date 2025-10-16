@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { FunctionMetadata, Parameter, VariableInfo } from './models/functionMetadata';
 
 export class FunctionAnalyzer {
-  private static functionRegex = /^(\w+)\(([^)]*)\)\s*{/;
+  private static functionRegex = /^(\w+)\s*\(([^)]*)\)\s*{/;
   private static variableRegex = /^(static|local|global)?\s*(\w+)\s*(?:=\s*(.+))?$/;
 
   static extractFunctionMetadata(document: vscode.TextDocument): FunctionMetadata[] {
@@ -68,7 +68,7 @@ export class FunctionAnalyzer {
 
       // Check for function end
       if (line === '}') {
-        if (currentFunction) {
+        if (currentFunction && currentFunction.location) {
           currentFunction.location.endLine = i;
           currentFunction.location.endCharacter = line.length;
           metadata.push(currentFunction as FunctionMetadata);
