@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "workbench.colorCustomizations": {
+      "badge.background": "#007acc",
+      "badge.foreground": "#ffffff",
+      "editor.foldBackground": "#00000000",
+      "editor.lineHighlightBackground": "#1073cf2d",
+      "editor.lineHighlightBorder": "#9fced11f",
+      "editor.foreground": "#ffffff"
+    }
+  }
+}
