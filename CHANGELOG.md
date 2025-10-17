@@ -2,6 +2,29 @@
 
 All notable changes to the AHK Converter VS Code extension will be documented in this file.
 
+## [0.4.1] - 2025-10-17
+
+### Code Map Enhancements
+
+#### Diagnostic Integration
+- **Problem Indicators**: Code Map now shows diagnostics from VS Code's Problems panel
+  - Error/warning badges on functions, methods, classes, and variables with issues
+  - Color-coded icons (red for errors, yellow for warnings)
+  - Enhanced tooltips displaying diagnostic messages with severity levels
+  - Auto-refresh when diagnostics change
+
+#### Static Method Detection
+- **Improved Detection**: Fixed static method identification in classes
+  - Parses source code directly to detect `static` keyword
+  - Properly displays "static" label in description field
+  - Accurate distinction between static and instance methods
+
+#### Visual Improvements
+- **Function Color Update**: Enhanced function/method color for better visibility
+  - Dark theme: Changed from pale `#dbdca8` to golden `#d4a574`
+  - Light theme: Changed to darker orange `#c9884b`
+  - More prominent and easier to distinguish from other symbols
+
 ## [0.3.0] - 2025-10-15
 
 ### 🚀 Phase 4: Enterprise-Grade Advanced Features
