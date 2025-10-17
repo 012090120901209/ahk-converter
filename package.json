@@ -1,8 +1,8 @@
 {
   "name": "ahkv2-toolbox",
   "displayName": "AHKv2 Toolbox",
-  "icon": "media/AHK_Convert_mini.png",
-  "description": "Comprehensive toolbox for AutoHotkey v2 development with script conversion, metadata exploration, and productivity tools.",
+  "icon": "src/AHK_Code.png",
+  "description": "Comprehensive toolbox for AutoHotkey v2 development with v1→v2 script conversion, function metadata exploration, and productivity tools.",
   "publisher": "TrueCrimeAudit",
   "version": "0.4.0",
   "engines": {
@@ -30,7 +30,7 @@
         {
           "id": "ahkv2-toolbox",
           "title": "AHKv2 Toolbox",
-          "icon": "media/ahk-icon.svg"
+          "icon": "src/AHK_Code.svg"
         }
       ]
     },
@@ -42,14 +42,10 @@
           "type": "webview"
         },
         {
-          "id": "scriptConverter",
-          "name": "Script Converter",
-          "type": "webview"
-        },
-        {
-          "id": "functionMetadata",
-          "name": "Function Metadata",
-          "type": "webview"
+          "id": "codeMap",
+          "name": "Code Map",
+          "icon": "$(symbol-structure)",
+          "contextualTitle": "AHK Code Map"
         }
       ]
     },
@@ -58,6 +54,18 @@
         "command": "ahkv2Toolbox.open",
         "title": "Open AHKv2 Toolbox",
         "category": "AHKv2 Toolbox"
+      },
+      {
+        "command": "codeMap.refresh",
+        "title": "Refresh Code Map",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "codeMap.jumpToDefinition",
+        "title": "Jump to Definition",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(go-to-file)"
       },
       {
         "command": "ahk.convertV1toV2",
@@ -108,6 +116,78 @@
         "command": "ahk.extractFunctionMetadata",
         "title": "AHK: Extract Function Metadata",
         "category": "AHK Converter"
+      },
+      {
+        "command": "ahkv2Toolbox.installLSP",
+        "title": "Install AutoHotkey v2 LSP Extension",
+        "category": "AHKv2 Toolbox"
+      },
+      {
+        "command": "ahk.updateHeader",
+        "title": "Update Script Header",
+        "category": "AHK Converter"
+      },
+      {
+        "command": "codeMap.showAll",
+        "title": "Show All Items",
+        "category": "Code Map",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "codeMap.showOnlyClasses",
+        "title": "Show Only Classes",
+        "category": "Code Map",
+        "icon": "$(symbol-class)"
+      },
+      {
+        "command": "codeMap.showOnlyFunctions",
+        "title": "Show Only Functions",
+        "category": "Code Map",
+        "icon": "$(symbol-function)"
+      },
+      {
+        "command": "codeMap.showOnlyVariables",
+        "title": "Show Only Variables",
+        "category": "Code Map",
+        "icon": "$(symbol-variable)"
+      },
+      {
+        "command": "codeMap.toggleClasses",
+        "title": "Toggle Classes",
+        "category": "Code Map"
+      },
+      {
+        "command": "codeMap.toggleFunctions",
+        "title": "Toggle Functions",
+        "category": "Code Map"
+      },
+      {
+        "command": "codeMap.toggleMethods",
+        "title": "Toggle Methods",
+        "category": "Code Map"
+      },
+      {
+        "command": "codeMap.toggleVariables",
+        "title": "Toggle Variables",
+        "category": "Code Map"
+      },
+      {
+        "command": "codeMap.scopeToItem",
+        "title": "Scope to This Item",
+        "category": "Code Map",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "codeMap.clearScope",
+        "title": "Clear Scope",
+        "category": "Code Map",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "codeMap.exportAsAsciiTree",
+        "title": "Export as ASCII Tree",
+        "category": "Code Map",
+        "icon": "$(export)"
       }
     ],
     "menus": {
@@ -134,10 +214,74 @@
           "command": "ahk.convertV1toV2.batch",
           "group": "1_modification@1"
         }
+      ],
+      "view/title": [
+        {
+          "command": "codeMap.refresh",
+          "when": "view == codeMap",
+          "group": "navigation@1"
+        },
+        {
+          "command": "codeMap.clearScope",
+          "when": "view == codeMap",
+          "group": "navigation@2"
+        },
+        {
+          "command": "codeMap.showAll",
+          "when": "view == codeMap",
+          "group": "navigation@3"
+        },
+        {
+          "command": "codeMap.showOnlyClasses",
+          "when": "view == codeMap",
+          "group": "filters@1"
+        },
+        {
+          "command": "codeMap.showOnlyFunctions",
+          "when": "view == codeMap",
+          "group": "filters@2"
+        },
+        {
+          "command": "codeMap.showOnlyVariables",
+          "when": "view == codeMap",
+          "group": "filters@3"
+        },
+        {
+          "command": "codeMap.exportAsAsciiTree",
+          "when": "view == codeMap",
+          "group": "export@1"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "codeMap.scopeToItem",
+          "when": "view == codeMap && viewItem == class",
+          "group": "scope@1"
+        },
+        {
+          "command": "codeMap.scopeToItem",
+          "when": "view == codeMap && viewItem == function",
+          "group": "scope@1"
+        },
+        {
+          "command": "codeMap.jumpToDefinition",
+          "when": "view == codeMap && viewItem == function",
+          "group": "navigation"
+        },
+        {
+          "command": "codeMap.jumpToDefinition",
+          "when": "view == codeMap && viewItem == class",
+          "group": "navigation"
+        },
+        {
+          "command": "codeMap.jumpToDefinition",
+          "when": "view == codeMap && viewItem == variable",
+          "group": "navigation"
+        }
       ]
     },
     "configuration": {
-      "title": "AHK v1 to v2 Converter",
+      "title": "AHKv2 Toolbox",
       "properties": {
         "ahkConverter.autoHotkeyV2Path": {
           "type": "string",
@@ -266,6 +410,28 @@
         "mac": "cmd+shift+d",
         "when": "editorTextFocus && resourceLangId == ahk"
       }
+    ],
+    "colors": [
+      {
+        "id": "ahkv2Toolbox.codeMap.classColor",
+        "description": "Color for class items in the Code Map",
+        "defaults": {
+          "dark": "#62c9b0",
+          "light": "#62c9b0",
+          "highContrast": "#62c9b0",
+          "highContrastLight": "#62c9b0"
+        }
+      },
+      {
+        "id": "ahkv2Toolbox.codeMap.functionColor",
+        "description": "Color for function items in the Code Map",
+        "defaults": {
+          "dark": "#ebd160",
+          "light": "#ebd160",
+          "highContrast": "#ebd160",
+          "highContrastLight": "#ebd160"
+        }
+      }
     ]
   },
   "main": "./dist/extension.js",
@@ -289,6 +455,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/TrueCrimeAudit/ahk-converter.git"
-  }
+    "url": "https://github.com/TrueCrimeAudit/ahkv2-toolbox.git"
+  },
+  "extensionDependencies": [
+    "thqby.vscode-autohotkey2-lsp"
+  ],
+  "extensionPack": [],
+  "keywords": [
+    "autohotkey",
+    "ahk",
+    "ahkv2",
+    "converter",
+    "v1-to-v2",
+    "autohotkey2",
+    "toolbox",
+    "productivity"
+  ]
 }
