@@ -24,6 +24,7 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
   private _entryPoints: string[] = [];
   private _refreshTimeout?: NodeJS.Timeout;
   private _isRefreshing: boolean = false;
+  private readonly MAX_DEPTH = 6;
 
   constructor(
     private readonly _extensionUri: vscode.Uri,
@@ -120,73 +121,39 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
    */
   private async _scanWorkspace() {
     this._dependencyGraph.clear();
-
-    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
-      return;
-    }
+    this._entryPoints = [];
 
     try {
-      const workspaceFolder = vscode.workspace.workspaceFolders[0];
+      // Get the active editor's file or the first open editor
+      let activeFile: string | undefined;
+      const activeEditor = vscode.window.activeTextEditor;
 
-      // Find all .ahk files in the workspace
-      const ahkFiles = await vscode.workspace.findFiles(
-        new vscode.RelativePattern(workspaceFolder, '**/*.ahk'),
-        '**/node_modules/**'
-      );
-
-      console.log(`[DependencyExplorer] Found ${ahkFiles.length} .ahk files in workspace`);
-
-      if (ahkFiles.length === 0) {
-        console.warn('[DependencyExplorer] No .ahk files found in workspace');
-        return;
-      }
-
-      // Process all files to build complete dependency graph
-      for (const fileUri of ahkFiles) {
-        await this._processFile(fileUri);
-      }
-
-      // Identify entry-point files (files not included by others)
-      const allFiles = new Set(ahkFiles.map(uri => uri.fsPath));
-      const includedFiles = new Set<string>();
-
-      // Collect all files that are included by others
-      for (const [filePath, node] of this._dependencyGraph.entries()) {
-        for (const dep of node.dependencies) {
-          if (dep.isResolved) {
-            includedFiles.add(dep.filePath);
+      if (activeEditor && activeEditor.document.fileName.endsWith('.ahk')) {
+        activeFile = activeEditor.document.uri.fsPath;
+      } else {
+        // If no active .ahk file, try to find one from visible editors
+        for (const editor of vscode.window.visibleTextEditors) {
+          if (editor.document.fileName.endsWith('.ahk')) {
+            activeFile = editor.document.uri.fsPath;
+            break;
           }
         }
       }
 
-      // Mark entry points (files not included by others)
-      this._entryPoints = Array.from(allFiles).filter(file => !includedFiles.has(file));
-
-      console.log(`[DependencyExplorer] Identified ${this._entryPoints.length} entry points`);
-
-      // Edge case: if all files are part of circular dependencies, show all files
-      if (this._entryPoints.length === 0 && allFiles.size > 0) {
-        console.warn('[DependencyExplorer] No entry points found - possible circular dependencies. Showing all files.');
-        this._entryPoints = Array.from(allFiles);
+      if (!activeFile) {
+        console.warn('[DependencyExplorer] No .ahk file is currently open. Open an .ahk file to view dependencies.');
+        this._updateWebview();
+        return;
       }
 
-      // If we have an active editor, prioritize showing it first
-      const activeEditor = vscode.window.activeTextEditor;
-      if (activeEditor && activeEditor.document.fileName.endsWith('.ahk')) {
-        const activeFile = activeEditor.document.uri.fsPath;
-        console.log(`[DependencyExplorer] Active file: ${path.basename(activeFile)}`);
-        // Move active file to front if it's an entry point
-        const index = this._entryPoints.indexOf(activeFile);
-        if (index > 0) {
-          this._entryPoints.splice(index, 1);
-          this._entryPoints.unshift(activeFile);
-          console.log(`[DependencyExplorer] Moved active file to front of list`);
-        } else if (index === -1) {
-          console.warn(`[DependencyExplorer] Active file not in entry points (it's included by another file)`);
-        }
-      }
+      console.log(`[DependencyExplorer] Starting dependency scan from: ${path.basename(activeFile)}`);
 
-      console.log(`[DependencyExplorer] Final entry points:`, this._entryPoints.map(f => path.basename(f)));
+      // Start dependency traversal from the active file (only active file is entry point)
+      const rootNode = await this._processFile(vscode.Uri.file(activeFile), 0);
+      this._entryPoints = [activeFile];
+
+      console.log(`[DependencyExplorer] Processed ${this._dependencyGraph.size} files (max depth: ${this.MAX_DEPTH})`);
+      console.log(`[DependencyExplorer] Entry point: ${path.basename(activeFile)}`);
     } catch (error) {
       console.error('Error scanning workspace:', error);
     }
@@ -194,8 +161,10 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
 
   /**
    * Process a single .ahk file to extract its dependencies
+   * @param fileUri The file to process
+   * @param depth Current recursion depth (stops at MAX_DEPTH)
    */
-  private async _processFile(fileUri: vscode.Uri): Promise<DependencyNode> {
+  private async _processFile(fileUri: vscode.Uri, depth: number = 0): Promise<DependencyNode> {
     const filePath = fileUri.fsPath;
 
     // Check if already processed
@@ -203,7 +172,7 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
       return this._dependencyGraph.get(filePath)!;
     }
 
-    console.log(`[DependencyExplorer] Processing: ${path.basename(filePath)}`);
+    console.log(`[DependencyExplorer] Processing (depth ${depth}): ${path.basename(filePath)}`);
 
     // Create node
     const node: DependencyNode = {
@@ -230,36 +199,41 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
 
       // Parse dependencies
       const includePaths = this._parseIncludes(text, filePath);
-      console.log(`[DependencyExplorer] Found ${includePaths.length} includes in ${path.basename(filePath)}:`, includePaths);
+      console.log(`[DependencyExplorer] Found ${includePaths.length} includes in ${path.basename(filePath)}`);
 
-      // Resolve each include
-      for (const includePath of includePaths) {
-        try {
-          const resolvedPath = await this._resolveIncludePath(includePath, filePath);
-          if (resolvedPath) {
-            const depUri = vscode.Uri.file(resolvedPath);
-            // Recursively process dependency (avoid circular references)
-            if (!this._dependencyGraph.has(resolvedPath)) {
-              const depNode = await this._processFile(depUri);
-              node.dependencies.push(depNode);
+      // Only process dependencies if we haven't reached max depth
+      if (depth < this.MAX_DEPTH) {
+        // Resolve each include
+        for (const includePath of includePaths) {
+          try {
+            const resolvedPath = await this._resolveIncludePath(includePath, filePath);
+            if (resolvedPath) {
+              const depUri = vscode.Uri.file(resolvedPath);
+              // Recursively process dependency (avoid circular references)
+              if (!this._dependencyGraph.has(resolvedPath)) {
+                const depNode = await this._processFile(depUri, depth + 1);
+                node.dependencies.push(depNode);
+              } else {
+                // Already processed, just link to it
+                const existingNode = this._dependencyGraph.get(resolvedPath)!;
+                node.dependencies.push(existingNode);
+              }
             } else {
-              // Already processed, just link to it
-              const existingNode = this._dependencyGraph.get(resolvedPath)!;
-              node.dependencies.push(existingNode);
+              // Unresolved include
+              node.dependencies.push({
+                filePath: includePath,
+                fileName: path.basename(includePath),
+                dependencies: [],
+                isResolved: false,
+                error: 'File not found'
+              });
             }
-          } else {
-            // Unresolved include
-            node.dependencies.push({
-              filePath: includePath,
-              fileName: path.basename(includePath),
-              dependencies: [],
-              isResolved: false,
-              error: 'File not found'
-            });
+          } catch (error) {
+            console.error(`Error processing include ${includePath}:`, error);
           }
-        } catch (error) {
-          console.error(`Error processing include ${includePath}:`, error);
         }
+      } else {
+        console.warn(`[DependencyExplorer] Max depth (${this.MAX_DEPTH}) reached for ${path.basename(filePath)}`);
       }
 
       node.isResolved = true;
