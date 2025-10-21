@@ -472,6 +472,7 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
    */
   private _updateWebview() {
     if (!this._view || !this._view.webview) {
+      console.warn('[DependencyExplorer] View not ready for webview update');
       return;
     }
 
@@ -479,15 +480,20 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
       // Get all entry point nodes
       let rootNodes: DependencyNode[] = [];
 
+      console.log(`[DependencyExplorer] Updating webview with ${this._entryPoints.length} entry points`);
       for (const entryPoint of this._entryPoints) {
         const node = this._dependencyGraph.get(entryPoint);
+        console.log(`[DependencyExplorer]   Entry point: ${path.basename(entryPoint)} - ${node ? 'found' : 'NOT FOUND'}`);
         if (node) {
           rootNodes.push(node);
         }
       }
 
+      console.log(`[DependencyExplorer] Found ${rootNodes.length} root nodes to display`);
+
       // If no entry points found, show empty
       if (rootNodes.length === 0) {
+        console.warn('[DependencyExplorer] No root nodes found, sending empty dependencies');
         this._view.webview.postMessage({
           type: 'update',
           dependencies: []
@@ -540,12 +546,14 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
         return;
       }
 
+      console.log(`[DependencyExplorer] Sending ${serializedData.length} entries to webview (${jsonString.length} bytes)`);
       this._view.webview.postMessage({
         type: 'update',
         dependencies: serializedData
       });
+      console.log('[DependencyExplorer] Webview message sent successfully');
     } catch (error) {
-      console.error('Error updating dependency explorer webview:', error);
+      console.error('[DependencyExplorer] Error updating webview:', error);
       // Show error state in webview
       if (this._view && this._view.webview) {
         this._view.webview.postMessage({
@@ -879,14 +887,18 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
 
     window.addEventListener('message', function(event) {
       const message = event.data;
+      console.log('[DependencyExplorer Webview] Received message:', message.type, 'deps:', message.dependencies?.length);
 
       if (message.type === 'update') {
         const content = document.getElementById('content');
 
         if (!message.dependencies || message.dependencies.length === 0) {
+          console.log('[DependencyExplorer Webview] Showing empty state');
           content.innerHTML = '<div class="empty-state">No .ahk files found in workspace.<br><br>Open a folder containing AutoHotkey scripts to view dependencies.</div>';
           return;
         }
+
+        console.log('[DependencyExplorer Webview] Rendering ' + message.dependencies.length + ' nodes');
 
         // Calculate statistics
         let totalFiles = message.dependencies.length;
