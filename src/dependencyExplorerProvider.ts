@@ -36,6 +36,7 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
     context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken
   ) {
+    console.log('[DependencyExplorer] Resolving webview view');
     this._view = webviewView;
 
     webviewView.webview.options = {
@@ -43,7 +44,9 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
       localResourceRoots: [this._extensionUri]
     };
 
+    console.log('[DependencyExplorer] Setting webview HTML');
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+    console.log('[DependencyExplorer] Webview HTML set, view is ready');
 
     // Handle messages from the webview
     webviewView.webview.onDidReceiveMessage(async (data) => {
@@ -105,10 +108,14 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
 
       this._isRefreshing = true;
       try {
+        console.log('[DependencyExplorer] Starting scan...');
         await this._scanWorkspace();
+        console.log('[DependencyExplorer] Scan complete, updating webview');
+        console.log('[DependencyExplorer] View status: ' + (this._view ? 'EXISTS' : 'NULL') + ', Webview: ' + (this._view?.webview ? 'EXISTS' : 'NULL'));
         this._updateWebview();
+        console.log('[DependencyExplorer] Webview update complete');
       } catch (error) {
-        console.error('Error during refresh:', error);
+        console.error('[DependencyExplorer] Error during refresh:', error);
       } finally {
         this._isRefreshing = false;
       }
@@ -471,10 +478,12 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
    * Update the webview with current dependency graph
    */
   private _updateWebview() {
+    console.log('[DependencyExplorer] *** _updateWebview() CALLED ***');
     if (!this._view || !this._view.webview) {
-      console.warn('[DependencyExplorer] View not ready for webview update');
+      console.warn('[DependencyExplorer] ❌ View not ready for webview update - View: ' + (this._view ? 'OK' : 'NULL') + ', Webview: ' + (this._view?.webview ? 'OK' : 'NULL'));
       return;
     }
+    console.log('[DependencyExplorer] ✓ View is ready');
 
     try {
       // Get all entry point nodes
