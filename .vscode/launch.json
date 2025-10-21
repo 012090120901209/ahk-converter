@@ -7,7 +7,7 @@
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "${workspaceFolder}/ahk-converter.code-workspace"
+        "C:\\Users\\uphol\\Documents\\Design\\Coding\\ahk-converter\\ahk-converter.code-workspace"
       ],
       "outFiles": [
         "${workspaceFolder}/dist/**/*.js"
@@ -20,7 +20,7 @@
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "${workspaceFolder}/ahk-converter.code-workspace"
+        "C:\\Users\\uphol\\Documents\\Design\\Coding\\ahk-converter\\ahk-converter.code-workspace"
       ],
       "outFiles": [
         "${workspaceFolder}/dist/**/*.js"
