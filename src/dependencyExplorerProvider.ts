@@ -269,7 +269,8 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
       const libMatch = line.match(/^\s*#Include\s+<([^>]+)>/i);
       if (libMatch) {
         const libName = libMatch[1].trim();
-        includes.push(`Lib\\${libName}.ahk`);
+        // Use forward slash for cross-platform compatibility (works on both Windows and Unix)
+        includes.push(`Lib/${libName}.ahk`);
         continue;
       }
 
@@ -305,29 +306,24 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
     // Handle different include path formats
     let candidatePaths: string[] = [];
 
+    // Normalize path separators for cross-platform compatibility
+    const normalizedIncludePath = includePath.replace(/\\/g, '/');
+
     // Relative to source file
     const sourceDir = path.dirname(sourceFilePath);
-    candidatePaths.push(path.resolve(sourceDir, includePath));
+    candidatePaths.push(path.resolve(sourceDir, normalizedIncludePath));
 
     // Try with .ahk extension if not present
-    if (!includePath.toLowerCase().endsWith('.ahk')) {
-      candidatePaths.push(path.resolve(sourceDir, includePath + '.ahk'));
+    if (!normalizedIncludePath.toLowerCase().endsWith('.ahk')) {
+      candidatePaths.push(path.resolve(sourceDir, normalizedIncludePath + '.ahk'));
     }
 
     // Relative to workspace
-    candidatePaths.push(path.join(workspaceFolder.uri.fsPath, includePath));
+    candidatePaths.push(path.join(workspaceFolder.uri.fsPath, normalizedIncludePath));
 
     // Try workspace path with .ahk extension
-    if (!includePath.toLowerCase().endsWith('.ahk')) {
-      candidatePaths.push(path.join(workspaceFolder.uri.fsPath, includePath + '.ahk'));
-    }
-
-    // Lib folder (for <LibName> style includes)
-    if (includePath.startsWith('Lib\\')) {
-      candidatePaths.push(path.join(workspaceFolder.uri.fsPath, includePath));
-      if (!includePath.toLowerCase().endsWith('.ahk')) {
-        candidatePaths.push(path.join(workspaceFolder.uri.fsPath, includePath + '.ahk'));
-      }
+    if (!normalizedIncludePath.toLowerCase().endsWith('.ahk')) {
+      candidatePaths.push(path.join(workspaceFolder.uri.fsPath, normalizedIncludePath + '.ahk'));
     }
 
     // Try each candidate path

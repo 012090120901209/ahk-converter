@@ -2,9 +2,9 @@
   "name": "ahkv2-toolbox",
   "displayName": "AHKv2 Toolbox",
   "icon": "src/AHK_Code.png",
-  "description": "Comprehensive toolbox for AutoHotkey v2 development with v1→v2 script conversion, function metadata exploration, and productivity tools.",
+  "description": "Comprehensive toolbox for AutoHotkey v2 development with v1→v2 script conversion, function metadata exploration, dependency visualization, and productivity tools.",
   "publisher": "TrueCrimeAudit",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -13,6 +13,7 @@
   ],
   "activationEvents": [
     "onView:ahkv2Toolbox",
+    "onView:ahkDependencyExplorer",
     "onCommand:ahk.extractFunctionMetadata",
     "onCommand:ahk.convertV1toV2",
     "onCommand:ahk.convertV1toV2.replace",
@@ -46,6 +47,13 @@
           "name": "Code Map",
           "icon": "$(symbol-structure)",
           "contextualTitle": "AHK Code Map"
+        },
+        {
+          "id": "ahkDependencyExplorer",
+          "name": "Dependencies",
+          "type": "webview",
+          "icon": "$(references)",
+          "contextualTitle": "AHK Dependencies"
         }
       ]
     },
@@ -66,6 +74,12 @@
         "title": "Jump to Definition",
         "category": "AHKv2 Toolbox",
         "icon": "$(go-to-file)"
+      },
+      {
+        "command": "ahkDependencyExplorer.refresh",
+        "title": "Refresh Dependencies",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(refresh)"
       },
       {
         "command": "ahk.convertV1toV2",
@@ -394,6 +408,12 @@
               "description": "Number of context lines to show around changes."
             }
           }
+        },
+        "ahkConverter.codeMap.showHeaderDirectives": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show AHK v2 header directives (#Requires, #SingleInstance) in Code Map.",
+          "scope": "window"
         }
       }
     },
