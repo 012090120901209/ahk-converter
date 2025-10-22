@@ -1,0 +1,329 @@
+
+[DependencyExplorer] Found 0 includes in !!Parser.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !GUI_HUD.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in !GUI_HUD.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !FileMover.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in !FileMover.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !Extractor.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in !Extractor.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !DocLookup.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in !DocLookup.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !Includes.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 3 includes in !Includes.ahk: (3) ['Lib\\All.ahk', '_UHQ_Snipping.ahk', '_UHQ_Bambu.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: _UHQ_Bambu.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in _UHQ_Bambu.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !GUI_HUD_Panaku.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in !GUI_HUD_Panaku.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !GUI_HUD_DepthTrawler.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in !GUI_HUD_DepthTrawler.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !DeBugger.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 3 includes in !DeBugger.ahk: (3) ['Lib/DebugVars/VarTreeGui.ahk', 'Lib/DebugVars/VarTreeObjectNode.ahk', 'Lib/DebugVars/VarEditGui.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: VarTreeGui.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 1 includes in VarTreeGui.ahk: (1) ['TreeListView.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: TreeListView.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in TreeListView.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: VarTreeObjectNode.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in VarTreeObjectNode.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: VarEditGui.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in VarEditGui.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !Includes_Test.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 1 includes in !Includes_Test.ahk: (1) ['Lib\\UIA.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !CloseOtherScripts.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in !CloseOtherScripts.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: $TitleTester.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in $TitleTester.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: #Requires AutoHotkey v2.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in #Requires AutoHotkey v2.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: #Requires AutoHotkey v2.1-alpha.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in #Requires AutoHotkey v2.1-alpha.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !_Tableau_BU.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 3 includes in !_Tableau_BU.ahk: (3) ['Lib\\UIA.ahk', 'Lib\\All.ahk', 'Lib\\GuiEnhancerKit.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !_Tableau.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 2 includes in !_Tableau.ahk: (2) ['Lib\\All.ahk', 'Lib\\UIA.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !YDL.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in !YDL.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !USB_Issues.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in !USB_Issues.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !TSV_Parser.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 1 includes in !TSV_Parser.ahk: (1) ['Lib\\GuiEnhancerKit.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: GPT_cURL.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in GPT_cURL.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Groq_cURL.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Groq_cURL.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !TrayIconMenu.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in !TrayIconMenu.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !TextRunner.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in !TextRunner.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: !TextManipulator.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 1 includes in !TextManipulator.ahk: (1) ['Lib\\All.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: jsongo.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in jsongo.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Groq_cURL.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Groq_cURL.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: @SD_ExplorerKill.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 1 includes in @SD_ExplorerKill.ahk: (1) ['Lib\\All.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: @SD_BambuKill.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 1 includes in @SD_BambuKill.ahk: (1) ['Lib\\All.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: GPT_cURL.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in GPT_cURL.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: @SD_ScriptKiller.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in @SD_ScriptKiller.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: 7zip.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 3 includes in 7zip.ahk: (3) ['Lib\\Run.ahk', 'Lib\\Path.ahk', 'Lib\\Arrays.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Run.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Run.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Path.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 2 includes in Path.ahk: (2) ['./Strings.ahk', './Arrays.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Arrays.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Arrays.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: 23123123.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in 23123123.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: 1Test.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in 1Test.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: ahkeys.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in ahkeys.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AhkControl2.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AhkControl2.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AHKHID_KBLayers.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AHKHID_KBLayers.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AHKHID.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AHKHID.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AHKControl.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AHKControl.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Ahk2.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Ahk2.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AltRun.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AltRun.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AltTab.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AltTab.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Simplest_cURL_GPT_API_Test.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Simplest_cURL_GPT_API_Test.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: alpha.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in alpha.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Groq_cURL.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Groq_cURL.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AHK_Tricks.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AHK_Tricks.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AHK_Scanner.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AHK_Scanner.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AHK_Parser.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AHK_Parser.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: GPT_cURL.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in GPT_cURL.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AltTab2.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AltTab2.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AntiIdle.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AntiIdle.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: ansi2.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in ansi2.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Ansi.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 1 includes in Ansi.ahk: (1) ['console.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: console.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in console.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: API_CloudFlare.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in API_CloudFlare.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Always_BU.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 3 includes in Always_BU.ahk: (3) ['Lib\\All.ahk', 'Lib\\TapHoldManager.ahk', 'Lib\\All.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AquaGUI.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AquaGUI.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AquaTest.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 2 includes in AquaTest.ahk: (2) ['AquaHotkey\\AquaHotkeyX.ahk', 'Lib/TooltipEx.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AquaHotkeyX.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 1 includes in AquaHotkeyX.ahk: (1) ['%A_LineFile%/../src/Core/AquaHotkeyX.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AquaHotkeyX.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 32 includes in AquaHotkeyX.ahk: (32) ['%A_LineFile%/../AquaHotkey.ahk', '%A_LineFile%/../../Builtins/Any.ahk', '%A_LineFile%/../../Builtins/Array.ahk', '%A_LineFile%/../../Builtins/Buffer.ahk', '%A_LineFile%/../../Builtins/Class.ahk', '%A_LineFile%/../../Builtins/ComValue.ahk', '%A_LineFile%/../../Builtins/Error.ahk', '%A_LineFile%/../../Builtins/Func.ahk', '%A_LineFile%/../../Builtins/Integer.ahk', '%A_LineFile%/../../Builtins/Map.ahk', '%A_LineFile%/../../Builtins/Number.ahk', '%A_LineFile%/../../Builtins/Object.ahk', '%A_LineFile%/../../Builtins/Primitive.ahk', '%A_LineFile%/../../Builtins/String.ahk', '%A_LineFile%/../../Builtins/VarRef.ahk', '%A_LineFile%/../../Builtins/Pipes.ahk', '%A_LineFile%/../../Builtins/Assertions.ahk', '%A_LineFile%/../../Builtins/ToString.ahk', '%A_LineFile%/../../Builtins/StringMatching.ahk', '%A_LineFile%/../../Builtins/Substrings.ahk', '%A_LineFile%/../../Builtins/FileUtils.ahk', '%A_LineFile%/../../Builtins/StreamOps.ahk', '%A_LineFile%/../../Extensions/Optional.ahk', '%A_LineFile%/../../Extensions/Range.ahk', '%A_LineFile%/../../Extensions/Stream.ahk', '%A_LineFile%/../../Extensions/Collector.ahk', '%A_LineFile%/../../Extensions/Gatherer.ahk', '%A_LineFile%/../../Extensions/Condition.ahk', '%A_LineFile%/../../Extensions/Mapper.ahk', '%A_LineFile%/../../Extensions/Combiner.ahk', '%A_LineFile%/../../Extensions/Comparator.ahk', '%A_LineFile%/../../Extensions/Zip.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AquaHotkey.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 3 includes in AquaHotkey.ahk: (3) ['%A_LineFile%/../AquaHotkey_Backup.ahk', '%A_LineFile%/../AquaHotkey_MultiApply.ahk', '%A_LineFile%/../AquaHotkey_Ignore.ahk']
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AquaHotkey_Backup.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AquaHotkey_Backup.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AquaHotkey_MultiApply.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AquaHotkey_MultiApply.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: AquaHotkey_Ignore.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in AquaHotkey_Ignore.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Any.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Any.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Array.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Array.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Buffer.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Buffer.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Class.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Class.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: ComValue.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in ComValue.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Error.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Error.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Func.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Func.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Integer.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Integer.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Map.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Map.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Number.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Number.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Object.ahk
+extensionHostProcess.js:207
+[DependencyExplorer] Found 0 includes in Object.ahk: (0) []
+extensionHostProcess.js:207
+[DependencyExplorer] Processing: Primitive.ahk
+extensionHostProcess.js:207

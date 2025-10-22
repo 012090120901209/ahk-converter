@@ -13,4 +13,4 @@ git filter-branch --force --index-filter \
 # Remove absolute file paths
 git filter-branch --force --index-filter \
 "git ls-files -z | xargs -0 sed -i 's|/Users/[^/]*/Documents/|/PATH/TO/|g'" \
---prune-empty --tag-name-filter cat -- --all
+--prune-empty --tag-name-filter cat -- --allA

@@ -304,29 +304,34 @@ export class DependencyExplorerProvider implements vscode.WebviewViewProvider {
     }
 
     // Handle different include path formats
-    let candidatePaths: string[] = [];
+    const candidatePaths: Set<string> = new Set();
 
-    // Normalize path separators for cross-platform compatibility
+    // Normalize path separators - convert backslashes to forward slashes for consistency
     const normalizedIncludePath = includePath.replace(/\\/g, '/');
+    const workspacePath = workspaceFolder.uri.fsPath;
 
     // Relative to source file
     const sourceDir = path.dirname(sourceFilePath);
-    candidatePaths.push(path.resolve(sourceDir, normalizedIncludePath));
+    const relativeToSource = path.normalize(path.resolve(sourceDir, normalizedIncludePath));
+    candidatePaths.add(relativeToSource);
 
     // Try with .ahk extension if not present
     if (!normalizedIncludePath.toLowerCase().endsWith('.ahk')) {
-      candidatePaths.push(path.resolve(sourceDir, normalizedIncludePath + '.ahk'));
+      const relativeToSourceWithExt = path.normalize(path.resolve(sourceDir, normalizedIncludePath + '.ahk'));
+      candidatePaths.add(relativeToSourceWithExt);
     }
 
-    // Relative to workspace
-    candidatePaths.push(path.join(workspaceFolder.uri.fsPath, normalizedIncludePath));
+    // Relative to workspace - convert forward slashes in include path to path.sep
+    const workspaceRelative = path.normalize(path.join(workspacePath, normalizedIncludePath.replace(/\//g, path.sep)));
+    candidatePaths.add(workspaceRelative);
 
     // Try workspace path with .ahk extension
     if (!normalizedIncludePath.toLowerCase().endsWith('.ahk')) {
-      candidatePaths.push(path.join(workspaceFolder.uri.fsPath, normalizedIncludePath + '.ahk'));
+      const workspaceRelativeWithExt = path.normalize(path.join(workspacePath, (normalizedIncludePath + '.ahk').replace(/\//g, path.sep)));
+      candidatePaths.add(workspaceRelativeWithExt);
     }
 
-    // Try each candidate path
+    // Try each candidate path (now deduplicated by Set)
     for (const candidatePath of candidatePaths) {
       try {
         const uri = vscode.Uri.file(candidatePath);

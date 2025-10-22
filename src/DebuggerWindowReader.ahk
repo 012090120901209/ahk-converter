@@ -2,6 +2,7 @@
 #SingleInstance Force
 
 debugReader := DebuggerWindowReader()
+Global Test := "Test"
 
 class DebuggerWindowReader {
     __New() {
