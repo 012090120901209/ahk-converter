@@ -1,0 +1,23 @@
+npm i -g @anthropic-ai/claude-code
+
+Warning: This local variable appears to never be assigned a value.
+
+Specifically: undefinedFunction
+
+	317: }
+	319: {
+▶	321: undefinedFunction()
+	322: Return "Should never reach here"
+	323: }
+
+For more details, read the documentation for #Warn.Warning: This local variable appears to never be assigned a value.
+
+Specifically: nonExistentVariable
+
+	245: }
+	250: {
+▶	252: Return nonExistentVariable
+	253: }
+	258: {
+
+For more details, read the documentation for #Warn.

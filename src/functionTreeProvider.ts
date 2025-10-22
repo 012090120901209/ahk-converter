@@ -15,7 +15,7 @@ export class FunctionTreeItem extends vscode.TreeItem {
     public readonly label: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public readonly symbol?: vscode.DocumentSymbol,
-    public readonly itemType?: 'function' | 'parameter' | 'variable' | 'section' | 'class' | 'method' | 'include',
+    public readonly itemType?: 'function' | 'parameter' | 'variable' | 'section' | 'class' | 'method' | 'include' | 'hotkey' | 'directive-header' | 'directive-include' | 'directive-hotif',
     hoverContent?: string,
     childCount: number = 0,
     isStatic: boolean = false,
@@ -24,9 +24,8 @@ export class FunctionTreeItem extends vscode.TreeItem {
     includePath?: string,
     includeLineNumber?: number
   ) {
-    // Add Nerd Font icons to labels
-    const nerdIcon = FunctionTreeItem.getNerdIcon(itemType, isStatic);
-    super(nerdIcon ? `${nerdIcon} ${label}` : label, collapsibleState);
+    // Don't add Nerd Font icons to labels - causes rendering issues
+    super(label, collapsibleState);
     this.childCount = childCount;
     this.isStatic = isStatic;
     this.scope = scope;
@@ -224,7 +223,7 @@ export class FunctionTreeItem extends vscode.TreeItem {
     } else if (itemType === 'section') {
       this.iconPath = new vscode.ThemeIcon('folder');
       this.contextValue = 'section';
-    } else if (itemType === 'include') {
+    } else if (itemType === 'include' || itemType === 'directive-include') {
       // Purple book icon for includes
       this.iconPath = new vscode.ThemeIcon('book',
         new vscode.ThemeColor('charts.purple'));
@@ -234,19 +233,46 @@ export class FunctionTreeItem extends vscode.TreeItem {
         this.description = includePath;
         this.tooltip = new vscode.MarkdownString(`**#Include** ${includePath}\n\nClick to jump to declaration`);
       }
+    } else if (itemType === 'directive-header') {
+      // Purple gear icon for header directives (#Requires, #SingleInstance)
+      this.iconPath = new vscode.ThemeIcon('gear',
+        new vscode.ThemeColor('charts.purple'));
+      this.contextValue = 'directive-header';
+
+      if (hoverContent) {
+        this.tooltip = new vscode.MarkdownString(hoverContent);
+      }
+    } else if (itemType === 'directive-hotif') {
+      // Purple filter icon for #HotIf directives
+      this.iconPath = new vscode.ThemeIcon('filter',
+        new vscode.ThemeColor('charts.purple'));
+      this.contextValue = 'directive-hotif';
+
+      if (hoverContent) {
+        this.tooltip = new vscode.MarkdownString(hoverContent);
+      }
+    } else if (itemType === 'hotkey') {
+      // Keyboard icon for hotkeys
+      this.iconPath = new vscode.ThemeIcon('keyboard',
+        new vscode.ThemeColor('symbolIcon.keywordForeground'));
+      this.contextValue = 'hotkey';
+
+      if (hoverContent) {
+        this.tooltip = new vscode.MarkdownString(hoverContent);
+      }
     }
 
     // Set the command to jump to definition
-    if (symbol && itemType !== 'section' && itemType !== 'include') {
+    if (symbol && itemType !== 'section' && itemType !== 'include' && itemType !== 'directive-header' && itemType !== 'directive-include' && itemType !== 'directive-hotif' && itemType !== 'hotkey') {
       this.command = {
         command: 'codeMap.jumpToDefinition',
         title: 'Jump to Definition',
         arguments: [this]
       };
-    } else if (itemType === 'include' && includeLineNumber !== undefined) {
+    } else if ((itemType === 'include' || itemType === 'directive-include' || itemType === 'directive-header' || itemType === 'directive-hotif' || itemType === 'hotkey') && includeLineNumber !== undefined) {
       this.command = {
         command: 'codeMap.jumpToInclude',
-        title: 'Jump to Include',
+        title: 'Jump to Declaration',
         arguments: [this]
       };
     }
@@ -285,7 +311,7 @@ export class FunctionTreeProvider implements
   private useLSP: boolean = true;
 
   // Filter state
-  private filters: Set<string> = new Set(['class', 'function', 'method', 'variable', 'parameter']);
+  private filters: Set<string> = new Set(['class', 'function', 'method', 'variable', 'parameter', 'hotkey', 'directive-header', 'directive-include', 'directive-hotif']);
   private scopedItem: FunctionTreeItem | undefined;
 
   // Drag and drop support
@@ -348,7 +374,7 @@ export class FunctionTreeProvider implements
    * Show all item types
    */
   showAll(): void {
-    this.filters = new Set(['class', 'function', 'method', 'variable', 'parameter']);
+    this.filters = new Set(['class', 'function', 'method', 'variable', 'parameter', 'hotkey', 'directive-header', 'directive-include', 'directive-hotif']);
     this.refresh();
   }
 
@@ -378,7 +404,7 @@ export class FunctionTreeProvider implements
     }
 
     const activeFilters = Array.from(this.filters);
-    if (activeFilters.length === 5) {
+    if (activeFilters.length === 9) {
       return 'All Items';
     } else if (activeFilters.length === 0) {
       return 'No Items';
@@ -547,7 +573,7 @@ export class FunctionTreeProvider implements
   /**
    * Get the scope of a variable symbol (global, static, or local)
    */
-  private getVariableScope(document: vscode.TextDocument, symbol: vscode.DocumentSymbol): 'global' | 'static' | 'local' {
+  private getVariableScope(document: vscode.TextDocument, symbol: vscode.DocumentSymbol, parent?: vscode.DocumentSymbol): 'global' | 'static' | 'local' {
     // First check the symbol detail - LSP provides scope information
     const detail = symbol.detail?.toLowerCase() || '';
 
@@ -559,6 +585,17 @@ export class FunctionTreeProvider implements
     // Check for static scope
     if (detail.includes('static') || this.isSymbolStatic(document, symbol)) {
       return 'static';
+    }
+
+    // If no parent provided, check if this is a top-level symbol (global scope)
+    // Top-level variables (not inside any function or class) are global
+    if (!parent) {
+      // Check if symbol is at the document root (line < first function/class)
+      const line = symbol.range.start.line;
+      // If the variable is declared early in the file (typically before any functions/classes),
+      // and it's not marked as static, it's likely global
+      // We can check if it's outside of any function/class by seeing if it's a root-level symbol
+      return 'global';
     }
 
     // Default to local
@@ -579,32 +616,38 @@ export class FunctionTreeProvider implements
   }
 
   /**
-   * Parse #Include directives from the document
+   * Parse all directives from the document
    */
-  private parseIncludes(document: vscode.TextDocument): FunctionTreeItem[] {
-    const includes: FunctionTreeItem[] = [];
+  private parseDirectives(document: vscode.TextDocument): FunctionTreeItem[] {
+    const directives: FunctionTreeItem[] = [];
     const text = document.getText();
     const lines = text.split('\n');
 
-    // Regex to match #Include directives
-    // Supports: #Include filename.ahk, #Include <lib>, #Include ../relative/path.ahk
+    // Check if header directives should be shown
+    const config = vscode.workspace.getConfiguration('ahkConverter.codeMap');
+    const showHeaderDirectives = config.get<boolean>('showHeaderDirectives', false);
+
+    // Regex patterns for different directive types
     const includeRegex = /^\s*#Include\s+(.+?)\s*$/i;
+    const requiresRegex = /^\s*#Requires\s+(.+?)\s*$/i;
+    const singleInstanceRegex = /^\s*#SingleInstance\s+(.+?)\s*$/i;
+    const hotifRegex = /^\s*#HotIf\s+(.+?)\s*$/i;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      const match = line.match(includeRegex);
 
+      // Check for #Include directives
+      let match = line.match(includeRegex);
       if (match) {
         const includePath = match[1].trim();
-        // Remove angle brackets if present (<LibName>)
         const cleanPath = includePath.replace(/^<|>$/g, '');
 
-        includes.push(new FunctionTreeItem(
+        directives.push(new FunctionTreeItem(
           cleanPath,
           vscode.TreeItemCollapsibleState.None,
           undefined,
-          'include',
-          undefined,
+          'directive-include',
+          `**#Include** ${cleanPath}\n\nClick to jump to declaration`,
           0,
           false,
           [],
@@ -612,10 +655,119 @@ export class FunctionTreeProvider implements
           cleanPath,
           i
         ));
+        continue;
+      }
+
+      // Check for #Requires directive (only if setting is enabled)
+      if (showHeaderDirectives) {
+        match = line.match(requiresRegex);
+        if (match) {
+          const requirement = match[1].trim();
+          directives.push(new FunctionTreeItem(
+            `#Requires ${requirement}`,
+            vscode.TreeItemCollapsibleState.None,
+            undefined,
+            'directive-header',
+            `**#Requires** ${requirement}\n\nSpecifies minimum AutoHotkey version requirement`,
+            0,
+            false,
+            [],
+            undefined,
+            undefined,
+            i
+          ));
+          continue;
+        }
+      }
+
+      // Check for #SingleInstance directive (only if setting is enabled)
+      if (showHeaderDirectives) {
+        match = line.match(singleInstanceRegex);
+        if (match) {
+          const mode = match[1].trim();
+          directives.push(new FunctionTreeItem(
+            `#SingleInstance ${mode}`,
+            vscode.TreeItemCollapsibleState.None,
+            undefined,
+            'directive-header',
+            `**#SingleInstance** ${mode}\n\nControls behavior when script is already running`,
+            0,
+            false,
+            [],
+            undefined,
+            undefined,
+            i
+          ));
+          continue;
+        }
+      }
+
+      // Check for #HotIf directive
+      match = line.match(hotifRegex);
+      if (match) {
+        const condition = match[1].trim();
+        directives.push(new FunctionTreeItem(
+          `#HotIf ${condition}`,
+          vscode.TreeItemCollapsibleState.None,
+          undefined,
+          'directive-hotif',
+          `**#HotIf** ${condition}\n\nConditional hotkey activation`,
+          0,
+          false,
+          [],
+          undefined,
+          undefined,
+          i
+        ));
+        continue;
       }
     }
 
-    return includes;
+    return directives;
+  }
+
+  /**
+   * Parse hotkey assignments from the document
+   */
+  private parseHotkeys(document: vscode.TextDocument): FunctionTreeItem[] {
+    const hotkeys: FunctionTreeItem[] = [];
+    const text = document.getText();
+    const lines = text.split('\n');
+
+    // Regex to match hotkey assignments like: F5::RunTests() or 5::Reload
+    // Matches: key::action where action is a function call or command
+    const hotkeyRegex = /^\s*([~*!+^#<>$]*[a-zA-Z0-9_]+)\s*::\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/i;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const match = line.match(hotkeyRegex);
+
+      if (match) {
+        const hotkey = match[1].trim();
+        const functionName = match[2].trim();
+
+        const item = new FunctionTreeItem(
+          functionName,
+          vscode.TreeItemCollapsibleState.None,
+          undefined,
+          'hotkey',
+          `**Hotkey:** ${hotkey}\n\n**Function:** ${functionName}()\n\nClick to jump to declaration`,
+          0,
+          false,
+          [],
+          undefined,
+          undefined,
+          i
+        );
+
+        // Set hotkey as description (shows faded to the right like local/global)
+        item.description = hotkey;
+
+        hotkeys.push(item);
+      }
+    }
+
+    return hotkeys;
   }
 
   /**
@@ -633,14 +785,40 @@ export class FunctionTreeProvider implements
         return [new FunctionTreeItem('No symbols found', vscode.TreeItemCollapsibleState.None)];
       }
 
-      // Parse #Include directives first
-      const includes = this.parseIncludes(document);
+      // Parse directives and hotkeys first (with error handling)
+      let directives: FunctionTreeItem[] = [];
+      let hotkeys: FunctionTreeItem[] = [];
+
+      try {
+        directives = this.parseDirectives(document);
+      } catch (error) {
+        console.error('Error parsing directives:', error);
+      }
+
+      try {
+        hotkeys = this.parseHotkeys(document);
+      } catch (error) {
+        console.error('Error parsing hotkeys:', error);
+      }
+
+      // Get hotkey line numbers to filter out duplicate variables (only valid line numbers)
+      const hotkeyLines = new Set(
+        hotkeys
+          .map(h => h.includeLineNumber)
+          .filter((lineNum): lineNum is number => lineNum !== undefined)
+      );
 
       // Group symbols by type
-      const items: FunctionTreeItem[] = [...includes];
+      const items: FunctionTreeItem[] = [...directives, ...hotkeys];
 
       for (const symbol of symbols) {
         const itemType = this.getItemTypeFromSymbol(symbol);
+
+        // Skip variables that are on the same line as hotkeys (prevents duplicates like "5:: global")
+        if (itemType === 'variable' && hotkeyLines.has(symbol.range.start.line)) {
+          continue;
+        }
+
         // Expand everything except variables and parameters
         const shouldExpand = itemType !== 'variable' && itemType !== 'parameter';
         const collapsibleState = symbol.children && symbol.children.length > 0
@@ -699,8 +877,8 @@ export class FunctionTreeProvider implements
         // Check if symbol is static
         const isStatic = this.isSymbolStatic(document, child);
 
-        // Get variable scope if it's a variable
-        const scope = itemType === 'variable' ? this.getVariableScope(document, child) : undefined;
+        // Get variable scope if it's a variable (pass parent to indicate it's not root level)
+        const scope = itemType === 'variable' ? this.getVariableScope(document, child, element.symbol) : undefined;
 
         // Get diagnostics for this symbol
         const diagnostics = this.getDiagnosticsForSymbol(document, child);
@@ -880,6 +1058,10 @@ ${asciiTree}
 - **Total Functions**: ${items.filter(i => i.itemType === 'function').length}
 - **Total Methods**: ${items.filter(i => i.itemType === 'method').length}
 - **Total Variables**: ${items.filter(i => i.itemType === 'variable').length}
+- **Total Hotkeys**: ${items.filter(i => i.itemType === 'hotkey').length}
+- **Total Header Directives**: ${items.filter(i => i.itemType === 'directive-header').length}
+- **Total Includes**: ${items.filter(i => i.itemType === 'directive-include' || i.itemType === 'include').length}
+- **Total #HotIf Directives**: ${items.filter(i => i.itemType === 'directive-hotif').length}
 `;
 
     // Open in new document
@@ -931,7 +1113,7 @@ ${asciiTree}
           const hoverContent = await this.getHoverContent(document, child);
           const childCount = child.children?.length || 0;
           const isStatic = this.isSymbolStatic(document, child);
-          const scope = itemType === 'variable' ? this.getVariableScope(document, child) : undefined;
+          const scope = itemType === 'variable' ? this.getVariableScope(document, child, item.symbol) : undefined;
           const diagnostics = this.getDiagnosticsForSymbol(document, child);
 
           childItems.push(new FunctionTreeItem(
@@ -976,6 +1158,15 @@ ${asciiTree}
         return '[V]';
       case 'parameter':
         return '[P]';
+      case 'hotkey':
+        return '[⌨]';
+      case 'directive-header':
+        return '[#H]';
+      case 'directive-include':
+      case 'include':
+        return '[#I]';
+      case 'directive-hotif':
+        return '[#?]';
       default:
         return '[ ]';
     }
