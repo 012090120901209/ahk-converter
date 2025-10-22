@@ -23,6 +23,7 @@ export class AHKv2ToolboxWebview {
       return;
     }
 
+    const iconPath = vscode.Uri.file(path.join(this._context.extensionPath, 'src', 'AHK_Code.svg'));
     this._panel = vscode.window.createWebviewPanel(
       'ahkv2Toolbox',
       'AHKv2 Toolbox',
@@ -30,10 +31,17 @@ export class AHKv2ToolboxWebview {
       {
         enableScripts: true,
         localResourceRoots: [
-          vscode.Uri.file(path.join(this._context.extensionPath, 'media'))
+          vscode.Uri.file(path.join(this._context.extensionPath, 'media')),
+          vscode.Uri.file(path.join(this._context.extensionPath, 'src'))
         ]
       }
     );
+    
+    // Set the webview panel's icon
+    this._panel.iconPath = {
+      light: iconPath,
+      dark: iconPath
+    };
 
     this._panel.webview.html = this.getWebviewContent();
 
@@ -50,6 +58,18 @@ export class AHKv2ToolboxWebview {
           case 'openSettings':
             vscode.commands.executeCommand('workbench.action.openSettings', '@ext:TrueCrimeAudit.ahkv2-toolbox');
             return;
+          case 'libraryManager':
+            vscode.window.showInformationMessage('Library Manager - Coming soon!');
+            return;
+          case 'updateHeader':
+            vscode.commands.executeCommand('ahk.updateHeader');
+            return;
+          case 'settings':
+            vscode.commands.executeCommand('workbench.action.openSettings', '@ext:TrueCrimeAudit.ahkv2-toolbox');
+            return;
+          case 'quickFixes':
+            vscode.window.showInformationMessage('Quick Fixes - Coming soon!');
+            return;
         }
       },
       undefined,
@@ -65,7 +85,7 @@ export class AHKv2ToolboxWebview {
     );
   }
 
-  private getWebviewContent(): string {
+  public getWebviewContent(): string {
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -74,11 +94,16 @@ export class AHKv2ToolboxWebview {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>AHKv2 Toolbox</title>
         <style>
-          body { 
+          body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             padding: 20px;
             background-color: var(--vscode-editor-background);
             color: var(--vscode-editor-foreground);
+          }
+          h1 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
           }
           .tool-grid {
             display: grid;
@@ -86,16 +111,26 @@ export class AHKv2ToolboxWebview {
             gap: 15px;
           }
           .tool-button {
-            background-color: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
-            border: none;
-            padding: 10px;
+            background-color: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+            border: 1px solid var(--vscode-button-border);
+            border-radius: 8px;
+            padding: 16px 12px;
             text-align: center;
             cursor: pointer;
-            transition: background-color 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
           }
           .tool-button:hover {
-            background-color: var(--vscode-button-hoverBackground);
+            background-color: var(--vscode-button-secondaryHoverBackground);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+          }
+          .tool-button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
           }
         </style>
       </head>
@@ -107,6 +142,18 @@ export class AHKv2ToolboxWebview {
           </button>
           <button class="tool-button" onclick="vscode.postMessage({command: 'functionMetadata'})">
             Function Metadata
+          </button>
+          <button class="tool-button" onclick="vscode.postMessage({command: 'libraryManager'})">
+            Library Manager
+          </button>
+          <button class="tool-button" onclick="vscode.postMessage({command: 'updateHeader'})">
+            Update Header
+          </button>
+          <button class="tool-button" onclick="vscode.postMessage({command: 'settings'})">
+            Settings
+          </button>
+          <button class="tool-button" onclick="vscode.postMessage({command: 'quickFixes'})">
+            Quick Fixes
           </button>
           <button class="tool-button" onclick="vscode.postMessage({command: 'openSettings'})">
             Extension Settings

@@ -13,9 +13,16 @@ const conversionProfiles_1 = require("./conversionProfiles");
 const performanceOptimizer_1 = require("./performanceOptimizer");
 const telemetry_1 = require("./telemetry");
 const debuggerIntegration_1 = require("./debuggerIntegration");
+const functionHoverProvider_1 = require("./functionHoverProvider");
+const sidebarWebview_1 = require("./sidebarWebview");
+const functionMetadataHandler_1 = require("./functionMetadataHandler");
+const functionAnalyzer_1 = require("./functionAnalyzer");
 const testCommand_1 = require("./test/testCommand");
 const ahkCodeFormatter_1 = require("./ahkCodeFormatter");
 const ahkCodeFixProvider_1 = require("./ahkCodeFixProvider");
+const functionTreeProvider_1 = require("./functionTreeProvider");
+const lspIntegration_1 = require("./lspIntegration");
+const dependencyExplorerProvider_1 = require("./dependencyExplorerProvider");
 // Enhanced error types for better error handling with user-friendly messages
 class AHKConverterError extends Error {
     constructor(message, code, details, userMessage, learnMoreUrl, recoveryActions) {
@@ -65,7 +72,7 @@ class ConfigurationError extends AHKConverterError {
 }
 class NotificationManager {
     constructor() {
-        this.outputChannel = vscode.window.createOutputChannel('AHK Converter');
+        this.outputChannel = vscode.window.createOutputChannel('AHKv2 Toolbox');
     }
     static getInstance() {
         if (!NotificationManager.instance) {
@@ -128,7 +135,7 @@ let telemetryManager;
 let debuggerIntegration;
 function getOutput() {
     if (!output)
-        output = vscode.window.createOutputChannel('AHK Converter');
+        output = vscode.window.createOutputChannel('AHKv2 Toolbox');
     return output;
 }
 function getNotificationManager() {
@@ -503,7 +510,7 @@ async function showDiff(outText, left) {
 }
 function showConversionStats(stats) {
     const message = `Conversion completed: ${stats.linesProcessed} lines processed, ${stats.warnings} warnings, ${stats.errors} errors (${stats.conversionTime}ms)`;
-    vscode.window.setStatusBarMessage(`AHK Converter: ${message}`, 5000);
+    vscode.window.setStatusBarMessage(`AHKv2 Toolbox: ${message}`, 5000);
     getOutput().appendLine(`[stats] ${message}`);
 }
 // Enhanced error handling with user-friendly messages
@@ -637,7 +644,142 @@ async function saveBatchResults(results, outputDirectory) {
     });
 }
 function activate(ctx) {
-    output = vscode.window.createOutputChannel('AHK Converter');
+    // Check for LSP extension and show notification if not found
+    const lspIntegration = lspIntegration_1.AHKLSPIntegration.getInstance();
+    // Check LSP availability after a short delay to let other extensions activate
+    setTimeout(async () => {
+        const isAvailable = await lspIntegration.isLSPAvailable();
+        if (!isAvailable) {
+            // Check if user has dismissed this warning before
+            const dontShowAgain = ctx.globalState.get('ahkv2-toolbox.dontShowLSPWarning', false);
+            if (!dontShowAgain) {
+                const choice = await vscode.window.showInformationMessage('AHKv2 Toolbox works best with the "AutoHotkey v2 Language Support" extension by thqby for accurate parsing and IntelliSense.', 'Install Extension', 'Don\'t Show Again', 'Dismiss');
+                if (choice === 'Install Extension') {
+                    try {
+                        await vscode.commands.executeCommand('workbench.extensions.installExtension', 'thqby.vscode-autohotkey2-lsp');
+                        vscode.window.showInformationMessage('AutoHotkey v2 LSP extension installed! Please reload VS Code to activate it.', 'Reload Now').then(reload => {
+                            if (reload === 'Reload Now') {
+                                vscode.commands.executeCommand('workbench.action.reloadWindow');
+                            }
+                        });
+                    }
+                    catch (error) {
+                        vscode.window.showErrorMessage('Failed to install extension. Please install manually from the Extensions view.');
+                    }
+                }
+                else if (choice === 'Don\'t Show Again') {
+                    await ctx.globalState.update('ahkv2-toolbox.dontShowLSPWarning', true);
+                }
+            }
+        }
+    }, 2000);
+    // Initialize Toolbox Webview
+    const toolboxWebview = sidebarWebview_1.AHKv2ToolboxWebview.getInstance(ctx);
+    ctx.subscriptions.push(vscode.commands.registerCommand('ahkv2Toolbox.open', () => {
+        toolboxWebview.createOrShowPanel();
+    }), vscode.window.registerWebviewViewProvider('ahkv2Toolbox', {
+        resolveWebviewView: (webviewView) => {
+            webviewView.webview.html = toolboxWebview.getWebviewContent();
+        }
+    }));
+    // Initialize Code Map Tree Provider
+    const codeMapProvider = new functionTreeProvider_1.FunctionTreeProvider(ctx);
+    const codeMapView = vscode.window.createTreeView('codeMap', {
+        treeDataProvider: codeMapProvider,
+        showCollapseAll: true,
+        canSelectMany: true, // Enable multi-select
+        dragAndDropController: codeMapProvider, // Enable drag & drop
+    });
+    ctx.subscriptions.push(codeMapView, vscode.commands.registerCommand('codeMap.refresh', () => {
+        codeMapProvider.refresh();
+    }), vscode.commands.registerCommand('codeMap.jumpToDefinition', (item) => {
+        codeMapProvider.jumpToDefinition(item);
+    }), vscode.commands.registerCommand('codeMap.jumpToInclude', (item) => {
+        codeMapProvider.jumpToInclude(item);
+    }), 
+    // Filter commands
+    vscode.commands.registerCommand('codeMap.showAll', () => {
+        codeMapProvider.showAll();
+        vscode.window.showInformationMessage('Code Map: Showing all items');
+    }), vscode.commands.registerCommand('codeMap.showOnlyClasses', () => {
+        codeMapProvider.showOnly('class');
+        vscode.window.showInformationMessage('Code Map: Showing only classes');
+    }), vscode.commands.registerCommand('codeMap.showOnlyFunctions', () => {
+        codeMapProvider.showOnly('function');
+        codeMapProvider.toggleFilter('method'); // Include methods with functions
+        vscode.window.showInformationMessage('Code Map: Showing only functions and methods');
+    }), vscode.commands.registerCommand('codeMap.showOnlyVariables', () => {
+        codeMapProvider.showOnly('variable');
+        vscode.window.showInformationMessage('Code Map: Showing only variables');
+    }), vscode.commands.registerCommand('codeMap.toggleClasses', () => {
+        codeMapProvider.toggleFilter('class');
+    }), vscode.commands.registerCommand('codeMap.toggleFunctions', () => {
+        codeMapProvider.toggleFilter('function');
+    }), vscode.commands.registerCommand('codeMap.toggleMethods', () => {
+        codeMapProvider.toggleFilter('method');
+    }), vscode.commands.registerCommand('codeMap.toggleVariables', () => {
+        codeMapProvider.toggleFilter('variable');
+    }), 
+    // Scoping commands
+    vscode.commands.registerCommand('codeMap.scopeToItem', (item) => {
+        codeMapProvider.scopeToItem(item);
+        vscode.window.showInformationMessage(`Code Map: Scoped to ${item.label}`);
+    }), vscode.commands.registerCommand('codeMap.clearScope', () => {
+        codeMapProvider.clearScope();
+        vscode.window.showInformationMessage('Code Map: Scope cleared');
+    }), 
+    // Export command
+    vscode.commands.registerCommand('codeMap.exportAsAsciiTree', async () => {
+        await codeMapProvider.exportAsAsciiTree();
+    }), vscode.commands.registerCommand('ahkv2Toolbox.installLSP', async () => {
+        await lspIntegration.showLSPNotInstalledWarning();
+    }));
+    // Initialize Dependency Explorer Provider
+    const dependencyExplorerProvider = new dependencyExplorerProvider_1.DependencyExplorerProvider(ctx.extensionUri, ctx);
+    ctx.subscriptions.push(vscode.window.registerWebviewViewProvider(dependencyExplorerProvider_1.DependencyExplorerProvider.viewType, dependencyExplorerProvider), vscode.commands.registerCommand('ahkDependencyExplorer.refresh', () => {
+        dependencyExplorerProvider.refresh();
+    }));
+    // Function Metadata Extraction
+    ctx.subscriptions.push(vscode.commands.registerCommand('ahk.extractFunctionMetadata', async () => {
+        try {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                await getNotificationManager().showNotification({
+                    type: 'error',
+                    message: 'No active editor found',
+                    details: 'Please open an AHK file before extracting metadata'
+                });
+                return;
+            }
+            const metadata = functionAnalyzer_1.FunctionAnalyzer.extractFunctionMetadata(editor.document);
+            // Create a markdown view for the metadata
+            const metadataContent = metadata.map(func => {
+                return `## Function: ${func.name}
+
+` +
+                    `- **Parameters**: ${func.parameters.map(p => `${p.isByRef ? '&' : ''}${p.name}${p.hasDefault ? ` = ${p.defaultValue}` : ''}
+            `).join(', ')}
+` +
+                    `- **Static Variables**: ${func.staticVariables.map(v => v.name).join(', ')}
+` +
+                    `- **Local Variables**: ${func.localVariables.map(v => v.name).join(', ')}
+` +
+                    `- **Location**: Line ${func.location.startLine + 1} - ${func.location.endLine + 1}
+`;
+            }).join('\n\n');
+            const doc = await vscode.workspace.openTextDocument({ language: 'markdown', content: metadataContent });
+            await vscode.window.showTextDocument(doc, { preview: false });
+            await getNotificationManager().showNotification({
+                type: 'info',
+                message: `Extracted metadata for ${metadata.length} function(s)`,
+                details: `Found functions: ${metadata.map(f => f.name).join(', ')}`
+            });
+        }
+        catch (error) {
+            await handleError(error, 'Extract Function Metadata');
+        }
+    }));
+    output = vscode.window.createOutputChannel('AHKv2 Toolbox');
     notificationManager = NotificationManager.getInstance();
     // Register test command
     (0, testCommand_1.registerTestCommand)(ctx);
@@ -662,15 +804,15 @@ function activate(ctx) {
             showConversionStats(stats);
             if (mode === 'replace') {
                 await replaceCurrentEditor(outText, ed);
-                vscode.window.setStatusBarMessage('AHK Converter: replaced with v2 output', 3000);
+                vscode.window.setStatusBarMessage('AHKv2 Toolbox: replaced with v2 output', 3000);
             }
             else if (mode === 'diff') {
                 await showEnhancedDiff(outText, ed.document);
-                vscode.window.setStatusBarMessage('AHK Converter: opened enhanced diff (v1 ↔ v2)', 3000);
+                vscode.window.setStatusBarMessage('AHKv2 Toolbox: opened enhanced diff (v1 ↔ v2)', 3000);
             }
             else {
                 await openInNewTab(outText);
-                vscode.window.setStatusBarMessage('AHK Converter: opened v2 output in new tab', 3000);
+                vscode.window.setStatusBarMessage('AHKv2 Toolbox: opened v2 output in new tab', 3000);
             }
             // Show warnings if any
             if (stats.warnings > 0) {
@@ -688,7 +830,9 @@ function activate(ctx) {
         }
     };
     // Register formatting providers
-    ctx.subscriptions.push(ahkCodeFormatter_1.AHKCodeFormatter.registerFormattingProvider(), ahkCodeFixProvider_1.AHKCodeFixProvider.registerCodeActionProvider());
+    ctx.subscriptions.push(ahkCodeFormatter_1.AHKCodeFormatter.registerFormattingProvider(), ahkCodeFixProvider_1.AHKCodeFixProvider.registerCodeActionProvider(), vscode.languages.registerHoverProvider('ahk', new functionHoverProvider_1.FunctionHoverProvider()));
+    // Register Function Metadata Handler
+    functionMetadataHandler_1.FunctionMetadataHandler.registerFunctionMetadataRequest(ctx);
     ctx.subscriptions.push(vscode.commands.registerCommand('ahk.convertV1toV2', () => doConvert('new')), vscode.commands.registerCommand('ahk.convertV1toV2.replace', () => doConvert('replace')), vscode.commands.registerCommand('ahk.convertV1toV2.diff', () => doConvert('diff')), vscode.commands.registerCommand('ahk.convertV1toV2.acceptDiff', async () => {
         try {
             if (!lastDiffLeftUri || !lastDiffRightUri) {
@@ -1009,6 +1153,110 @@ Suggestions: ${debugData.debugData.suggestions.length}
         catch (error) {
             await handleError(error, 'Apply Formatting Fix');
         }
+    }), vscode.commands.registerCommand('ahk.updateHeader', async () => {
+        try {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                await getNotificationManager().showNotification({
+                    type: 'error',
+                    message: 'No active editor found',
+                    details: 'Please open an AHK file before updating header'
+                });
+                return;
+            }
+            const document = editor.document;
+            const text = document.getText();
+            const lines = text.split('\n');
+            const targetRequires = '#Requires AutoHotkey v2.1-alpha.17';
+            const targetSingleInstance = '#SingleInstance Force';
+            // Find existing directives
+            let requiresLineIndex = -1;
+            let requiresVersion = '';
+            let singleInstanceLineIndex = -1;
+            let singleInstanceValue = '';
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                // Check for #Requires directive
+                const requiresMatch = line.match(/^#Requires\s+AutoHotkey\s+(.+)/i);
+                if (requiresMatch && requiresLineIndex === -1) {
+                    requiresLineIndex = i;
+                    requiresVersion = requiresMatch[1].trim();
+                }
+                // Check for #SingleInstance directive
+                const singleInstanceMatch = line.match(/^#SingleInstance\s+(.+)/i);
+                if (singleInstanceMatch && singleInstanceLineIndex === -1) {
+                    singleInstanceLineIndex = i;
+                    singleInstanceValue = singleInstanceMatch[1].trim();
+                }
+            }
+            const hasCorrectRequires = requiresVersion === 'v2.1-alpha.17';
+            const hasCorrectSingleInstance = singleInstanceValue === 'Force';
+            // Check if everything is already correct
+            if (hasCorrectRequires && hasCorrectSingleInstance) {
+                await getNotificationManager().showNotification({
+                    type: 'info',
+                    message: 'Header directives are already up to date'
+                });
+                return;
+            }
+            const edit = new vscode.WorkspaceEdit();
+            let updateMessage = [];
+            // Handle #Requires directive
+            if (requiresLineIndex !== -1 && !hasCorrectRequires) {
+                // Found an outdated version, ask to update
+                const choice = await vscode.window.showInformationMessage(`Found outdated #Requires directive: AutoHotkey ${requiresVersion}. Update to v2.1-alpha.17?`, 'Update', 'Skip');
+                if (choice === 'Update') {
+                    const lineRange = new vscode.Range(new vscode.Position(requiresLineIndex, 0), new vscode.Position(requiresLineIndex, lines[requiresLineIndex].length));
+                    edit.replace(document.uri, lineRange, targetRequires);
+                    updateMessage.push('Updated #Requires to v2.1-alpha.17');
+                }
+            }
+            else if (requiresLineIndex === -1) {
+                // No #Requires directive found, add it
+                edit.insert(document.uri, new vscode.Position(0, 0), targetRequires + '\n');
+                updateMessage.push('Added #Requires AutoHotkey v2.1-alpha.17');
+            }
+            // Handle #SingleInstance directive
+            if (singleInstanceLineIndex !== -1 && !hasCorrectSingleInstance) {
+                // Found a different SingleInstance setting, ask to update
+                const choice = await vscode.window.showInformationMessage(`Found #SingleInstance ${singleInstanceValue}. Update to Force?`, 'Update', 'Skip');
+                if (choice === 'Update') {
+                    const lineRange = new vscode.Range(new vscode.Position(singleInstanceLineIndex, 0), new vscode.Position(singleInstanceLineIndex, lines[singleInstanceLineIndex].length));
+                    edit.replace(document.uri, lineRange, targetSingleInstance);
+                    updateMessage.push('Updated #SingleInstance to Force');
+                }
+            }
+            else if (singleInstanceLineIndex === -1) {
+                // No #SingleInstance directive found, add it
+                const insertPosition = requiresLineIndex !== -1 ? requiresLineIndex + 1 : 0;
+                edit.insert(document.uri, new vscode.Position(insertPosition, 0), targetSingleInstance + '\n');
+                updateMessage.push('Added #SingleInstance Force');
+            }
+            if (updateMessage.length === 0) {
+                await getNotificationManager().showNotification({
+                    type: 'info',
+                    message: 'No changes made'
+                });
+                return;
+            }
+            const success = await vscode.workspace.applyEdit(edit);
+            if (success) {
+                await getNotificationManager().showNotification({
+                    type: 'info',
+                    message: 'Header updated successfully',
+                    details: updateMessage.join('\n')
+                });
+            }
+            else {
+                await getNotificationManager().showNotification({
+                    type: 'error',
+                    message: 'Failed to update header'
+                });
+            }
+        }
+        catch (error) {
+            await handleError(error, 'Update Header');
+        }
     }));
 }
 // Helper functions for profile management
@@ -1041,11 +1289,656 @@ async function showEditProfileDialog() {
         title: 'Edit Profile'
     });
     if (selected) {
-        // TODO: Show profile editing dialog
-        await getNotificationManager().showNotification({
-            type: 'info',
-            message: `Profile editing not yet implemented: ${selected}`
+        const profile = profileManager.getProfile(selected);
+        if (!profile) {
+            await getNotificationManager().showNotification({
+                type: 'error',
+                message: 'Profile not found'
+            });
+            return;
+        }
+        // Check if it's a predefined profile - warn user they can't edit it directly
+        const isPredefined = ['conservative', 'aggressive', 'custom'].includes(selected);
+        if (isPredefined) {
+            const action = await vscode.window.showWarningMessage(`Cannot edit predefined profile "${selected}". Would you like to create a copy to edit instead?`, 'Create Copy', 'Cancel');
+            if (action === 'Create Copy') {
+                const newName = await vscode.window.showInputBox({
+                    prompt: `Enter name for copy of "${selected}"`,
+                    placeHolder: `${selected}_copy`,
+                    validateInput: (value) => value && value.trim().length > 0 ? null : 'Profile name is required'
+                });
+                if (newName) {
+                    const newProfile = profileManager.createCustomProfile(newName, selected);
+                    await getNotificationManager().showNotification({
+                        type: 'info',
+                        message: `Created copy: ${newName}`
+                    });
+                    // Continue editing the new profile
+                    await showProfileEditorMenu(newProfile);
+                }
+            }
+            return;
+        }
+        // Show editor menu for custom profiles
+        await showProfileEditorMenu(profile);
+    }
+}
+async function showProfileEditorMenu(profile) {
+    while (true) {
+        const action = await vscode.window.showQuickPick([
+            { label: '$(edit) Edit Name & Description', value: 'name' },
+            { label: '$(list-unordered) Manage Rules', value: 'rules' },
+            { label: '$(settings-gear) Selective Conversion', value: 'selective' },
+            { label: '$(dashboard) Performance Settings', value: 'performance' },
+            { label: '$(checklist) Validation Settings', value: 'validation' },
+            { label: '$(save) Save & Exit', value: 'save' },
+            { label: '$(x) Cancel', value: 'cancel' }
+        ], {
+            placeHolder: `Editing: ${profile.name}`,
+            title: 'Profile Editor'
         });
+        if (!action || action.value === 'cancel') {
+            return;
+        }
+        if (action.value === 'save') {
+            profileManager.saveProfile(profile);
+            await getNotificationManager().showNotification({
+                type: 'info',
+                message: `Saved profile: ${profile.name}`
+            });
+            return;
+        }
+        switch (action.value) {
+            case 'name':
+                await editProfileNameDescription(profile);
+                break;
+            case 'rules':
+                await editProfileRules(profile);
+                break;
+            case 'selective':
+                await editSelectiveConversion(profile);
+                break;
+            case 'performance':
+                await editPerformanceSettings(profile);
+                break;
+            case 'validation':
+                await editValidationSettings(profile);
+                break;
+        }
+    }
+}
+async function editProfileNameDescription(profile) {
+    const action = await vscode.window.showQuickPick([
+        { label: '$(edit) Edit Name', value: 'name' },
+        { label: '$(note) Edit Description', value: 'description' },
+        { label: '$(arrow-left) Back', value: 'back' }
+    ], {
+        placeHolder: 'What would you like to edit?',
+        title: `Edit: ${profile.name}`
+    });
+    if (!action || action.value === 'back') {
+        return;
+    }
+    if (action.value === 'name') {
+        const newName = await vscode.window.showInputBox({
+            prompt: 'Enter new profile name',
+            value: profile.name,
+            validateInput: (value) => {
+                if (!value || value.trim().length === 0) {
+                    return 'Profile name is required';
+                }
+                // Check if name already exists (and it's not the current profile)
+                const existing = profileManager.getProfile(value);
+                if (existing && value !== profile.name) {
+                    return 'A profile with this name already exists';
+                }
+                return null;
+            }
+        });
+        if (newName && newName !== profile.name) {
+            // Delete old profile and save with new name
+            profileManager.deleteProfile(profile.name);
+            profile.name = newName;
+            profileManager.saveProfile(profile);
+            await getNotificationManager().showNotification({
+                type: 'info',
+                message: `Profile renamed to: ${newName}`
+            });
+        }
+    }
+    else if (action.value === 'description') {
+        const newDescription = await vscode.window.showInputBox({
+            prompt: 'Enter new description',
+            value: profile.description,
+            validateInput: (value) => value && value.trim().length > 0 ? null : 'Description cannot be empty'
+        });
+        if (newDescription && newDescription !== profile.description) {
+            profile.description = newDescription;
+            await getNotificationManager().showNotification({
+                type: 'info',
+                message: 'Description updated'
+            });
+        }
+    }
+}
+async function editProfileRules(profile) {
+    while (true) {
+        const ruleItems = profile.rules.map(rule => ({
+            label: `${rule.enabled ? '$(check)' : '$(circle-slash)'} ${rule.name}`,
+            description: `Priority: ${rule.priority} | Category: ${rule.category}`,
+            detail: rule.description,
+            value: rule.id
+        }));
+        ruleItems.push({ label: '$(add) Add New Rule', description: '', detail: '', value: '__add__' }, { label: '$(arrow-left) Back', description: '', detail: '', value: '__back__' });
+        const selected = await vscode.window.showQuickPick(ruleItems, {
+            placeHolder: 'Select a rule to edit or add a new one',
+            title: `Manage Rules: ${profile.name}`
+        });
+        if (!selected || selected.value === '__back__') {
+            return;
+        }
+        if (selected.value === '__add__') {
+            await addNewRule(profile);
+            continue;
+        }
+        // Edit selected rule
+        const rule = profile.rules.find(r => r.id === selected.value);
+        if (rule) {
+            await editSingleRule(profile, rule);
+        }
+    }
+}
+async function addNewRule(profile) {
+    const id = await vscode.window.showInputBox({
+        prompt: 'Enter rule ID (unique identifier)',
+        placeHolder: 'my-custom-rule',
+        validateInput: (value) => {
+            if (!value || value.trim().length === 0) {
+                return 'Rule ID is required';
+            }
+            if (profile.rules.some(r => r.id === value)) {
+                return 'A rule with this ID already exists';
+            }
+            return null;
+        }
+    });
+    if (!id)
+        return;
+    const name = await vscode.window.showInputBox({
+        prompt: 'Enter rule name',
+        placeHolder: 'My Custom Rule',
+        validateInput: (value) => value && value.trim().length > 0 ? null : 'Rule name is required'
+    });
+    if (!name)
+        return;
+    const description = await vscode.window.showInputBox({
+        prompt: 'Enter rule description',
+        placeHolder: 'What does this rule do?',
+        validateInput: (value) => value && value.trim().length > 0 ? null : 'Description is required'
+    });
+    if (!description)
+        return;
+    const category = await vscode.window.showQuickPick(['syntax', 'functions', 'variables', 'commands', 'directives'], {
+        placeHolder: 'Select rule category',
+        title: 'Rule Category'
+    });
+    if (!category)
+        return;
+    const priorityInput = await vscode.window.showInputBox({
+        prompt: 'Enter rule priority (1-100, higher = runs first)',
+        value: '50',
+        validateInput: (value) => {
+            const num = parseInt(value);
+            return !isNaN(num) && num >= 1 && num <= 100 ? null : 'Priority must be a number between 1 and 100';
+        }
+    });
+    if (!priorityInput)
+        return;
+    const newRule = {
+        id,
+        name,
+        description,
+        enabled: true,
+        priority: parseInt(priorityInput),
+        category: category,
+        pattern: '',
+        replacement: ''
+    };
+    profile.rules.push(newRule);
+    await getNotificationManager().showNotification({
+        type: 'info',
+        message: `Added rule: ${name}`
+    });
+}
+async function editSingleRule(profile, rule) {
+    while (true) {
+        const action = await vscode.window.showQuickPick([
+            { label: `$(${rule.enabled ? 'check' : 'circle-slash'}) ${rule.enabled ? 'Disable' : 'Enable'} Rule`, value: 'toggle' },
+            { label: '$(edit) Edit Name', value: 'name' },
+            { label: '$(note) Edit Description', value: 'description' },
+            { label: '$(list-ordered) Edit Priority', value: 'priority' },
+            { label: '$(symbol-string) Edit Pattern', value: 'pattern' },
+            { label: '$(replace) Edit Replacement', value: 'replacement' },
+            { label: '$(tag) Change Category', value: 'category' },
+            { label: '$(trash) Remove Rule', value: 'remove' },
+            { label: '$(arrow-left) Back', value: 'back' }
+        ], {
+            placeHolder: `Editing: ${rule.name}`,
+            title: 'Edit Rule'
+        });
+        if (!action || action.value === 'back') {
+            return;
+        }
+        switch (action.value) {
+            case 'toggle':
+                rule.enabled = !rule.enabled;
+                await getNotificationManager().showNotification({
+                    type: 'info',
+                    message: `Rule ${rule.enabled ? 'enabled' : 'disabled'}: ${rule.name}`
+                });
+                break;
+            case 'name':
+                const newName = await vscode.window.showInputBox({
+                    prompt: 'Enter new rule name',
+                    value: rule.name,
+                    validateInput: (value) => value && value.trim().length > 0 ? null : 'Name is required'
+                });
+                if (newName) {
+                    rule.name = newName;
+                }
+                break;
+            case 'description':
+                const newDesc = await vscode.window.showInputBox({
+                    prompt: 'Enter new description',
+                    value: rule.description,
+                    validateInput: (value) => value && value.trim().length > 0 ? null : 'Description is required'
+                });
+                if (newDesc) {
+                    rule.description = newDesc;
+                }
+                break;
+            case 'priority':
+                const newPriority = await vscode.window.showInputBox({
+                    prompt: 'Enter new priority (1-100)',
+                    value: rule.priority.toString(),
+                    validateInput: (value) => {
+                        const num = parseInt(value);
+                        return !isNaN(num) && num >= 1 && num <= 100 ? null : 'Priority must be between 1 and 100';
+                    }
+                });
+                if (newPriority) {
+                    rule.priority = parseInt(newPriority);
+                }
+                break;
+            case 'pattern':
+                const newPattern = await vscode.window.showInputBox({
+                    prompt: 'Enter regex pattern',
+                    value: rule.pattern || '',
+                    placeHolder: 'e.g., MsgBox,\\s*(.+)'
+                });
+                if (newPattern !== undefined) {
+                    rule.pattern = newPattern;
+                }
+                break;
+            case 'replacement':
+                const newReplacement = await vscode.window.showInputBox({
+                    prompt: 'Enter replacement string',
+                    value: rule.replacement || '',
+                    placeHolder: 'e.g., MsgBox($1)'
+                });
+                if (newReplacement !== undefined) {
+                    rule.replacement = newReplacement;
+                }
+                break;
+            case 'category':
+                const newCategory = await vscode.window.showQuickPick(['syntax', 'functions', 'variables', 'commands', 'directives'], {
+                    placeHolder: 'Select category',
+                    title: 'Change Category'
+                });
+                if (newCategory) {
+                    rule.category = newCategory;
+                }
+                break;
+            case 'remove':
+                const confirm = await vscode.window.showWarningMessage(`Remove rule "${rule.name}"?`, 'Remove', 'Cancel');
+                if (confirm === 'Remove') {
+                    profile.rules = profile.rules.filter(r => r.id !== rule.id);
+                    await getNotificationManager().showNotification({
+                        type: 'info',
+                        message: `Removed rule: ${rule.name}`
+                    });
+                    return;
+                }
+                break;
+        }
+    }
+}
+async function editSelectiveConversion(profile) {
+    while (true) {
+        const enabled = profile.selectiveConversion.enabled;
+        const constructs = profile.selectiveConversion.constructs;
+        const items = [
+            { label: `$(${enabled ? 'check' : 'circle-slash'}) Selective Conversion: ${enabled ? 'Enabled' : 'Disabled'}`, value: 'toggle' },
+            { label: '--- Convert Constructs ---', value: 'separator', description: '(Only applies when enabled)' },
+            { label: `$(${constructs.functions ? 'check' : 'circle-slash'}) Functions`, value: 'functions' },
+            { label: `$(${constructs.variables ? 'check' : 'circle-slash'}) Variables`, value: 'variables' },
+            { label: `$(${constructs.commands ? 'check' : 'circle-slash'}) Commands`, value: 'commands' },
+            { label: `$(${constructs.directives ? 'check' : 'circle-slash'}) Directives`, value: 'directives' },
+            { label: `$(${constructs.hotkeys ? 'check' : 'circle-slash'}) Hotkeys`, value: 'hotkeys' },
+            { label: `$(${constructs.hotstrings ? 'check' : 'circle-slash'}) Hotstrings`, value: 'hotstrings' },
+            { label: '--- Patterns ---', value: 'separator2' },
+            { label: `$(add) Manage Include Patterns (${profile.selectiveConversion.includePatterns.length})`, value: 'include' },
+            { label: `$(remove) Manage Exclude Patterns (${profile.selectiveConversion.excludePatterns.length})`, value: 'exclude' },
+            { label: '$(arrow-left) Back', value: 'back' }
+        ];
+        const selected = await vscode.window.showQuickPick(items, {
+            placeHolder: 'Configure selective conversion settings',
+            title: `Selective Conversion: ${profile.name}`
+        });
+        if (!selected || selected.value === 'back' || selected.value === 'separator' || selected.value === 'separator2') {
+            if (selected?.value === 'back' || !selected) {
+                return;
+            }
+            continue;
+        }
+        switch (selected.value) {
+            case 'toggle':
+                profile.selectiveConversion.enabled = !profile.selectiveConversion.enabled;
+                break;
+            case 'functions':
+            case 'variables':
+            case 'commands':
+            case 'directives':
+            case 'hotkeys':
+            case 'hotstrings':
+                constructs[selected.value] = !constructs[selected.value];
+                break;
+            case 'include':
+                await managePatterns(profile.selectiveConversion.includePatterns, 'Include Patterns');
+                break;
+            case 'exclude':
+                await managePatterns(profile.selectiveConversion.excludePatterns, 'Exclude Patterns');
+                break;
+        }
+    }
+}
+async function managePatterns(patterns, title) {
+    while (true) {
+        const items = patterns.map((pattern, index) => ({
+            label: `$(regex) ${pattern}`,
+            value: index.toString()
+        }));
+        items.push({ label: '$(add) Add Pattern', value: '__add__' }, { label: '$(arrow-left) Back', value: '__back__' });
+        const selected = await vscode.window.showQuickPick(items, {
+            placeHolder: 'Select a pattern to remove or add a new one',
+            title
+        });
+        if (!selected || selected.value === '__back__') {
+            return;
+        }
+        if (selected.value === '__add__') {
+            const newPattern = await vscode.window.showInputBox({
+                prompt: 'Enter regex pattern',
+                placeHolder: 'e.g., .*@preserve.*',
+                validateInput: (value) => {
+                    if (!value || value.trim().length === 0) {
+                        return 'Pattern cannot be empty';
+                    }
+                    try {
+                        new RegExp(value);
+                        return null;
+                    }
+                    catch (e) {
+                        return 'Invalid regex pattern';
+                    }
+                }
+            });
+            if (newPattern) {
+                patterns.push(newPattern);
+                await getNotificationManager().showNotification({
+                    type: 'info',
+                    message: 'Pattern added'
+                });
+            }
+        }
+        else {
+            // Remove pattern
+            const index = parseInt(selected.value);
+            const confirm = await vscode.window.showWarningMessage(`Remove pattern "${patterns[index]}"?`, 'Remove', 'Cancel');
+            if (confirm === 'Remove') {
+                patterns.splice(index, 1);
+                await getNotificationManager().showNotification({
+                    type: 'info',
+                    message: 'Pattern removed'
+                });
+            }
+        }
+    }
+}
+async function editPerformanceSettings(profile) {
+    while (true) {
+        const perf = profile.performance;
+        const items = [
+            { label: `$(${perf.streamingEnabled ? 'check' : 'circle-slash'}) Streaming: ${perf.streamingEnabled ? 'Enabled' : 'Disabled'}`, value: 'streaming' },
+            { label: `$(dashboard) Chunk Size: ${perf.chunkSize} lines`, value: 'chunkSize', description: 'Lines processed per chunk (100-5000)' },
+            { label: `$(database) Max Memory: ${perf.maxMemoryUsage} MB`, value: 'memory', description: 'Maximum memory usage (50-1000 MB)' },
+            { label: `$(${perf.enableProgressTracking ? 'check' : 'circle-slash'}) Progress Tracking: ${perf.enableProgressTracking ? 'Enabled' : 'Disabled'}`, value: 'progress' },
+            { label: `$(${perf.enableCancellation ? 'check' : 'circle-slash'}) Cancellation: ${perf.enableCancellation ? 'Enabled' : 'Disabled'}`, value: 'cancellation' },
+            { label: '$(arrow-left) Back', value: 'back' }
+        ];
+        const selected = await vscode.window.showQuickPick(items, {
+            placeHolder: 'Configure performance settings',
+            title: `Performance: ${profile.name}`
+        });
+        if (!selected || selected.value === 'back') {
+            return;
+        }
+        switch (selected.value) {
+            case 'streaming':
+                perf.streamingEnabled = !perf.streamingEnabled;
+                break;
+            case 'chunkSize':
+                const newChunkSize = await vscode.window.showInputBox({
+                    prompt: 'Enter chunk size (100-5000 lines)',
+                    value: perf.chunkSize.toString(),
+                    validateInput: (value) => {
+                        const num = parseInt(value);
+                        return !isNaN(num) && num >= 100 && num <= 5000
+                            ? null
+                            : 'Chunk size must be between 100 and 5000';
+                    }
+                });
+                if (newChunkSize) {
+                    perf.chunkSize = parseInt(newChunkSize);
+                    await getNotificationManager().showNotification({
+                        type: 'info',
+                        message: `Chunk size set to ${perf.chunkSize} lines`
+                    });
+                }
+                break;
+            case 'memory':
+                const newMemory = await vscode.window.showInputBox({
+                    prompt: 'Enter maximum memory usage (50-1000 MB)',
+                    value: perf.maxMemoryUsage.toString(),
+                    validateInput: (value) => {
+                        const num = parseInt(value);
+                        return !isNaN(num) && num >= 50 && num <= 1000
+                            ? null
+                            : 'Memory limit must be between 50 and 1000 MB';
+                    }
+                });
+                if (newMemory) {
+                    perf.maxMemoryUsage = parseInt(newMemory);
+                    await getNotificationManager().showNotification({
+                        type: 'info',
+                        message: `Memory limit set to ${perf.maxMemoryUsage} MB`
+                    });
+                }
+                break;
+            case 'progress':
+                perf.enableProgressTracking = !perf.enableProgressTracking;
+                break;
+            case 'cancellation':
+                perf.enableCancellation = !perf.enableCancellation;
+                break;
+        }
+    }
+}
+async function editValidationSettings(profile) {
+    while (true) {
+        const val = profile.validation;
+        const items = [
+            { label: `$(settings) Validation Level: ${val.level}`, value: 'level', description: 'Strict, Normal, or Lenient' },
+            { label: `$(${val.enableSyntaxCheck ? 'check' : 'circle-slash'}) Syntax Check: ${val.enableSyntaxCheck ? 'Enabled' : 'Disabled'}`, value: 'syntax' },
+            { label: `$(${val.enableSemanticCheck ? 'check' : 'circle-slash'}) Semantic Check: ${val.enableSemanticCheck ? 'Enabled' : 'Disabled'}`, value: 'semantic' },
+            { label: `$(${val.enablePerformanceCheck ? 'check' : 'circle-slash'}) Performance Check: ${val.enablePerformanceCheck ? 'Enabled' : 'Disabled'}`, value: 'performance' },
+            { label: `$(list-unordered) Custom Rules (${val.customRules.length})`, value: 'customRules', description: 'Manage custom validation rules' },
+            { label: '$(arrow-left) Back', value: 'back' }
+        ];
+        const selected = await vscode.window.showQuickPick(items, {
+            placeHolder: 'Configure validation settings',
+            title: `Validation: ${profile.name}`
+        });
+        if (!selected || selected.value === 'back') {
+            return;
+        }
+        switch (selected.value) {
+            case 'level':
+                const newLevel = await vscode.window.showQuickPick(['strict', 'normal', 'lenient'], {
+                    placeHolder: 'Select validation level',
+                    title: 'Validation Level'
+                });
+                if (newLevel) {
+                    val.level = newLevel;
+                    await getNotificationManager().showNotification({
+                        type: 'info',
+                        message: `Validation level set to: ${newLevel}`
+                    });
+                }
+                break;
+            case 'syntax':
+                val.enableSyntaxCheck = !val.enableSyntaxCheck;
+                break;
+            case 'semantic':
+                val.enableSemanticCheck = !val.enableSemanticCheck;
+                break;
+            case 'performance':
+                val.enablePerformanceCheck = !val.enablePerformanceCheck;
+                break;
+            case 'customRules':
+                await manageCustomValidationRules(val.customRules);
+                break;
+        }
+    }
+}
+async function manageCustomValidationRules(rules) {
+    while (true) {
+        const items = rules.map((rule, index) => ({
+            label: `$(${rule.enabled ? 'check' : 'circle-slash'}) ${rule.name}`,
+            description: `Severity: ${rule.severity}`,
+            detail: rule.message,
+            value: index.toString()
+        }));
+        items.push({ label: '$(add) Add Custom Rule', description: '', detail: '', value: '__add__' }, { label: '$(arrow-left) Back', description: '', detail: '', value: '__back__' });
+        const selected = await vscode.window.showQuickPick(items, {
+            placeHolder: 'Select a rule to edit or add a new one',
+            title: 'Custom Validation Rules'
+        });
+        if (!selected || selected.value === '__back__') {
+            return;
+        }
+        if (selected.value === '__add__') {
+            const id = await vscode.window.showInputBox({
+                prompt: 'Enter rule ID',
+                placeHolder: 'custom-validation-rule',
+                validateInput: (value) => {
+                    if (!value || value.trim().length === 0) {
+                        return 'ID is required';
+                    }
+                    if (rules.some((r) => r.id === value)) {
+                        return 'A rule with this ID already exists';
+                    }
+                    return null;
+                }
+            });
+            if (!id)
+                continue;
+            const name = await vscode.window.showInputBox({
+                prompt: 'Enter rule name',
+                validateInput: (value) => value && value.trim().length > 0 ? null : 'Name is required'
+            });
+            if (!name)
+                continue;
+            const pattern = await vscode.window.showInputBox({
+                prompt: 'Enter regex pattern to match',
+                placeHolder: 'e.g., \\bGoto\\b',
+                validateInput: (value) => {
+                    if (!value || value.trim().length === 0) {
+                        return 'Pattern is required';
+                    }
+                    try {
+                        new RegExp(value);
+                        return null;
+                    }
+                    catch (e) {
+                        return 'Invalid regex pattern';
+                    }
+                }
+            });
+            if (!pattern)
+                continue;
+            const severity = await vscode.window.showQuickPick(['error', 'warning', 'info'], {
+                placeHolder: 'Select severity level',
+                title: 'Severity'
+            });
+            if (!severity)
+                continue;
+            const message = await vscode.window.showInputBox({
+                prompt: 'Enter validation message',
+                placeHolder: 'This pattern should be avoided',
+                validateInput: (value) => value && value.trim().length > 0 ? null : 'Message is required'
+            });
+            if (!message)
+                continue;
+            rules.push({
+                id,
+                name,
+                pattern,
+                severity,
+                message,
+                enabled: true
+            });
+            await getNotificationManager().showNotification({
+                type: 'info',
+                message: `Added validation rule: ${name}`
+            });
+        }
+        else {
+            // Edit or remove existing rule
+            const index = parseInt(selected.value);
+            const rule = rules[index];
+            const action = await vscode.window.showQuickPick([
+                { label: `$(${rule.enabled ? 'circle-slash' : 'check'}) ${rule.enabled ? 'Disable' : 'Enable'} Rule`, value: 'toggle' },
+                { label: '$(trash) Remove Rule', value: 'remove' },
+                { label: '$(arrow-left) Back', value: 'back' }
+            ], {
+                placeHolder: `Editing: ${rule.name}`,
+                title: 'Edit Validation Rule'
+            });
+            if (action?.value === 'toggle') {
+                rule.enabled = !rule.enabled;
+            }
+            else if (action?.value === 'remove') {
+                const confirm = await vscode.window.showWarningMessage(`Remove validation rule "${rule.name}"?`, 'Remove', 'Cancel');
+                if (confirm === 'Remove') {
+                    rules.splice(index, 1);
+                    await getNotificationManager().showNotification({
+                        type: 'info',
+                        message: `Removed validation rule: ${rule.name}`
+                    });
+                }
+            }
+        }
     }
 }
 async function showDeleteProfileDialog() {
@@ -1150,5 +2043,7 @@ async function convertWithProfile(ctx, content, profile) {
         return await convertText(ctx, content);
     }
 }
-function deactivate() { }
+function deactivate() {
+    // Clean up any resources if needed
+}
 //# sourceMappingURL=extension.js.map

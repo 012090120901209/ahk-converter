@@ -1,9 +1,9 @@
 <div align="center"><kbd></kbd><kbd>🧩 VS Code Extension</kbd> <kbd>🔁 AHK v1 → v2</kbd> <kbd>📂 Open Source</kbd><kbd></kbd></div>
-<h1 align="center">AHK Converter <sup><sup><kbd>v0.2.0</kbd></sup></sup></h1>
+<h1 align="center">AHKv2 Toolbox <sup><sup><kbd>v0.4.2</kbd></sup></sup></h1>
 
 <div align="center">
-    <strong>Convert AutoHotkey v1 scripts to v2 with enhanced user experience inside VS Code</strong>
-  <img src="media/AHK_Convert_mini.png" alt="AHK Converter icon">
+    <strong>Comprehensive AutoHotkey v2 development toolbox with v1→v2 conversion, function metadata, and productivity tools inside VS Code</strong>
+  <img src="src/AHK_Code.svg" alt="AHKv2 Toolbox icon">
 </div>
 <div align="center">
   <p>
@@ -16,6 +16,30 @@
 </div>
 
 ## Features
+
+### Language Support
+- **Integrated LSP Parsing** - Uses thqby's AutoHotkey v2 LSP extension for accurate parsing
+- **Code Map Explorer** - Enhanced tree view with advanced features:
+  - Shows all functions, classes, methods, and variables with proper static detection
+  - Diagnostic integration: displays errors/warnings from Problems panel with badges
+  - Color-coded icons (red for errors, yellow for warnings)
+  - Enhanced tooltips showing diagnostic messages
+  - Golden/orange color scheme for better function visibility
+- **Dependency Explorer** - Visualize #Include relationships across your project:
+  - **Automatic Scanning**: Discovers all `.ahk` files and their dependencies
+  - **Interactive Tree**: Click to open files, expand/collapse dependency hierarchies
+  - **Real-Time Updates**: Auto-refreshes when files change
+  - **Smart Resolution**: Handles relative paths, `A_ScriptDir`, library includes
+  - **Error Detection**: Visual indicators for unresolved dependencies
+  - See [Dependency Explorer Guide](docs/DEPENDENCY_EXPLORER.md) for details
+- **Enhanced Function Metadata Extraction** - Advanced introspection system:
+  - **Parameter Analysis**: Detects byref (`&`), optional (`?`), variadic (`*`), and type hints
+  - **Default Value Classification**: Distinguishes constants from expressions (e.g., `Random(1, 6)`)
+  - **Variable Detection**: Captures static/local/global variables, assignment chains
+  - **Type Hints Support**: Parses AHK v2.1+ type annotations for parameters and return values
+  - See [Function Metadata Guide](docs/FUNCTION_METADATA_EXTRACTION.md) for details
+- **Smart Code Navigation** - Jump to definition, hover information, and symbol outline
+- **Fallback Parser** - Works without LSP using built-in regex parser
 
 ### Core Conversion Features
 - **Convert AHK v1 to v2** using the community converter and AutoHotkey v2
@@ -44,11 +68,17 @@
 ## Installation
 
 1. **Install AutoHotkey v2** from [autohotkey.com](https://www.autohotkey.com/)
-2. **Install this VS Code extension**:
-   - From VS Code Marketplace: Search for "AHK Converter"
+2. **Install the AutoHotkey v2 LSP extension** (recommended):
+   - Search for "AutoHotkey v2 Language Support" by thqby
+   - This provides accurate parsing, IntelliSense, and syntax highlighting
+   - AHKv2 Toolbox will automatically detect and use it
+3. **Install this VS Code extension**:
+   - From VS Code Marketplace: Search for "AHKv2 Toolbox"
    - From VSIX: Download and install the .vsix file
    - From source: Open this folder in VS Code and press F5 to launch the Extension Host
-3. **Configure settings** (optional) - see Settings section below
+4. **Configure settings** (optional) - see Settings section below
+
+**Note:** The extension will work without the LSP extension, but with limited parsing capabilities.
 
 ## Usage
 
@@ -91,6 +121,45 @@ The enhanced diff view provides:
 - **Context lines** around changes
 - **Accept/Reject options** for individual changes
 - **Action buttons** for accepting all or selected changes
+
+### Profile Management
+
+The extension includes a comprehensive profile management system for customizing conversion behavior:
+
+**Built-in Profiles:**
+- **Conservative**: Minimal changes, preserves most v1 syntax
+- **Aggressive**: Maximizes v2 syntax adoption
+- **Custom**: Fully customizable base profile
+
+**Managing Profiles:**
+1. Open Command Palette: `Ctrl+Shift+P` / `Cmd+Shift+P`
+2. Run: `AHK: Manage Conversion Profiles`
+3. Choose from:
+   - **Create New Profile**: Build custom profile from a base
+   - **Edit Existing Profile**: Modify profile settings
+   - **Delete Profile**: Remove custom profiles
+   - **Import Profile**: Load profile from JSON file
+   - **Export Profile**: Save profile to JSON file
+
+**Profile Editor Features:**
+- **Name & Description**: Rename and document your profiles
+- **Manage Rules**: Add, edit, enable/disable conversion rules
+  - Configure rule priority, patterns, and replacements
+  - Organize by category (syntax, functions, variables, commands, directives)
+- **Selective Conversion**: Choose which constructs to convert
+  - Toggle individual construct types (functions, variables, commands, etc.)
+  - Manage include/exclude patterns with regex
+- **Performance Settings**: Tune for large files
+  - Enable/disable streaming processing
+  - Adjust chunk size (100-5000 lines)
+  - Set memory limits (50-1000 MB)
+  - Control progress tracking and cancellation
+- **Validation Settings**: Configure quality checks
+  - Set validation level (strict, normal, lenient)
+  - Enable/disable syntax, semantic, and performance checks
+  - Add custom validation rules with patterns and severity levels
+
+**Note**: Predefined profiles (conservative, aggressive, custom) cannot be edited directly. The editor will offer to create an editable copy instead.
 
 ### Error Handling
 
@@ -176,10 +245,10 @@ When errors occur, you'll see:
 
 ### Getting Help
 
-1. **Check the output channel**: View → Output → "AHK Converter"
+1. **Check the output channel**: View → Output → "AHKv2 Toolbox"
 2. **Review error notifications**: Click "Show Details" for technical information
 3. **Visit documentation**: Use "Learn More" links in error messages
-4. **Report issues**: [GitHub Issues](https://github.com/TrueCrimeAudit/ahk-converter/issues)
+4. **Report issues**: [GitHub Issues](https://github.com/TrueCrimeAudit/ahkv2-toolbox/issues)
 
 ## Advanced Usage
 
@@ -225,9 +294,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- 📖 [Documentation](https://github.com/TrueCrimeAudit/ahk-converter#readme)
-- 🐛 [Issue Tracker](https://github.com/TrueCrimeAudit/ahk-converter/issues)
-- 💬 [Discussions](https://github.com/TrueCrimeAudit/ahk-converter/discussions)
+- 📖 [Documentation](https://github.com/TrueCrimeAudit/ahkv2-toolbox#readme)
+- 🐛 [Issue Tracker](https://github.com/TrueCrimeAudit/ahkv2-toolbox/issues)
+- 💬 [Discussions](https://github.com/TrueCrimeAudit/ahkv2-toolbox/discussions)
 - 📧 [Email Support](mailto:support@example.com)
 
 ---

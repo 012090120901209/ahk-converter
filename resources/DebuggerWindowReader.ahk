@@ -1,6 +1,8 @@
 #Requires AutoHotkey v2.1-alpha.16
 #SingleInstance Force
 
+#Include Test_v1.ahk
+
 debugReader := DebuggerWindowReader()
 
 class DebuggerWindowReader {
