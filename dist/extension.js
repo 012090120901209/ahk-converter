@@ -23,6 +23,7 @@ const ahkCodeFixProvider_1 = require("./ahkCodeFixProvider");
 const functionTreeProvider_1 = require("./functionTreeProvider");
 const lspIntegration_1 = require("./lspIntegration");
 const dependencyTreeProvider_1 = require("./dependencyTreeProvider");
+const packageManagerProvider_1 = require("./packageManagerProvider");
 // Enhanced error types for better error handling with user-friendly messages
 class AHKConverterError extends Error {
     constructor(message, code, details, userMessage, learnMoreUrl, recoveryActions) {
@@ -761,6 +762,45 @@ function activate(ctx) {
     catch (error) {
         // If no workspace, dependency tree won't work - that's OK
         console.log('Dependency tree not initialized (no workspace folder)');
+    }
+    // Initialize Package Manager Provider
+    try {
+        const packageManagerProvider = new packageManagerProvider_1.PackageManagerProvider(ctx);
+        const packageManagerView = vscode.window.createTreeView('ahkPackageManager', {
+            treeDataProvider: packageManagerProvider,
+            showCollapseAll: true
+        });
+        ctx.subscriptions.push(packageManagerView, vscode.commands.registerCommand('ahkPackageManager.refresh', () => {
+            packageManagerProvider.refresh();
+        }), vscode.commands.registerCommand('ahkPackageManager.installPackage', async (packageItem) => {
+            if (packageItem) {
+                await packageManagerProvider.installPackage(packageItem);
+            }
+        }), vscode.commands.registerCommand('ahkPackageManager.uninstallPackage', async (packageItem) => {
+            if (packageItem) {
+                await packageManagerProvider.uninstallPackage(packageItem);
+            }
+        }), vscode.commands.registerCommand('ahkPackageManager.updatePackage', async (packageItem) => {
+            if (packageItem) {
+                await packageManagerProvider.updatePackage(packageItem);
+            }
+        }), vscode.commands.registerCommand('ahkPackageManager.showPackageDetails', async (packageItem) => {
+            if (packageItem) {
+                await packageManagerProvider.showPackageDetails(packageItem);
+            }
+        }), vscode.commands.registerCommand('ahkPackageManager.searchPackages', async () => {
+            const searchTerm = await vscode.window.showInputBox({
+                prompt: 'Search for AHK packages',
+                placeHolder: 'Enter package name or keyword...'
+            });
+            if (searchTerm) {
+                vscode.window.showInformationMessage(`Searching for "${searchTerm}"...`);
+                // TODO: Implement actual search functionality
+            }
+        }));
+    }
+    catch (error) {
+        console.log('Package Manager not initialized:', error);
     }
     // Compile and Reload Debugger Command
     ctx.subscriptions.push(vscode.commands.registerCommand('ahk.compileAndReload', async () => {

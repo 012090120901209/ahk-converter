@@ -19,6 +19,7 @@ import { AHKHoverProvider } from './hoverProvider';
 import { FunctionTreeProvider } from './functionTreeProvider';
 import { AHKLSPIntegration } from './lspIntegration';
 import { DependencyTreeProvider } from './dependencyTreeProvider';
+import { PackageManagerProvider } from './packageManagerProvider';
 
 type RunResult = { stdout: string; stderr: string; code: number };
 
@@ -912,6 +913,54 @@ export function activate(ctx: vscode.ExtensionContext) {
   } catch (error) {
     // If no workspace, dependency tree won't work - that's OK
     console.log('Dependency tree not initialized (no workspace folder)');
+  }
+
+  // Initialize Package Manager Provider
+  try {
+    const packageManagerProvider = new PackageManagerProvider(ctx);
+    const packageManagerView = vscode.window.createTreeView('ahkPackageManager', {
+      treeDataProvider: packageManagerProvider,
+      showCollapseAll: true
+    });
+
+    ctx.subscriptions.push(
+      packageManagerView,
+      vscode.commands.registerCommand('ahkPackageManager.refresh', () => {
+        packageManagerProvider.refresh();
+      }),
+      vscode.commands.registerCommand('ahkPackageManager.installPackage', async (packageItem) => {
+        if (packageItem) {
+          await packageManagerProvider.installPackage(packageItem);
+        }
+      }),
+      vscode.commands.registerCommand('ahkPackageManager.uninstallPackage', async (packageItem) => {
+        if (packageItem) {
+          await packageManagerProvider.uninstallPackage(packageItem);
+        }
+      }),
+      vscode.commands.registerCommand('ahkPackageManager.updatePackage', async (packageItem) => {
+        if (packageItem) {
+          await packageManagerProvider.updatePackage(packageItem);
+        }
+      }),
+      vscode.commands.registerCommand('ahkPackageManager.showPackageDetails', async (packageItem) => {
+        if (packageItem) {
+          await packageManagerProvider.showPackageDetails(packageItem);
+        }
+      }),
+      vscode.commands.registerCommand('ahkPackageManager.searchPackages', async () => {
+        const searchTerm = await vscode.window.showInputBox({
+          prompt: 'Search for AHK packages',
+          placeHolder: 'Enter package name or keyword...'
+        });
+        if (searchTerm) {
+          vscode.window.showInformationMessage(`Searching for "${searchTerm}"...`);
+          // TODO: Implement actual search functionality
+        }
+      })
+    );
+  } catch (error) {
+    console.log('Package Manager not initialized:', error);
   }
 
   // Compile and Reload Debugger Command
