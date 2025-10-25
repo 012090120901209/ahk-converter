@@ -11,6 +11,16 @@
   "categories": [
     "Other"
   ],
+  "activationEvents": [
+    "onLanguage:ahk",
+    "onLanguage:ahk2",
+    "workspaceContains:**/*.ahk",
+    "workspaceContains:**/*.ahk2",
+    "onCommand:ahkv2Toolbox.open",
+    "onView:ahkv2Toolbox",
+    "onView:ahkDependencyTree",
+    "onView:codeMap"
+  ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -30,6 +40,12 @@
           "icon": "$(tools)"
         },
         {
+          "id": "ahkPackageManager",
+          "name": "Dependency Manager",
+          "icon": "$(package)",
+          "contextualTitle": "AHK Dependency Manager"
+        },
+        {
           "id": "codeMap",
           "name": "Code Map",
           "icon": "$(symbol-structure)",
@@ -37,9 +53,9 @@
         },
         {
           "id": "ahkDependencyTree",
-          "name": "Dependencies",
+          "name": "Dependency Map",
           "icon": "$(references)",
-          "contextualTitle": "AHK Dependencies"
+          "contextualTitle": "AHK Dependency Map"
         }
       ]
     },
@@ -63,21 +79,57 @@
       },
       {
         "command": "ahkDependencyTree.refresh",
-        "title": "Refresh Dependencies",
+        "title": "Refresh Dependency Map",
         "category": "AHKv2 Toolbox",
         "icon": "$(refresh)"
       },
       {
         "command": "ahkDependencyTree.pin",
-        "title": "Pin Dependency View",
+        "title": "Pin Dependency Map View",
         "category": "AHKv2 Toolbox",
         "icon": "$(pin)"
       },
       {
         "command": "ahkDependencyTree.unpin",
-        "title": "Unpin Dependency View",
+        "title": "Unpin Dependency Map View",
         "category": "AHKv2 Toolbox",
         "icon": "$(pinned)"
+      },
+      {
+        "command": "ahkPackageManager.refresh",
+        "title": "Refresh Dependency Manager",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "ahkPackageManager.installPackage",
+        "title": "Install Package",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "ahkPackageManager.uninstallPackage",
+        "title": "Uninstall Package",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "ahkPackageManager.updatePackage",
+        "title": "Update Package",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "ahkPackageManager.showPackageDetails",
+        "title": "Show Package Details",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(info)"
+      },
+      {
+        "command": "ahkPackageManager.searchPackages",
+        "title": "Search AHK Packages",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(search)"
       },
       {
         "command": "ahk.compileAndReload",
@@ -282,6 +334,16 @@
           "command": "ahkDependencyTree.unpin",
           "when": "view == ahkDependencyTree && ahkDependencyTree.isPinned",
           "group": "navigation@2"
+        },
+        {
+          "command": "ahkPackageManager.refresh",
+          "when": "view == ahkPackageManager",
+          "group": "navigation@1"
+        },
+        {
+          "command": "ahkPackageManager.searchPackages",
+          "when": "view == ahkPackageManager",
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [
@@ -319,6 +381,26 @@
           "command": "ahkDependencyTree.unpin",
           "when": "view == ahkDependencyTree && viewItem == rootItem-isPinned",
           "group": "inline@1"
+        },
+        {
+          "command": "ahkPackageManager.installPackage",
+          "when": "view == ahkPackageManager && viewItem == availablePackage",
+          "group": "inline@1"
+        },
+        {
+          "command": "ahkPackageManager.uninstallPackage",
+          "when": "view == ahkPackageManager && viewItem == installedPackage",
+          "group": "context@1"
+        },
+        {
+          "command": "ahkPackageManager.updatePackage",
+          "when": "view == ahkPackageManager && viewItem == updatablePackage",
+          "group": "inline@1"
+        },
+        {
+          "command": "ahkPackageManager.showPackageDetails",
+          "when": "view == ahkPackageManager && viewItem == installedPackage",
+          "group": "navigation"
         }
       ]
     },
