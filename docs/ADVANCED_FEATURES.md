@@ -322,7 +322,7 @@ The advanced features are implemented using a modular architecture:
 
 ## 📚 Documentation
 
-### User Documentation
+### User Documentationaz
 - **Getting Started Guide**: Updated for advanced features
 - **API Reference**: Complete command and configuration documentation
 - **Troubleshooting Guide**: Enhanced with advanced scenarios

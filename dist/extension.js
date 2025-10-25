@@ -22,7 +22,7 @@ const ahkCodeFormatter_1 = require("./ahkCodeFormatter");
 const ahkCodeFixProvider_1 = require("./ahkCodeFixProvider");
 const functionTreeProvider_1 = require("./functionTreeProvider");
 const lspIntegration_1 = require("./lspIntegration");
-const dependencyExplorerProvider_1 = require("./dependencyExplorerProvider");
+const dependencyTreeProvider_1 = require("./dependencyTreeProvider");
 // Enhanced error types for better error handling with user-friendly messages
 class AHKConverterError extends Error {
     constructor(message, code, details, userMessage, learnMoreUrl, recoveryActions) {
@@ -734,10 +734,77 @@ function activate(ctx) {
     }), vscode.commands.registerCommand('ahkv2Toolbox.installLSP', async () => {
         await lspIntegration.showLSPNotInstalledWarning();
     }));
-    // Initialize Dependency Explorer Provider
-    const dependencyExplorerProvider = new dependencyExplorerProvider_1.DependencyExplorerProvider(ctx.extensionUri, ctx);
-    ctx.subscriptions.push(vscode.window.registerWebviewViewProvider(dependencyExplorerProvider_1.DependencyExplorerProvider.viewType, dependencyExplorerProvider), vscode.commands.registerCommand('ahkDependencyExplorer.refresh', () => {
-        dependencyExplorerProvider.refresh();
+    // Initialize Dependency Tree Provider
+    try {
+        const dependencyTreeProvider = new dependencyTreeProvider_1.DependencyTreeProvider(ctx);
+        const dependencyTreeView = vscode.window.createTreeView('ahkDependencyTree', {
+            treeDataProvider: dependencyTreeProvider,
+            showCollapseAll: true
+        });
+        ctx.subscriptions.push(dependencyTreeView, vscode.commands.registerCommand('ahkDependencyTree.refresh', () => {
+            dependencyTreeProvider.refresh();
+        }), vscode.commands.registerCommand('ahkDependencyTree.openFile', async (filePath) => {
+            try {
+                // Open the clicked file
+                const doc = await vscode.workspace.openTextDocument(filePath);
+                await vscode.window.showTextDocument(doc);
+            }
+            catch (error) {
+                vscode.window.showErrorMessage(`Failed to open file: ${filePath}`);
+            }
+        }), vscode.commands.registerCommand('ahkDependencyTree.pin', () => {
+            dependencyTreeProvider.pinCurrentFile();
+        }), vscode.commands.registerCommand('ahkDependencyTree.unpin', () => {
+            dependencyTreeProvider.clearPin();
+        }));
+    }
+    catch (error) {
+        // If no workspace, dependency tree won't work - that's OK
+        console.log('Dependency tree not initialized (no workspace folder)');
+    }
+    // Compile and Reload Debugger Command
+    ctx.subscriptions.push(vscode.commands.registerCommand('ahk.compileAndReload', async () => {
+        try {
+            // Show progress
+            await vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: "Compiling and reloading...",
+                cancellable: false
+            }, async (progress) => {
+                progress.report({ increment: 0, message: "Compiling TypeScript..." });
+                // Run compile task
+                const tasks = await vscode.tasks.fetchTasks();
+                const compileTask = tasks.find(task => task.name === 'npm: compile' || task.name === 'compile');
+                if (compileTask) {
+                    await vscode.tasks.executeTask(compileTask);
+                    // Wait for task to complete
+                    await new Promise((resolve) => {
+                        const disposable = vscode.tasks.onDidEndTaskProcess((e) => {
+                            if (e.execution.task === compileTask) {
+                                disposable.dispose();
+                                resolve();
+                            }
+                        });
+                    });
+                    progress.report({ increment: 50, message: "Restarting debugger..." });
+                    // Restart debugger if running, otherwise just notify
+                    const debugSession = vscode.debug.activeDebugSession;
+                    if (debugSession) {
+                        await vscode.commands.executeCommand('workbench.action.debug.restart');
+                        vscode.window.showInformationMessage('✅ Compiled and debugger restarted!');
+                    }
+                    else {
+                        vscode.window.showInformationMessage('✅ Compiled! Press F5 to start debugging.');
+                    }
+                }
+                else {
+                    vscode.window.showErrorMessage('Compile task not found!');
+                }
+            });
+        }
+        catch (error) {
+            vscode.window.showErrorMessage(`Failed to compile and reload: ${error}`);
+        }
     }));
     // Function Metadata Extraction
     ctx.subscriptions.push(vscode.commands.registerCommand('ahk.extractFunctionMetadata', async () => {

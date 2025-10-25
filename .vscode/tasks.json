@@ -27,10 +27,7 @@
 		{
 			"type": "npm",
 			"script": "compile",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
+			"group": "build",
 			"problemMatcher": [
 				"$tsc"
 			],
@@ -53,6 +50,61 @@
 				"$tsc"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Compile and Reload Debugger",
+			"type": "shell",
+			"command": "npm run compile",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			},
+			"runOptions": {
+				"runOn": "folderOpen"
+			}
+		},
+		{
+			"label": "Quick Reload",
+			"type": "shell",
+			"command": "npm run compile",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": false,
+				"clear": false
+			}
+		},
+		{
+			"label": "Compile and Auto-Reload",
+			"dependsOn": ["npm: compile"],
+			"dependsOrder": "sequence",
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "silent",
+				"panel": "shared",
+				"showReuseMessage": false
+			},
+			"type": "shell",
+			"command": "echo",
+			"args": [
+				"✅ Compiled! Now press Ctrl+Shift+F5 to restart debugger"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
 	]
 }
