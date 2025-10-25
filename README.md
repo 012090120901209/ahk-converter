@@ -7,6 +7,9 @@
 </div>
 <div align="center">
   <p>
+    <a href="https://claude.ai/code?repo=https://github.com/012090120901209/ahk-converter"><img src="https://img.shields.io/badge/Open_in-Claude_Code-8A2BE2?style=for-the-badge&logo=anthropic&logoColor=white" alt="Open in Claude Code"></a>
+  </p>
+  <p>
     <a href="#features"><img src="https://img.shields.io/badge/Features-blue?style=for-the-badge" alt="Features"></a>
     <a href="#installation"><img src="https://img.shields.io/badge/Install-green?style=for-the-badge" alt="Installation"></a>
     <a href="#usage"><img src="https://img.shields.io/badge/Usage-purple?style=for-the-badge" alt="Usage"></a>
