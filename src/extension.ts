@@ -18,7 +18,7 @@ import { AHKCodeFixProvider } from './ahkCodeFixProvider';
 import { AHKHoverProvider } from './hoverProvider';
 import { FunctionTreeProvider } from './functionTreeProvider';
 import { AHKLSPIntegration } from './lspIntegration';
-import { DependencyExplorerProvider } from './dependencyExplorerProvider';
+import { DependencyTreeProvider } from './dependencyTreeProvider';
 
 type RunResult = { stdout: string; stderr: string; code: number };
 
@@ -880,15 +880,88 @@ export function activate(ctx: vscode.ExtensionContext) {
     })
   );
 
-  // Initialize Dependency Explorer Provider
-  const dependencyExplorerProvider = new DependencyExplorerProvider(ctx.extensionUri, ctx);
+  // Initialize Dependency Tree Provider
+  try {
+    const dependencyTreeProvider = new DependencyTreeProvider(ctx);
+    const dependencyTreeView = vscode.window.createTreeView('ahkDependencyTree', {
+      treeDataProvider: dependencyTreeProvider,
+      showCollapseAll: true
+    });
+
+    ctx.subscriptions.push(
+      dependencyTreeView,
+      vscode.commands.registerCommand('ahkDependencyTree.refresh', () => {
+        dependencyTreeProvider.refresh();
+      }),
+      vscode.commands.registerCommand('ahkDependencyTree.openFile', async (filePath: string) => {
+        try {
+          // Open the clicked file
+          const doc = await vscode.workspace.openTextDocument(filePath);
+          await vscode.window.showTextDocument(doc);
+        } catch (error) {
+          vscode.window.showErrorMessage(`Failed to open file: ${filePath}`);
+        }
+      }),
+      vscode.commands.registerCommand('ahkDependencyTree.pin', () => {
+        dependencyTreeProvider.pinCurrentFile();
+      }),
+      vscode.commands.registerCommand('ahkDependencyTree.unpin', () => {
+        dependencyTreeProvider.clearPin();
+      })
+    );
+  } catch (error) {
+    // If no workspace, dependency tree won't work - that's OK
+    console.log('Dependency tree not initialized (no workspace folder)');
+  }
+
+  // Compile and Reload Debugger Command
   ctx.subscriptions.push(
-    vscode.window.registerWebviewViewProvider(
-      DependencyExplorerProvider.viewType,
-      dependencyExplorerProvider
-    ),
-    vscode.commands.registerCommand('ahkDependencyExplorer.refresh', () => {
-      dependencyExplorerProvider.refresh();
+    vscode.commands.registerCommand('ahk.compileAndReload', async () => {
+      try {
+        // Show progress
+        await vscode.window.withProgress({
+          location: vscode.ProgressLocation.Notification,
+          title: "Compiling and reloading...",
+          cancellable: false
+        }, async (progress) => {
+          progress.report({ increment: 0, message: "Compiling TypeScript..." });
+
+          // Run compile task
+          const tasks = await vscode.tasks.fetchTasks();
+          const compileTask = tasks.find(task =>
+            task.name === 'npm: compile' || task.name === 'compile'
+          );
+
+          if (compileTask) {
+            await vscode.tasks.executeTask(compileTask);
+
+            // Wait for task to complete
+            await new Promise<void>((resolve) => {
+              const disposable = vscode.tasks.onDidEndTaskProcess((e) => {
+                if (e.execution.task === compileTask) {
+                  disposable.dispose();
+                  resolve();
+                }
+              });
+            });
+
+            progress.report({ increment: 50, message: "Restarting debugger..." });
+
+            // Restart debugger if running, otherwise just notify
+            const debugSession = vscode.debug.activeDebugSession;
+            if (debugSession) {
+              await vscode.commands.executeCommand('workbench.action.debug.restart');
+              vscode.window.showInformationMessage('✅ Compiled and debugger restarted!');
+            } else {
+              vscode.window.showInformationMessage('✅ Compiled! Press F5 to start debugging.');
+            }
+          } else {
+            vscode.window.showErrorMessage('Compile task not found!');
+          }
+        });
+      } catch (error) {
+        vscode.window.showErrorMessage(`Failed to compile and reload: ${error}`);
+      }
     })
   );
 

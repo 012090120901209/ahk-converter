@@ -11,20 +11,6 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onView:ahkv2Toolbox",
-    "onView:ahkDependencyExplorer",
-    "onCommand:ahk.extractFunctionMetadata",
-    "onCommand:ahk.convertV1toV2",
-    "onCommand:ahk.convertV1toV2.replace",
-    "onCommand:ahk.convertV1toV2.diff",
-    "onCommand:ahk.convertV1toV2.acceptDiff",
-    "onCommand:ahk.convertV1toV2.batch",
-    "onCommand:ahk.launchDebugReader",
-    "onCommand:ahk.runTests",
-    "onCommand:ahk.formatDocument",
-    "onCommand:ahk.applyFormattingFix"
-  ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -40,7 +26,8 @@
         {
           "id": "ahkv2Toolbox",
           "name": "Toolbox",
-          "type": "webview"
+          "type": "webview",
+          "icon": "$(tools)"
         },
         {
           "id": "codeMap",
@@ -49,9 +36,8 @@
           "contextualTitle": "AHK Code Map"
         },
         {
-          "id": "ahkDependencyExplorer",
+          "id": "ahkDependencyTree",
           "name": "Dependencies",
-          "type": "webview",
           "icon": "$(references)",
           "contextualTitle": "AHK Dependencies"
         }
@@ -76,10 +62,27 @@
         "icon": "$(go-to-file)"
       },
       {
-        "command": "ahkDependencyExplorer.refresh",
+        "command": "ahkDependencyTree.refresh",
         "title": "Refresh Dependencies",
         "category": "AHKv2 Toolbox",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "ahkDependencyTree.pin",
+        "title": "Pin Dependency View",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(pin)"
+      },
+      {
+        "command": "ahkDependencyTree.unpin",
+        "title": "Unpin Dependency View",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(pinned)"
+      },
+      {
+        "command": "ahk.compileAndReload",
+        "title": "Compile and Reload Debugger",
+        "category": "AHK Development"
       },
       {
         "command": "ahk.convertV1toV2",
@@ -264,6 +267,21 @@
           "command": "codeMap.exportAsAsciiTree",
           "when": "view == codeMap",
           "group": "export@1"
+        },
+        {
+          "command": "ahkDependencyTree.refresh",
+          "when": "view == ahkDependencyTree",
+          "group": "navigation@1"
+        },
+        {
+          "command": "ahkDependencyTree.pin",
+          "when": "view == ahkDependencyTree && !ahkDependencyTree.isPinned",
+          "group": "navigation@2"
+        },
+        {
+          "command": "ahkDependencyTree.unpin",
+          "when": "view == ahkDependencyTree && ahkDependencyTree.isPinned",
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [
@@ -291,6 +309,16 @@
           "command": "codeMap.jumpToDefinition",
           "when": "view == codeMap && viewItem == variable",
           "group": "navigation"
+        },
+        {
+          "command": "ahkDependencyTree.pin",
+          "when": "view == ahkDependencyTree && viewItem == rootItem",
+          "group": "inline@1"
+        },
+        {
+          "command": "ahkDependencyTree.unpin",
+          "when": "view == ahkDependencyTree && viewItem == rootItem-isPinned",
+          "group": "inline@1"
         }
       ]
     },

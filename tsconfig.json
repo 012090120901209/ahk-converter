@@ -9,7 +9,14 @@
     "sourceMap": true,
     "types": ["node", "vscode", "mocha"]
   },
-  "exclude": ["node_modules", ".vscode-test"]
+  "exclude": [
+    "node_modules",
+    ".vscode-test",
+    "microsoft vscode-extension-samples main tree-view-sample",
+    "test-deps",
+    "scripts",
+    "vendor"
+  ]
 }
 
 

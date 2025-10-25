@@ -1,0 +1,24 @@
+[
+  {
+    "key": "ctrl+shift+b",
+    "command": "workbench.action.tasks.build"
+  },
+  {
+    "key": "ctrl+shift+f5",
+    "command": "workbench.action.debug.restart",
+    "when": "inDebugMode"
+  },
+  {
+    "key": "ctrl+alt+r",
+    "command": "extension.multiCommand.execute",
+    "args": {
+      "sequence": [
+        "workbench.action.tasks.build",
+        {
+          "command": "workbench.action.debug.restart",
+          "delay": 2000
+        }
+      ]
+    }
+  }
+]
