@@ -96,7 +96,7 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private dependencyCache = new Map<string, DependencyInfo>();
-  private workspaceRoot: string;
+  private workspaceRoot: string | null = null;
   private fileWatcher?: vscode.FileSystemWatcher;
   private editorChangeListener?: vscode.Disposable;
   private pinnedFile: string | null = null;
@@ -104,10 +104,9 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
 
   constructor(private context: vscode.ExtensionContext) {
     const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders || workspaceFolders.length === 0) {
-      throw new Error('No workspace folder found');
+    if (workspaceFolders && workspaceFolders.length > 0) {
+      this.workspaceRoot = workspaceFolders[0].uri.fsPath;
     }
-    this.workspaceRoot = workspaceFolders[0].uri.fsPath;
 
     // Initialize pin context to false
     vscode.commands.executeCommand('setContext', 'ahkDependencyTree.isPinned', false);
@@ -132,6 +131,11 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
   }
 
   private setupFileWatcher(): void {
+    // Only watch files if we have a workspace
+    if (!this.workspaceRoot) {
+      return;
+    }
+
     // Watch all .ahk files in workspace
     this.fileWatcher = vscode.workspace.createFileSystemWatcher('**/*.ahk');
 
@@ -286,7 +290,9 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
 
     for (const includePath of depInfo.resolvedIncludes) {
       const childDepInfo = await this.analyzeDependencies(includePath);
-      const relativePath = path.relative(this.workspaceRoot, includePath);
+      const relativePath = this.workspaceRoot ?
+        path.relative(this.workspaceRoot, includePath) :
+        path.basename(includePath);
 
       items.push(new DependencyTreeItem(
         includePath,
@@ -399,8 +405,10 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
       const libName = includePath.replace(/[<>]/g, '');
       const libFileName = libName.endsWith('.ahk') ? libName : `${libName}.ahk`;
 
-      // Check workspace Lib folder FIRST
-      candidates.push(path.join(this.workspaceRoot, 'Lib', libFileName));
+      // Check workspace Lib folder FIRST (if we have a workspace)
+      if (this.workspaceRoot) {
+        candidates.push(path.join(this.workspaceRoot, 'Lib', libFileName));
+      }
 
       // Also check relative to source file's Lib folder
       candidates.push(path.join(sourceDir, 'Lib', libFileName));
@@ -430,8 +438,10 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
     // Case 4: Relative to source file directory
     candidates.push(path.join(sourceDir, normalizedInclude));
 
-    // Case 5: Relative to workspace root
-    candidates.push(path.join(this.workspaceRoot, normalizedInclude));
+    // Case 5: Relative to workspace root (if we have a workspace)
+    if (this.workspaceRoot) {
+      candidates.push(path.join(this.workspaceRoot, normalizedInclude));
+    }
 
     // Try each candidate
     for (const candidate of candidates) {
