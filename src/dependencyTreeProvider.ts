@@ -235,9 +235,20 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
     const activeEditor = vscode.window.activeTextEditor;
 
     if (this.pinnedFile) {
-      // Use the pinned file
-      filePath = this.pinnedFile;
-    } else {
+      // Verify pinned file still exists
+      try {
+        await fs.access(this.pinnedFile);
+        filePath = this.pinnedFile;
+      } catch {
+        // Pinned file no longer exists - clear the pin
+        console.log(`Pinned file no longer exists: ${this.pinnedFile}`);
+        this.pinnedFile = null;
+        this.updatePinContext(null);
+        // Fall through to use active editor instead
+      }
+    }
+
+    if (!filePath) {
       // Get the active editor
       // If no active editor or not an AHK file, show message
       if (!activeEditor || !activeEditor.document.fileName.endsWith('.ahk')) {
@@ -332,6 +343,16 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
     };
 
     try {
+      // Check if file exists before trying to read it
+      try {
+        await fs.access(filePath);
+      } catch {
+        // File doesn't exist - return empty dependency info
+        // This can happen if a file was deleted but is still referenced
+        console.log(`Skipping non-existent file: ${filePath}`);
+        return depInfo;
+      }
+
       const content = await fs.readFile(filePath, 'utf-8');
       const includes = this.parseIncludes(content);
       depInfo.rawIncludes = includes;
@@ -347,7 +368,8 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
 
       this.dependencyCache.set(filePath, depInfo);
     } catch (error) {
-      console.error(`Failed to analyze dependencies for ${filePath}:`, error);
+      // Only log actual read/parse errors, not file-not-found
+      console.log(`Could not analyze dependencies for ${filePath}: ${error instanceof Error ? error.message : String(error)}`);
     }
 
     return depInfo;
