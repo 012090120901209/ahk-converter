@@ -20,6 +20,8 @@ import { FunctionTreeProvider } from './functionTreeProvider';
 import { AHKLSPIntegration } from './lspIntegration';
 import { DependencyTreeProvider } from './dependencyTreeProvider';
 import { PackageManagerProvider } from './packageManagerProvider';
+import { SettingsWebviewProvider } from './settingsWebviewProvider';
+import { MetadataEditorProvider } from './metadataEditorProvider';
 
 type RunResult = { stdout: string; stderr: string; code: number };
 
@@ -957,10 +959,47 @@ export function activate(ctx: vscode.ExtensionContext) {
           vscode.window.showInformationMessage(`Searching for "${searchTerm}"...`);
           // TODO: Implement actual search functionality
         }
+      }),
+      vscode.commands.registerCommand('ahkPackageManager.editMetadata', async (packageItem) => {
+        if (packageItem && packageItem.packagePath.endsWith('.ahk')) {
+          await MetadataEditorProvider.show(ctx, packageItem.packagePath);
+        }
+      }),
+      vscode.commands.registerCommand('ahkPackageManager.generateJSDocHeader', async (packageItem) => {
+        if (packageItem && packageItem.packagePath.endsWith('.ahk')) {
+          vscode.window.showInformationMessage(
+            'AI JSDoc generation coming soon! See docs/JSDOC_GENERATION_GUIDE.md for manual guidelines.',
+            'Open Guide'
+          ).then(selection => {
+            if (selection === 'Open Guide') {
+              const guidePath = path.join(ctx.extensionPath, 'docs', 'JSDOC_GENERATION_GUIDE.md');
+              vscode.workspace.openTextDocument(guidePath).then(doc => {
+                vscode.window.showTextDocument(doc);
+              });
+            }
+          });
+        }
       })
     );
   } catch (error) {
     console.log('Package Manager not initialized:', error);
+  }
+
+  // Initialize Settings Webview Provider
+  try {
+    const settingsProvider = new SettingsWebviewProvider(ctx.extensionUri);
+    ctx.subscriptions.push(
+      vscode.window.registerWebviewViewProvider(
+        SettingsWebviewProvider.viewType,
+        settingsProvider
+      ),
+      vscode.commands.registerCommand('ahkv2Toolbox.openSettings', () => {
+        vscode.commands.executeCommand('workbench.view.extension.ahkv2-toolbox');
+        vscode.commands.executeCommand('ahkv2Toolbox.settings.focus');
+      })
+    );
+  } catch (error) {
+    console.log('Settings Provider not initialized:', error);
   }
 
   // Compile and Reload Debugger Command
