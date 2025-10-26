@@ -257,6 +257,24 @@
         "title": "Export as ASCII Tree",
         "category": "Code Map",
         "icon": "$(export)"
+      },
+      {
+        "command": "ahkv2Toolbox.openSettings",
+        "title": "Open AHKv2 Toolbox Settings",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "ahkPackageManager.editMetadata",
+        "title": "Edit Metadata",
+        "category": "Dependency Manager",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "ahkPackageManager.generateJSDocHeader",
+        "title": "Generate JSDoc Header",
+        "category": "Dependency Manager",
+        "icon": "$(sparkle)"
       }
     ],
     "menus": {
@@ -401,6 +419,30 @@
           "command": "ahkPackageManager.showPackageDetails",
           "when": "view == ahkPackageManager && viewItem == installedPackage",
           "group": "navigation"
+        },
+        {
+          "command": "ahkPackageManager.editMetadata",
+          "when": "view == ahkPackageManager && viewItem == installedPackage",
+          "group": "context@2"
+        },
+        {
+          "command": "ahkPackageManager.generateJSDocHeader",
+          "when": "view == ahkPackageManager && viewItem == installedPackage",
+          "group": "context@3"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "ahkv2Toolbox.openSettings",
+          "when": "true"
+        },
+        {
+          "command": "ahkPackageManager.editMetadata",
+          "when": "false"
+        },
+        {
+          "command": "ahkPackageManager.generateJSDocHeader",
+          "when": "false"
         }
       ]
     },
@@ -523,6 +565,60 @@
           "type": "boolean",
           "default": false,
           "description": "Show AHK v2 header directives (#Requires, #SingleInstance) in Code Map.",
+          "scope": "window"
+        },
+        "ahkv2Toolbox.autoInsertHeaders": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically insert #Requires and #SingleInstance headers when installing packages.",
+          "scope": "window"
+        },
+        "ahkv2Toolbox.headerOrder": {
+          "type": "array",
+          "default": [
+            "#Requires AutoHotkey v2.1",
+            "#SingleInstance Force"
+          ],
+          "description": "Order of header directives to insert.",
+          "scope": "window"
+        },
+        "ahkv2Toolbox.defaultRequires": {
+          "type": "string",
+          "default": "AutoHotkey v2.1",
+          "description": "Default AutoHotkey version for #Requires directive.",
+          "scope": "window"
+        },
+        "ahkv2Toolbox.defaultSingleInstance": {
+          "type": "string",
+          "enum": [
+            "Force",
+            "Ignore",
+            "Prompt",
+            "Off"
+          ],
+          "default": "Force",
+          "description": "Default #SingleInstance mode.",
+          "scope": "window"
+        },
+        "ahkv2Toolbox.libFolders": {
+          "type": "array",
+          "default": [
+            "Lib",
+            "vendor"
+          ],
+          "description": "Library search folders (relative to workspace).",
+          "scope": "window"
+        },
+        "ahkv2Toolbox.includeFormat": {
+          "type": "string",
+          "default": "Lib/{name}.ahk",
+          "description": "Template for #Include paths. Use {name} for package name.",
+          "scope": "window"
+        },
+        "ahkv2Toolbox.popularLibraries": {
+          "type": "array",
+          "default": [],
+          "description": "List of popular AHK v2 libraries with GitHub links.",
           "scope": "window"
         }
       }
