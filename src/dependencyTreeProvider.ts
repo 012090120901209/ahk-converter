@@ -243,7 +243,7 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
         // Pinned file no longer exists - clear the pin
         console.log(`Pinned file no longer exists: ${this.pinnedFile}`);
         this.pinnedFile = null;
-        this.updatePinContext(null);
+        this.updatePinContext(undefined);
         // Fall through to use active editor instead
       }
     }

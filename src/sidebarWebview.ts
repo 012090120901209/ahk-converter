@@ -93,71 +93,43 @@ export class AHKv2ToolboxWebview {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>AHKv2 Toolbox</title>
+        <script type=\"module\" src=\"@vscode/webview-ui-toolkit/dist/toolkit.js\"></script>
         <style>
           body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            padding: 20px;
-            background-color: var(--vscode-editor-background);
-            color: var(--vscode-editor-foreground);
+            padding: 16px;
+            font-family: var(--vscode-font-family);
+            font-size: var(--vscode-font-size);
           }
-          h1 {
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 20px;
+          .section {
+            margin-bottom: 24px;
           }
-          .tool-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+          .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
           }
-          .tool-button {
-            background-color: var(--vscode-button-secondaryBackground);
-            color: var(--vscode-button-secondaryForeground);
-            border: 1px solid var(--vscode-button-border);
-            border-radius: 8px;
-            padding: 16px 12px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-          }
-          .tool-button:hover {
-            background-color: var(--vscode-button-secondaryHoverBackground);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-          }
-          .tool-button:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+          vscode-button {
+            width: 100%;
           }
         </style>
       </head>
       <body>
-        <h1>AHKv2 Toolbox</h1>
-        <div class="tool-grid">
-          <button class="tool-button" onclick="vscode.postMessage({command: 'scriptConverter'})">
-            Script Converter
-          </button>
-          <button class="tool-button" onclick="vscode.postMessage({command: 'functionMetadata'})">
-            Function Metadata
-          </button>
-          <button class="tool-button" onclick="vscode.postMessage({command: 'libraryManager'})">
-            Library Manager
-          </button>
-          <button class="tool-button" onclick="vscode.postMessage({command: 'updateHeader'})">
-            Update Header
-          </button>
-          <button class="tool-button" onclick="vscode.postMessage({command: 'settings'})">
-            Settings
-          </button>
-          <button class="tool-button" onclick="vscode.postMessage({command: 'quickFixes'})">
-            Quick Fixes
-          </button>
-          <button class="tool-button" onclick="vscode.postMessage({command: 'openSettings'})">
-            Extension Settings
-          </button>
+        <div class=\"section\">
+          <h2>Tools</h2>
+          <div class=\"button-group\">
+            <vscode-button onclick=\"vscode.postMessage({command: 'scriptConverter'})\">Script Converter</vscode-button>
+            <vscode-button onclick=\"vscode.postMessage({command: 'functionMetadata'})\">Function Metadata</vscode-button>
+            <vscode-button onclick=\"vscode.postMessage({command: 'libraryManager'})\">Library Manager</vscode-button>
+            <vscode-button onclick=\"vscode.postMessage({command: 'updateHeader'})\">Update Header</vscode-button>
+            <vscode-button onclick=\"vscode.postMessage({command: 'quickFixes'})\">Quick Fixes</vscode-button>
+          </div>
+        </div>
+        <vscode-divider></vscode-divider>
+        <div class=\"section\">
+          <h2>Settings</h2>
+          <div class=\"button-group\">
+            <vscode-button appearance=\"secondary\" onclick=\"vscode.postMessage({command: 'openSettings'})\">Extension Settings</vscode-button>
+          </div>
         </div>
         <script>
           const vscode = acquireVsCodeApi();

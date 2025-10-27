@@ -67,37 +67,37 @@
       },
       {
         "command": "codeMap.refresh",
-        "title": "Refresh Code Map",
+        "title": "Refresh",
         "category": "AHKv2 Toolbox",
         "icon": "$(refresh)"
       },
       {
         "command": "codeMap.jumpToDefinition",
-        "title": "Jump to Definition",
+        "title": "Go to Definition",
         "category": "AHKv2 Toolbox",
         "icon": "$(go-to-file)"
       },
       {
         "command": "ahkDependencyTree.refresh",
-        "title": "Refresh Dependency Map",
+        "title": "Refresh",
         "category": "AHKv2 Toolbox",
         "icon": "$(refresh)"
       },
       {
         "command": "ahkDependencyTree.pin",
-        "title": "Pin Dependency Map View",
+        "title": "Pin View",
         "category": "AHKv2 Toolbox",
         "icon": "$(pin)"
       },
       {
         "command": "ahkDependencyTree.unpin",
-        "title": "Unpin Dependency Map View",
+        "title": "Unpin View",
         "category": "AHKv2 Toolbox",
         "icon": "$(pinned)"
       },
       {
         "command": "ahkPackageManager.refresh",
-        "title": "Refresh Dependency Manager",
+        "title": "Refresh",
         "category": "AHKv2 Toolbox",
         "icon": "$(refresh)"
       },
@@ -121,13 +121,13 @@
       },
       {
         "command": "ahkPackageManager.showPackageDetails",
-        "title": "Show Package Details",
+        "title": "Show Details",
         "category": "AHKv2 Toolbox",
         "icon": "$(info)"
       },
       {
         "command": "ahkPackageManager.searchPackages",
-        "title": "Search AHK Packages",
+        "title": "Search Packages",
         "category": "AHKv2 Toolbox",
         "icon": "$(search)"
       },
@@ -138,52 +138,52 @@
       },
       {
         "command": "ahk.convertV1toV2",
-        "title": "AHK: Convert v1 to v2 - open in new tab",
+        "title": "Convert to v2 (New Tab)",
         "category": "AHK Converter"
       },
       {
         "command": "ahk.convertV1toV2.replace",
-        "title": "AHK: Convert v1 to v2 - replace current file",
+        "title": "Convert to v2 (Replace File)",
         "category": "AHK Converter"
       },
       {
         "command": "ahk.convertV1toV2.diff",
-        "title": "AHK: Convert v1 to v2 - show enhanced diff",
+        "title": "Convert to v2 (Show Diff)",
         "category": "AHK Converter"
       },
       {
         "command": "ahk.convertV1toV2.acceptDiff",
-        "title": "AHK: Accept v1 → v2 Diff",
+        "title": "Accept Diff",
         "category": "AHK Converter"
       },
       {
         "command": "ahk.convertV1toV2.batch",
-        "title": "AHK: Convert multiple files (batch)",
+        "title": "Convert to v2 (Batch)",
         "category": "AHK Converter"
       },
       {
         "command": "ahk.launchDebugReader",
-        "title": "AHK: Launch Debugger Window Reader",
+        "title": "Launch Debugger Window Reader",
         "category": "AHK Converter"
       },
       {
         "command": "ahk.runTests",
-        "title": "AHK: Run Tests",
+        "title": "Run Tests",
         "category": "AHK Converter"
       },
       {
         "command": "ahk.formatDocument",
-        "title": "AHK: Format Document",
+        "title": "Format Document",
         "category": "AHK Converter"
       },
       {
         "command": "ahk.applyFormattingFix",
-        "title": "AHK: Apply Formatting Fix",
+        "title": "Apply Formatting Fix",
         "category": "AHK Converter"
       },
       {
         "command": "ahk.extractFunctionMetadata",
-        "title": "AHK: Extract Function Metadata",
+        "title": "Extract Function Metadata",
         "category": "AHK Converter"
       },
       {
@@ -198,25 +198,25 @@
       },
       {
         "command": "codeMap.showAll",
-        "title": "Show All Items",
+        "title": "Show All",
         "category": "Code Map",
         "icon": "$(eye)"
       },
       {
         "command": "codeMap.showOnlyClasses",
-        "title": "Show Only Classes",
+        "title": "Show Classes",
         "category": "Code Map",
         "icon": "$(symbol-class)"
       },
       {
         "command": "codeMap.showOnlyFunctions",
-        "title": "Show Only Functions",
+        "title": "Show Functions",
         "category": "Code Map",
         "icon": "$(symbol-function)"
       },
       {
         "command": "codeMap.showOnlyVariables",
-        "title": "Show Only Variables",
+        "title": "Show Variables",
         "category": "Code Map",
         "icon": "$(symbol-variable)"
       },
@@ -242,7 +242,7 @@
       },
       {
         "command": "codeMap.scopeToItem",
-        "title": "Scope to This Item",
+        "title": "Scope to Item",
         "category": "Code Map",
         "icon": "$(filter)"
       },
@@ -260,7 +260,7 @@
       },
       {
         "command": "ahkv2Toolbox.openSettings",
-        "title": "Open AHKv2 Toolbox Settings",
+        "title": "Open Settings",
         "category": "AHKv2 Toolbox",
         "icon": "$(gear)"
       },
@@ -280,19 +280,23 @@
     "menus": {
       "editor/context": [
         {
-          "when": "resourceLangId == ahk",
-          "command": "ahk.convertV1toV2",
-          "group": "1_modification@1"
-        },
+          "submenu": "ahk.convertV1toV2.submenu",
+          "group": "1_modification",
+          "when": "resourceLangId == ahk"
+        }
+      ],
+      "ahk.convertV1toV2.submenu": [
         {
-          "when": "resourceLangId == ahk",
-          "command": "ahk.convertV1toV2.replace",
-          "group": "1_modification@2"
-        },
-        {
-          "when": "resourceLangId == ahk",
           "command": "ahk.convertV1toV2.diff",
-          "group": "1_modification@3"
+          "group": "1_diff"
+        },
+        {
+          "command": "ahk.convertV1toV2",
+          "group": "2_new"
+        },
+        {
+          "command": "ahk.convertV1toV2.replace",
+          "group": "3_replace"
         }
       ],
       "explorer/context": [
@@ -446,6 +450,12 @@
         }
       ]
     },
+    "submenus": [
+      {
+        "id": "ahk.convertV1toV2.submenu",
+        "label": "Convert AHK v1 to v2"
+      }
+    ],
     "configuration": {
       "title": "AHKv2 Toolbox",
       "properties": {
