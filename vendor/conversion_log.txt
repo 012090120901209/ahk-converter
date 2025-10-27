@@ -1,2 +1,6 @@
 # Log files are generated at runtime and contain absolute paths from previous runs
 # This file is cleared to remove user-specific paths
+Conversion complete: C:\Users\uphol\AppData\Local\Temp\ahkconv-JG9YFS\input.ahk -> C:\Users\uphol\AppData\Local\Temp\ahkconv-JG9YFS\input_newV2.ahk
+Conversion complete: C:\Users\uphol\AppData\Local\Temp\ahkconv-oeR7nm\input.ahk -> C:\Users\uphol\AppData\Local\Temp\ahkconv-oeR7nm\input_newV2.ahk
+Conversion complete: C:\Users\uphol\AppData\Local\Temp\ahkconv-8rV2mj\input.ahk -> C:\Users\uphol\AppData\Local\Temp\ahkconv-8rV2mj\input_newV2.ahk
+Conversion complete: C:\Users\uphol\AppData\Local\Temp\ahkconv-WDe1AS\input.ahk -> C:\Users\uphol\AppData\Local\Temp\ahkconv-WDe1AS\input_newV2.ahk

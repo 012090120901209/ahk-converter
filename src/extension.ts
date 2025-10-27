@@ -8,7 +8,7 @@ import { PerformanceOptimizer, PerformanceReporter } from './performanceOptimize
 import { TelemetryManager, getTelemetryManager } from './telemetry';
 import { DebuggerIntegration } from './debuggerIntegration';
 import { FunctionHoverProvider } from './functionHoverProvider';
-import { AHKv2ToolboxWebview } from './sidebarWebview';
+import { ToolboxSidebarProvider } from './toolboxSidebarProvider';
 import { FunctionMetadataHandler } from './functionMetadataHandler';
 import { FunctionAnalyzer } from './functionAnalyzer';
 import { FunctionMetadata } from './functionMetadata';
@@ -802,17 +802,10 @@ export function activate(ctx: vscode.ExtensionContext) {
     }
   }, 2000);
 
-  // Initialize Toolbox Webview
-  const toolboxWebview = AHKv2ToolboxWebview.getInstance(ctx);
+  // Initialize Toolbox Sidebar Provider
+  const toolboxProvider = new ToolboxSidebarProvider(ctx.extensionUri);
   ctx.subscriptions.push(
-    vscode.commands.registerCommand('ahkv2Toolbox.open', () => {
-      toolboxWebview.createOrShowPanel();
-    }),
-    vscode.window.registerWebviewViewProvider('ahkv2Toolbox', {
-      resolveWebviewView: (webviewView) => {
-        webviewView.webview.html = toolboxWebview.getWebviewContent();
-      }
-    })
+    vscode.window.registerWebviewViewProvider('ahkv2Toolbox', toolboxProvider)
   );
 
   // Initialize Code Map Tree Provider

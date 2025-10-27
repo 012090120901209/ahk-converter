@@ -14,7 +14,7 @@ const performanceOptimizer_1 = require("./performanceOptimizer");
 const telemetry_1 = require("./telemetry");
 const debuggerIntegration_1 = require("./debuggerIntegration");
 const functionHoverProvider_1 = require("./functionHoverProvider");
-const sidebarWebview_1 = require("./sidebarWebview");
+const toolboxSidebarProvider_1 = require("./toolboxSidebarProvider");
 const functionMetadataHandler_1 = require("./functionMetadataHandler");
 const functionAnalyzer_1 = require("./functionAnalyzer");
 const testCommand_1 = require("./test/testCommand");
@@ -24,6 +24,8 @@ const functionTreeProvider_1 = require("./functionTreeProvider");
 const lspIntegration_1 = require("./lspIntegration");
 const dependencyTreeProvider_1 = require("./dependencyTreeProvider");
 const packageManagerProvider_1 = require("./packageManagerProvider");
+const settingsWebviewProvider_1 = require("./settingsWebviewProvider");
+const metadataEditorProvider_1 = require("./metadataEditorProvider");
 // Enhanced error types for better error handling with user-friendly messages
 class AHKConverterError extends Error {
     constructor(message, code, details, userMessage, learnMoreUrl, recoveryActions) {
@@ -674,15 +676,9 @@ function activate(ctx) {
             }
         }
     }, 2000);
-    // Initialize Toolbox Webview
-    const toolboxWebview = sidebarWebview_1.AHKv2ToolboxWebview.getInstance(ctx);
-    ctx.subscriptions.push(vscode.commands.registerCommand('ahkv2Toolbox.open', () => {
-        toolboxWebview.createOrShowPanel();
-    }), vscode.window.registerWebviewViewProvider('ahkv2Toolbox', {
-        resolveWebviewView: (webviewView) => {
-            webviewView.webview.html = toolboxWebview.getWebviewContent();
-        }
-    }));
+    // Initialize Toolbox Sidebar Provider
+    const toolboxProvider = new toolboxSidebarProvider_1.ToolboxSidebarProvider(ctx.extensionUri);
+    ctx.subscriptions.push(vscode.window.registerWebviewViewProvider('ahkv2Toolbox', toolboxProvider));
     // Initialize Code Map Tree Provider
     const codeMapProvider = new functionTreeProvider_1.FunctionTreeProvider(ctx);
     const codeMapView = vscode.window.createTreeView('codeMap', {
@@ -797,10 +793,36 @@ function activate(ctx) {
                 vscode.window.showInformationMessage(`Searching for "${searchTerm}"...`);
                 // TODO: Implement actual search functionality
             }
+        }), vscode.commands.registerCommand('ahkPackageManager.editMetadata', async (packageItem) => {
+            if (packageItem && packageItem.packagePath.endsWith('.ahk')) {
+                await metadataEditorProvider_1.MetadataEditorProvider.show(ctx, packageItem.packagePath);
+            }
+        }), vscode.commands.registerCommand('ahkPackageManager.generateJSDocHeader', async (packageItem) => {
+            if (packageItem && packageItem.packagePath.endsWith('.ahk')) {
+                vscode.window.showInformationMessage('AI JSDoc generation coming soon! See docs/JSDOC_GENERATION_GUIDE.md for manual guidelines.', 'Open Guide').then(selection => {
+                    if (selection === 'Open Guide') {
+                        const guidePath = path.join(ctx.extensionPath, 'docs', 'JSDOC_GENERATION_GUIDE.md');
+                        vscode.workspace.openTextDocument(guidePath).then(doc => {
+                            vscode.window.showTextDocument(doc);
+                        });
+                    }
+                });
+            }
         }));
     }
     catch (error) {
         console.log('Package Manager not initialized:', error);
+    }
+    // Initialize Settings Webview Provider
+    try {
+        const settingsProvider = new settingsWebviewProvider_1.SettingsWebviewProvider(ctx.extensionUri);
+        ctx.subscriptions.push(vscode.window.registerWebviewViewProvider(settingsWebviewProvider_1.SettingsWebviewProvider.viewType, settingsProvider), vscode.commands.registerCommand('ahkv2Toolbox.openSettings', () => {
+            vscode.commands.executeCommand('workbench.view.extension.ahkv2-toolbox');
+            vscode.commands.executeCommand('ahkv2Toolbox.settings.focus');
+        }));
+    }
+    catch (error) {
+        console.log('Settings Provider not initialized:', error);
     }
     // Compile and Reload Debugger Command
     ctx.subscriptions.push(vscode.commands.registerCommand('ahk.compileAndReload', async () => {
