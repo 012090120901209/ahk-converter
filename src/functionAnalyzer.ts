@@ -3,7 +3,7 @@ import { FunctionMetadata, Parameter, VariableInfo, DefaultValueType, VariableSc
 
 export class FunctionAnalyzer {
   // Enhanced regex for function declarations with optional return type
-  private static functionRegex = /^(\w+)\s*\(([^)]*)\)\s*(?:=>\s*(\w+))?\s*{/;
+  private static functionRegex = /^(\w+)\s*\((.*)\)\s*(?:=>\s*(\w+))?\s*{/;
 
   // Variable declaration patterns
   private static variableRegex = /^(static|local|global)?\s*(\w+)\s*(?::=\s*(.+))?$/;
@@ -33,14 +33,14 @@ export class FunctionAnalyzer {
         // Start new function
         const [, name, paramsStr, returnType] = functionMatch;
         const params = this.parseParameters(paramsStr);
-        const hasVariadic = params.some(p => p.name === '*' || p.name.startsWith('*'));
+        const hasVariadic = params.some(p => p.isVariadic);
 
         currentFunction = {
           name,
           parameters: params,
           staticVariables: [],
           localVariables: [],
-          minParams: params.filter(p => !p.hasDefault && !p.isOptional).length,
+          minParams: params.filter(p => !p.hasDefault && !p.isOptional && !p.isVariadic).length,
           maxParams: hasVariadic ? 'variadic' : params.length,
           isVariadic: hasVariadic,
           returnType: returnType || undefined,
@@ -94,23 +94,25 @@ export class FunctionAnalyzer {
   private static parseParameters(paramsStr: string): Parameter[] {
     if (!paramsStr.trim()) return [];
 
-    return paramsStr.split(',').map((param, position) => {
-      param = param.trim();
+    const rawParams = this.splitParameters(paramsStr);
+
+    return rawParams.map((rawParam, position) => {
+      let param = rawParam.trim();
 
       // Check for byref (&)
       const isByRef = param.startsWith('&');
-      if (isByRef) param = param.slice(1).trim();
+      if (isByRef) {
+        param = param.slice(1).trim();
+      }
 
-      // Check for variadic (*)
-      if (param.startsWith('*')) {
-        return {
-          name: '*',
-          isByRef: false,
-          isOptional: false,
-          hasDefault: false,
-          defaultType: DefaultValueType.None,
-          position
-        };
+      // Check for variadic marker (leading or trailing *)
+      let isVariadicParam = false;
+      if (param.endsWith('*')) {
+        isVariadicParam = true;
+        param = param.slice(0, -1).trim();
+      } else if (param.startsWith('*')) {
+        isVariadicParam = true;
+        param = param.slice(1).trim();
       }
 
       // Check for optional (?)
@@ -129,24 +131,93 @@ export class FunctionAnalyzer {
       }
 
       // Parse default value (name := value)
-      const defaultValueMatch = param.match(/^(\w+)\s*:=\s*(.+)$/);
-      const name = defaultValueMatch ? defaultValueMatch[1] : param;
-      const defaultValue = defaultValueMatch ? defaultValueMatch[2].trim() : undefined;
+      let namePart = param;
+      let defaultValue: string | undefined;
+      const assignIndex = param.indexOf(':=');
+      if (assignIndex !== -1) {
+        namePart = param.slice(0, assignIndex).trim();
+        defaultValue = param.slice(assignIndex + 2).trim();
+      }
+
+      const displayName = isVariadicParam ? `${namePart}*` : namePart;
 
       // Determine default value type
-      const defaultType = defaultValue ? this.detectDefaultValueType(defaultValue) : DefaultValueType.None;
+      const defaultValueType = defaultValue ? this.detectDefaultValueType(defaultValue) : DefaultValueType.None;
 
       return {
-        name,
+        name: displayName,
         isByRef,
         isOptional,
         hasDefault: !!defaultValue,
         defaultValue,
-        defaultType,
+        defaultValueType,
         typeHint,
-        position
+        position,
+        isVariadic: isVariadicParam
       };
     });
+  }
+
+  /**
+   * Split parameter string into individual parameters, respecting nested structures
+   */
+  private static splitParameters(paramsStr: string): string[] {
+    const parameters: string[] = [];
+    let current = '';
+    let depth = 0;
+    let inSingleQuote = false;
+    let inDoubleQuote = false;
+    let escaping = false;
+
+    for (let i = 0; i < paramsStr.length; i++) {
+      const char = paramsStr[i];
+
+      if (escaping) {
+        current += char;
+        escaping = false;
+        continue;
+      }
+
+      if (char === '\\' || char === '`') {
+        escaping = true;
+        current += char;
+        continue;
+      }
+
+      if (char === '\'' && !inDoubleQuote) {
+        inSingleQuote = !inSingleQuote;
+        current += char;
+        continue;
+      }
+
+      if (char === '"' && !inSingleQuote) {
+        inDoubleQuote = !inDoubleQuote;
+        current += char;
+        continue;
+      }
+
+      if (!inSingleQuote && !inDoubleQuote) {
+        if (char === '(' || char === '[' || char === '{') {
+          depth++;
+        } else if (char === ')' || char === ']' || char === '}') {
+          if (depth > 0) {
+            depth--;
+          }
+        } else if (char === ',' && depth === 0) {
+          parameters.push(current.trim());
+          current = '';
+          continue;
+        }
+      }
+
+      current += char;
+    }
+
+    if (current.trim()) {
+      parameters.push(current.trim());
+    }
+
+    return parameters;
   }
 
   /**

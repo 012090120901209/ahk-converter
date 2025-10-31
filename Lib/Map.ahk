@@ -20,10 +20,8 @@
  * @method static SendToMonitor(Index?: Integer|String, WindowTitle?: String) : Void
  *
  * @example
- * ```cpp
  * title := Window.GetActiveWindow()
  * Window.SendToMonitor(2, title)
- * ```
  */
 class Map2 {
     static __New() => (Map2.base := Map.Prototype.base, Map.Prototype.base := Map2)

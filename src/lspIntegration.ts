@@ -72,11 +72,15 @@ export class AHKLSPIntegration {
         'vscode.executeDocumentSymbolProvider',
         document.uri
       );
-      return symbols || [];
+      if (symbols && symbols.length > 0) {
+        return symbols;
+      }
     } catch (error) {
       console.error('Failed to get document symbols from LSP:', error);
-      return [];
     }
+
+    // Fallback: lightweight parser for tests or when LSP returns nothing
+    return this.basicSymbolExtraction(document);
   }
 
   /**
@@ -287,5 +291,50 @@ export class AHKLSPIntegration {
         'thqby.vscode-autohotkey2-lsp'
       );
     }
+  }
+
+  /**
+   * Fallback document symbol extraction using simple heuristics.
+   * Provides basic symbols for tests when the full LSP is unavailable.
+   */
+  private basicSymbolExtraction(document: vscode.TextDocument): vscode.DocumentSymbol[] {
+    const symbols: vscode.DocumentSymbol[] = [];
+    const lines = document.getText().split(/\r?\n/);
+
+    const classPattern = /^\s*class\s+(\w+)/i;
+    const functionPattern = /^\s*(\w+)\s*\(/;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      const classMatch = line.match(classPattern);
+      if (classMatch) {
+        const range = new vscode.Range(new vscode.Position(i, 0), new vscode.Position(i, line.length));
+        const symbol = new vscode.DocumentSymbol(
+          classMatch[1],
+          '',
+          vscode.SymbolKind.Class,
+          range,
+          range
+        );
+        symbols.push(symbol);
+        continue;
+      }
+
+      const functionMatch = line.match(functionPattern);
+      if (functionMatch) {
+        const range = new vscode.Range(new vscode.Position(i, 0), new vscode.Position(i, line.length));
+        const symbol = new vscode.DocumentSymbol(
+          functionMatch[1],
+          '',
+          vscode.SymbolKind.Function,
+          range,
+          range
+        );
+        symbols.push(symbol);
+      }
+    }
+
+    return symbols;
   }
 }

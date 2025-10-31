@@ -1,0 +1,922 @@
+<!-- INSPECTOR ADDED — Controls: Space = freeze/unfreeze, Esc = clear, F = toggle metrics panel. Click tooltip or press Ctrl+C to copy info. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --inspector-content: rgba(135, 206, 250, 0.3);
+      --inspector-padding: rgba(147, 196, 125, 0.3);
+      --inspector-border: rgba(255, 229, 153, 0.3);
+      --inspector-margin: rgba(246, 178, 107, 0.3);
+      --inspector-outline: rgba(135, 206, 250, 0.8);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #1e1e1e;
+      color: #cccccc;
+      padding: 20px;
+      line-height: 1.5;
+    }
+
+    .page-header {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .page-header p {
+      font-size: 14px;
+      color: #969696;
+    }
+
+    .mockup-container {
+      max-width: 300px;
+      margin: 0 auto;
+      background: #252526;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .mockup-title {
+      background: #2d2d30;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-bottom: 1px solid #3c3c3c;
+      color: #fff;
+    }
+
+    .sidebar-content {
+      padding: 12px 0;
+    }
+
+    .menu-section {
+      margin-bottom: 12px;
+      padding: 0 24px;
+    }
+
+    .section-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #969696;
+      margin: 0 0 12px 0;
+      padding: 0;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .button-grid button {
+      height: 32px;
+      margin: 0;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .button-container button {
+      margin: 0;
+    }
+
+    .button-with-info {
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .button-with-info:last-child {
+      margin-bottom: 0;
+    }
+
+    .button-with-info button {
+      display: block;
+      width: 100%;
+      height: 32px;
+      padding-right: 96px;
+      margin: 0;
+    }
+
+    .info-badge {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      font-size: 12px;
+      padding: 2px 10px;
+      border-radius: 3px;
+      background: #6b6b6b;
+      color: #ffffff;
+      white-space: nowrap;
+      font-weight: 500;
+      pointer-events: none;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .info-badge.has-metadata {
+      background: #1a7f37;
+      color: #ffffff;
+    }
+
+    button {
+      background: #2e2e2e;
+      color: #cccccc;
+      border: 1px solid #3c3c3c;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 400;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.1s ease;
+      width: 100%;
+      min-height: 28px;
+    }
+
+    button:hover {
+      background: #2a2a2a;
+    }
+
+    button:active {
+      background: #242424;
+    }
+
+    button:focus-visible {
+      outline: 1px solid #007acc;
+      outline-offset: 2px;
+    }
+
+    .codicon {
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .divider {
+      height: 1px;
+      background: #3c3c3c;
+      margin: 12px 0;
+    }
+
+    .icon-new-file::before { content: '📄'; }
+    .icon-diff::before { content: '⇄'; }
+    .icon-replace::before { content: '🔄'; }
+    .icon-files::before { content: '📁'; }
+    .icon-function::before { content: 'ƒ'; font-style: normal; }
+    .icon-edit::before { content: '✏️'; }
+    .icon-tree::before { content: '🌳'; }
+    .icon-download::before { content: '⬇️'; }
+    .icon-sync::before { content: '🔃'; }
+    .icon-code::before { content: '<>'; font-size: 14px; }
+    .icon-sparkle::before { content: '✨'; }
+    .icon-settings::before { content: '⚙️'; }
+    .icon-gear::before { content: '⚙️'; }
+
+    .feature-notes {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #252526;
+      padding: 24px;
+      border-radius: 8px;
+      color: #cccccc;
+    }
+
+    .feature-notes h2 {
+      color: #fff;
+      font-size: 18px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #3c3c3c;
+      padding-bottom: 8px;
+    }
+
+    .feature-notes h3 {
+      color: #4fc1ff;
+      font-size: 14px;
+      margin: 16px 0 8px 0;
+    }
+
+    .feature-notes ul {
+      margin-left: 20px;
+      line-height: 1.8;
+    }
+
+    .feature-notes code {
+      background: #1e1e1e;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 12px;
+      color: #ce9178;
+    }
+
+    .ascii-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #0c0c0c;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    .ascii-mockup {
+      color: #00ff00;
+      font-family: 'Courier New', 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.4;
+      white-space: pre;
+    }
+
+    #inspector-overlay {
+      position: absolute;
+      pointer-events: none;
+      z-index: 999999;
+      display: none;
+    }
+
+    #inspector-margin {
+      position: absolute;
+      background: var(--inspector-margin);
+      border: 1px solid rgba(246, 178, 107, 0.8);
+    }
+
+    #inspector-border {
+      position: absolute;
+      background: var(--inspector-border);
+      border: 1px solid rgba(255, 229, 153, 0.8);
+    }
+
+    #inspector-padding {
+      position: absolute;
+      background: var(--inspector-padding);
+      border: 1px solid rgba(147, 196, 125, 0.8);
+    }
+
+    #inspector-content {
+      position: absolute;
+      background: var(--inspector-content);
+      border: 2px solid var(--inspector-outline);
+    }
+
+    #inspector-tooltip {
+      position: fixed;
+      background: #1e1e1e;
+      border: 1px solid #007acc;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 11px;
+      color: #cccccc;
+      z-index: 1000000;
+      pointer-events: auto;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+      max-width: 350px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    #inspector-tooltip:hover {
+      border-color: #00ff00;
+    }
+
+    #inspector-tooltip-content {
+      margin-bottom: 6px;
+    }
+
+    #inspector-tooltip-content div {
+      margin: 2px 0;
+    }
+
+    #inspector-tooltip-copy {
+      background: #007acc;
+      color: #fff;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 10px;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    #inspector-tooltip-copy:hover {
+      background: #005a9e;
+    }
+
+    #inspector-metrics {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #252526;
+      border: 1px solid #3c3c3c;
+      border-radius: 4px;
+      padding: 12px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 11px;
+      color: #cccccc;
+      z-index: 1000001;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+      min-width: 200px;
+    }
+
+    #inspector-metrics h4 {
+      color: #007acc;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    #inspector-metrics .metric-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+    }
+
+    #inspector-metrics .metric-label {
+      color: #969696;
+    }
+
+    #inspector-metrics .metric-value {
+      color: #4fc1ff;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+  </div>
+
+  <div class="mockup-container">
+    <div class="mockup-title">AHKv2 TOOLBOX</div>
+
+    <div class="sidebar-content">
+
+      <section class="menu-section">
+        <h3 class="section-header">Script Converter</h3>
+        <div class="button-grid">
+          <button aria-label="Script Converter - New Tab: Button">New Tab</button>
+          <button aria-label="Script Converter - Show Diff: Button">Show Diff</button>
+          <button aria-label="Script Converter - Replace: Button">Replace</button>
+          <button aria-label="Script Converter - Batch: Button">Batch</button>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="menu-section">
+        <h3 class="section-header">Metadata</h3>
+        <div class="button-with-info">
+          <button aria-label="Metadata - Extract: Button">Extract</button>
+          <span
+            class="info-badge"
+            role="status"
+            aria-live="polite"
+            aria-label="Metadata - Extract: Text Box (Map.ahk selected)"
+          >Map.ahk</span>
+        </div>
+        <div class="button-with-info">
+          <button aria-label="Metadata - Edit Active File: Button">Edit</button>
+          <span
+            class="info-badge has-metadata"
+            role="status"
+            aria-live="polite"
+            aria-label="Metadata - Edit Active File: Text Box (Has metadata)"
+          >Has metadata</span>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="menu-section">
+        <h3 class="section-header">Library Manager</h3>
+        <div class="button-container">
+          <button aria-label="Library Manager - View Dependencies: Button">View Dependencies</button>
+          <button aria-label="Library Manager - Install Package: Button">Install Package</button>
+          <button aria-label="Library Manager - Update Packages: Button">Update Packages</button>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="menu-section">
+        <h3 class="section-header">Update Header</h3>
+        <div class="button-container">
+          <button aria-label="Update Header - Update Script Header: Button">Update Script Header</button>
+          <button aria-label="Update Header - Generate JSDoc Header: Button">Generate JSDoc Header</button>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="menu-section">
+        <h3 class="section-header">Settings</h3>
+        <div class="button-grid">
+          <button aria-label="Settings - Toolbox: Button">Toolbox</button>
+          <button aria-label="Settings - Extension: Button">Extension</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="feature-notes">
+    <h2>Key Design Features</h2>
+
+    <h3>1. Script Converter - 2×2 Grid Layout</h3>
+    <ul>
+      <li>Four equal-sized buttons in grid arrangement</li>
+      <li>Spacing: <code>7px</code> vertical, <code>14px</code> horizontal</li>
+      <li>Button height: <code>32px</code> (locked)</li>
+      <li>Quick access to all conversion modes</li>
+    </ul>
+
+    <h3>2. Function Metadata - Dynamic Info Badges</h3>
+    <ul>
+      <li><strong>Library Name Badge</strong>: Shows filename (e.g., "Map.ahk") when AHK file is active</li>
+      <li><strong>Metadata Status Badge</strong>: Green "✓ Has metadata" if JSDoc exists, gray "No metadata" otherwise</li>
+      <li>Badges auto-hide when no AHK file is open</li>
+      <li>Updates automatically when switching files in editor</li>
+    </ul>
+
+    <h3>3. Visual Styling</h3>
+    <ul>
+      <li><strong>Section Headers</strong>: 11px, uppercase, gray (#969696)</li>
+      <li><strong>Button Background</strong>: #2e2e2e (12% darker than VS Code default)</li>
+      <li><strong>Button Hover</strong>: #2a2a2a (18% darker)</li>
+      <li><strong>Info Badges</strong>: Gray background (#4d4d4d), green for success (#1a7f37)</li>
+      <li><strong>Dividers</strong>: 1px thin lines with 12px spacing</li>
+    </ul>
+
+    <h3>4. Spacing System</h3>
+    <ul>
+      <li>Between sections: <code>16px</code></li>
+      <li>Between buttons: <code>7px</code></li>
+      <li>Section header bottom margin: <code>12px</code></li>
+      <li>Side padding: <code>24px</code></li>
+      <li>Divider spacing: <code>12px</code> top/bottom</li>
+    </ul>
+
+    <h3>5. Accessibility Features</h3>
+    <ul>
+      <li>Icon + text labels on all buttons</li>
+      <li>Keyboard navigation support</li>
+      <li>Focus indicators visible (blue outline)</li>
+      <li>Minimum touch target size (28px height)</li>
+      <li>High contrast mode compatible</li>
+    </ul>
+
+    <h3>6. Settings Section - 2×1 Grid Layout</h3>
+    <ul>
+      <li>Two equal-sized buttons side by side</li>
+      <li>Button labels shortened ("Toolbox", "Extension") since section header is "SETTINGS"</li>
+      <li>Same grid layout as Script Converter section</li>
+      <li>Consistent button height: <code>32px</code></li>
+    </ul>
+
+    <h3>7. Responsive Behavior</h3>
+    <ul>
+      <li>Grid maintains equal button sizes</li>
+      <li>Info badges flex but don't compress</li>
+      <li>Text truncates gracefully when needed</li>
+      <li>Sidebar width: ~300px (typical VS Code sidebar)</li>
+    </ul>
+  </div>
+
+  <div style="text-align: center; margin: 40px 0; color: #969696; font-size: 12px;">
+    <p>This is a faithful recreation of the AHKv2 Toolbox sidebar UI</p>
+    <p style="margin-top: 10px;">Hover over buttons to see the darker hover state!</p>
+  </div>
+
+  <div id="inspector-overlay">
+    <div id="inspector-margin"></div>
+    <div id="inspector-border"></div>
+    <div id="inspector-padding"></div>
+    <div id="inspector-content"></div>
+  </div>
+
+  <div id="inspector-tooltip">
+    <div id="inspector-tooltip-content"></div>
+    <button id="inspector-tooltip-copy" aria-label="Inspector - Copy Element Details: Button">📋 Click or Ctrl+C to copy</button>
+  </div>
+
+  <div id="inspector-metrics">
+    <h4>Box Model</h4>
+    <div id="inspector-metrics-content"></div>
+  </div>
+
+  <script>
+    (function() {
+      const overlay = document.getElementById('inspector-overlay');
+      const marginBox = document.getElementById('inspector-margin');
+      const borderBox = document.getElementById('inspector-border');
+      const paddingBox = document.getElementById('inspector-padding');
+      const contentBox = document.getElementById('inspector-content');
+      const tooltip = document.getElementById('inspector-tooltip');
+      const tooltipContent = document.getElementById('inspector-tooltip-content');
+      const tooltipCopy = document.getElementById('inspector-tooltip-copy');
+      const metrics = document.getElementById('inspector-metrics');
+      const metricsContent = document.getElementById('inspector-metrics-content');
+
+      let currentElement = null;
+      let frozen = false;
+      let metricsVisible = false;
+      let lastUpdate = 0;
+      let rafId = null;
+      let cachedData = null;
+
+      function throttle(fn, ms) {
+        return function(...args) {
+          const now = Date.now();
+          if (now - lastUpdate >= ms) {
+            lastUpdate = now;
+            fn.apply(this, args);
+          }
+        };
+      }
+
+      function getElementInfo(el) {
+        if (!el || el === document.body || el === document.documentElement) return null;
+
+        const rect = el.getBoundingClientRect();
+        const computed = window.getComputedStyle(el);
+
+        const margin = {
+          top: parseFloat(computed.marginTop) || 0,
+          right: parseFloat(computed.marginRight) || 0,
+          bottom: parseFloat(computed.marginBottom) || 0,
+          left: parseFloat(computed.marginLeft) || 0
+        };
+
+        const border = {
+          top: parseFloat(computed.borderTopWidth) || 0,
+          right: parseFloat(computed.borderRightWidth) || 0,
+          bottom: parseFloat(computed.borderBottomWidth) || 0,
+          left: parseFloat(computed.borderLeftWidth) || 0
+        };
+
+        const padding = {
+          top: parseFloat(computed.paddingTop) || 0,
+          right: parseFloat(computed.paddingRight) || 0,
+          bottom: parseFloat(computed.paddingBottom) || 0,
+          left: parseFloat(computed.paddingLeft) || 0
+        };
+
+        // Determine element type/name
+        const tag = el.tagName.toLowerCase();
+        const classes = Array.from(el.classList);
+        let elementName = tag;
+
+        if (tag === 'button') {
+          elementName = 'Button';
+        } else if (classes.includes('info-badge')) {
+          elementName = 'Info Badge';
+        } else if (classes.includes('section-header')) {
+          elementName = 'Section Header';
+        } else if (classes.includes('divider')) {
+          elementName = 'Divider';
+        } else if (classes.includes('button-grid')) {
+          elementName = 'Button Grid';
+        } else if (classes.includes('button-container')) {
+          elementName = 'Button Container';
+        } else if (classes.includes('button-with-info')) {
+          elementName = 'Button-Info Row';
+        } else if (classes.includes('menu-section')) {
+          elementName = 'Section Container';
+        } else if (classes.includes('sidebar-content')) {
+          elementName = 'Sidebar Content';
+        } else if (classes.includes('mockup-title')) {
+          elementName = 'Sidebar Title';
+        } else if (tag === 'h3' || tag === 'h2' || tag === 'h1') {
+          elementName = 'Heading';
+        } else if (tag === 'span') {
+          elementName = 'Span';
+        } else if (tag === 'div') {
+          elementName = 'Div';
+        } else if (tag === 'section') {
+          elementName = 'Section';
+        }
+
+        return {
+          element: el,
+          rect,
+          computed,
+          margin,
+          border,
+          padding,
+          tag: tag,
+          id: el.id,
+          classes: classes.join(' '),
+          elementName: elementName,
+          contentWidth: Math.round(rect.width - border.left - border.right - padding.left - padding.right),
+          contentHeight: Math.round(rect.height - border.top - border.bottom - padding.top - padding.bottom)
+        };
+      }
+
+      function updateOverlay(data) {
+        if (!data) {
+          overlay.style.display = 'none';
+          return;
+        }
+
+        overlay.style.display = 'block';
+
+        const { rect, margin, border, padding } = data;
+        const scrollX = window.scrollX;
+        const scrollY = window.scrollY;
+
+        const marginRect = {
+          left: rect.left + scrollX - margin.left,
+          top: rect.top + scrollY - margin.top,
+          width: rect.width + margin.left + margin.right,
+          height: rect.height + margin.top + margin.bottom
+        };
+
+        marginBox.style.left = marginRect.left + 'px';
+        marginBox.style.top = marginRect.top + 'px';
+        marginBox.style.width = marginRect.width + 'px';
+        marginBox.style.height = marginRect.height + 'px';
+
+        const borderRect = {
+          left: rect.left + scrollX,
+          top: rect.top + scrollY,
+          width: rect.width,
+          height: rect.height
+        };
+
+        borderBox.style.left = borderRect.left + 'px';
+        borderBox.style.top = borderRect.top + 'px';
+        borderBox.style.width = borderRect.width + 'px';
+        borderBox.style.height = borderRect.height + 'px';
+
+        const paddingRect = {
+          left: rect.left + scrollX + border.left,
+          top: rect.top + scrollY + border.top,
+          width: rect.width - border.left - border.right,
+          height: rect.height - border.top - border.bottom
+        };
+
+        paddingBox.style.left = paddingRect.left + 'px';
+        paddingBox.style.top = paddingRect.top + 'px';
+        paddingBox.style.width = paddingRect.width + 'px';
+        paddingBox.style.height = paddingRect.height + 'px';
+
+        const contentRect = {
+          left: rect.left + scrollX + border.left + padding.left,
+          top: rect.top + scrollY + border.top + padding.top,
+          width: rect.width - border.left - border.right - padding.left - padding.right,
+          height: rect.height - border.top - border.bottom - padding.top - padding.bottom
+        };
+
+        contentBox.style.left = contentRect.left + 'px';
+        contentBox.style.top = contentRect.top + 'px';
+        contentBox.style.width = contentRect.width + 'px';
+        contentBox.style.height = contentRect.height + 'px';
+      }
+
+      function updateTooltip(data, mouseX, mouseY) {
+        if (!data) {
+          tooltip.style.display = 'none';
+          return;
+        }
+
+        tooltip.style.display = 'block';
+
+        const { tag, id, classes, contentWidth, contentHeight, computed, elementName, element } = data;
+
+        // Get text content from element
+        const textContent = element.textContent.trim();
+        const displayText = textContent.length > 30 ? textContent.substring(0, 30) + '...' : textContent;
+
+        let info = `<div><strong>${elementName}</strong>`;
+        if (elementName !== tag) info += ` (${tag})`;
+        if (id) info += ` #${id}`;
+        if (classes) info += ` .${classes.split(' ').join('.')}`;
+        info += `</div>`;
+        if (textContent) info += `<div>Text: "${displayText}"</div>`;
+        info += `<div>Size: ${contentWidth}×${contentHeight}px</div>`;
+        info += `<div>Color: ${computed.color}</div>`;
+        info += `<div>Background: ${computed.backgroundColor}</div>`;
+        info += `<div>Font: ${computed.fontSize}</div>`;
+
+        tooltipContent.innerHTML = info;
+
+        // Don't reposition tooltip if frozen
+        if (frozen && tooltip.style.left && tooltip.style.top) {
+          return;
+        }
+
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const tooltipRect = tooltip.getBoundingClientRect();
+        const offset = 15;
+
+        let left = mouseX + offset;
+        let top = mouseY + offset;
+
+        if (left + tooltipRect.width > viewportWidth) {
+          left = mouseX - tooltipRect.width - offset;
+        }
+
+        if (top + tooltipRect.height > viewportHeight) {
+          top = mouseY - tooltipRect.height - offset;
+        }
+
+        left = Math.max(5, Math.min(left, viewportWidth - tooltipRect.width - 5));
+        top = Math.max(5, Math.min(top, viewportHeight - tooltipRect.height - 5));
+
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+      }
+
+      function updateMetrics(data) {
+        if (!data || !metricsVisible) {
+          metrics.style.display = 'none';
+          return;
+        }
+
+        metrics.style.display = 'block';
+
+        const { margin, border, padding, contentWidth, contentHeight } = data;
+
+        let html = '';
+        html += `<div class="metric-row"><span class="metric-label">Margin:</span><span class="metric-value">${margin.top}px ${margin.right}px ${margin.bottom}px ${margin.left}px</span></div>`;
+        html += `<div class="metric-row"><span class="metric-label">Border:</span><span class="metric-value">${border.top}px ${border.right}px ${border.bottom}px ${border.left}px</span></div>`;
+        html += `<div class="metric-row"><span class="metric-label">Padding:</span><span class="metric-value">${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px</span></div>`;
+        html += `<div class="metric-row"><span class="metric-label">Content:</span><span class="metric-value">${contentWidth}×${contentHeight}px</span></div>`;
+
+        metricsContent.innerHTML = html;
+      }
+
+      function getTooltipText(data) {
+        if (!data) return '';
+        const { tag, id, classes, contentWidth, contentHeight, computed, elementName, element } = data;
+        const textContent = element.textContent.trim();
+
+        let text = `Element: ${elementName}`;
+        if (elementName !== tag) text += ` (${tag})`;
+        if (id) text += `\nID: ${id}`;
+        if (classes) text += `\nClasses: ${classes.split(' ').join(', ')}`;
+        if (textContent) text += `\nText: "${textContent}"`;
+        text += `\nSize: ${contentWidth}×${contentHeight}px`;
+        text += `\nColor: ${computed.color}`;
+        text += `\nBackground: ${computed.backgroundColor}`;
+        text += `\nFont: ${computed.fontSize}`;
+        return text;
+      }
+
+      function copyToClipboard() {
+        const text = getTooltipText(cachedData);
+        if (!text) return;
+
+        // Try modern clipboard API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            showCopySuccess();
+          }).catch(() => {
+            fallbackCopy(text);
+          });
+        } else {
+          fallbackCopy(text);
+        }
+      }
+
+      function fallbackCopy(text) {
+        // Fallback method using textarea
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
+        try {
+          const successful = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          if (successful) {
+            showCopySuccess();
+          } else {
+            showCopyFail();
+          }
+        } catch (err) {
+          document.body.removeChild(textarea);
+          showCopyFail();
+        }
+      }
+
+      function showCopySuccess() {
+        tooltipCopy.textContent = '✓ Copied!';
+        tooltip.style.borderColor = '#00ff00';
+        setTimeout(() => {
+          tooltipCopy.textContent = '📋 Click or Ctrl+C to copy';
+          tooltip.style.borderColor = '#007acc';
+        }, 1000);
+      }
+
+      function showCopyFail() {
+        tooltipCopy.textContent = '✗ Failed - Try Ctrl+C manually';
+        setTimeout(() => {
+          tooltipCopy.textContent = '📋 Click or Ctrl+C to copy';
+        }, 2000);
+      }
+
+      const handleMouseMove = throttle((e) => {
+        if (frozen) return;
+
+        if (rafId) cancelAnimationFrame(rafId);
+
+        rafId = requestAnimationFrame(() => {
+          const target = e.target;
+          if (target === overlay || target.closest('#inspector-overlay') ||
+              target === tooltip || target.closest('#inspector-tooltip') ||
+              target === metrics || target.closest('#inspector-metrics')) {
+            return;
+          }
+
+          currentElement = target;
+          cachedData = getElementInfo(target);
+          updateOverlay(cachedData);
+          updateTooltip(cachedData, e.clientX, e.clientY);
+          updateMetrics(cachedData);
+        });
+      }, 33);
+
+      document.addEventListener('mousemove', handleMouseMove, true);
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === ' ' && !e.target.matches('input, textarea')) {
+          e.preventDefault();
+          frozen = !frozen;
+          if (!frozen) {
+            cachedData = null;
+            overlay.style.display = 'none';
+            tooltip.style.display = 'none';
+            if (!metricsVisible) {
+              metrics.style.display = 'none';
+            }
+          }
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          frozen = false;
+          metricsVisible = false;
+          cachedData = null;
+          overlay.style.display = 'none';
+          tooltip.style.display = 'none';
+          metrics.style.display = 'none';
+        } else if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault();
+          metricsVisible = !metricsVisible;
+          updateMetrics(cachedData);
+        } else if ((e.ctrlKey || e.metaKey) && e.key === 'c' && cachedData && tooltip.style.display !== 'none') {
+          e.preventDefault();
+          copyToClipboard();
+        }
+      });
+
+      // Click anywhere on tooltip to copy
+      tooltip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyToClipboard();
+      });
+
+      // Also handle the button specifically
+      tooltipCopy.addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyToClipboard();
+      });
+    })();
+  </script>
+
+</body>
+</html>
+
+
+

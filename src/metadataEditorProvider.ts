@@ -92,16 +92,35 @@ export class MetadataEditorProvider {
           case 'generate':
             await MetadataEditorProvider.generateMetadata(filePath);
             break;
+          case 'back':
+            // Close the panel and return to editor
+            panel.dispose();
+            break;
+          case 'cancel':
+            // Close the panel without saving
+            panel.dispose();
+            break;
         }
       },
       undefined,
       context.subscriptions
     );
 
+    // Listen for active editor changes to warn if user switches files
+    const editorChangeListener = vscode.window.onDidChangeActiveTextEditor(editor => {
+      if (editor && panel.visible) {
+        panel.webview.postMessage({
+          type: 'activeFileChanged',
+          filePath: editor.document.fileName
+        });
+      }
+    });
+
     // Reset when the current panel is closed
     panel.onDidDispose(
       () => {
         MetadataEditorProvider.currentPanel = undefined;
+        editorChangeListener.dispose();
       },
       null,
       context.subscriptions
@@ -277,15 +296,16 @@ export class MetadataEditorProvider {
    * Get webview HTML content
    */
   private static getWebviewContent(metadata: JSDocMetadata, filePath: string): string {
+    const fileName = path.basename(filePath, path.extname(filePath));
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edit Metadata - ${path.basename(filePath)}</title>
+  <title>Edit Metadata - ${fileName}</title>
   <style>
     body {
-      padding: 20px;
+      padding: 12px;
       color: var(--vscode-foreground);
       font-family: var(--vscode-font-family);
       font-size: var(--vscode-font-size);
@@ -294,28 +314,44 @@ export class MetadataEditorProvider {
     }
     h1 {
       margin-bottom: 8px;
+      padding: 12px;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    h1.file-mismatch {
+      background-color: var(--vscode-errorBackground, #ff00001a);
+      border: 2px solid var(--vscode-errorForeground, #f14c4c);
     }
     .file-path {
       color: var(--vscode-descriptionForeground);
       font-size: 0.9em;
       margin-bottom: 24px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-mismatch-warning {
+      display: none;
+      background: var(--vscode-errorBackground);
+      border-left: 4px solid var(--vscode-errorForeground);
+      padding: 12px;
+      margin: 16px 0;
+      font-size: 0.9em;
+      color: var(--vscode-errorForeground);
+      font-weight: 600;
+    }
+    .file-mismatch-warning.visible {
+      display: block;
     }
     .section {
       background: var(--vscode-editor-background);
       border: 1px solid var(--vscode-panel-border);
       border-radius: 4px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .section h2 {
-      margin-top: 0;
-      margin-bottom: 12px;
-      font-size: 1.1em;
-      border-bottom: 1px solid var(--vscode-panel-border);
-      padding-bottom: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
     }
     .field {
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     .field-row {
       display: grid;
@@ -374,8 +410,8 @@ export class MetadataEditorProvider {
       background: var(--vscode-button-secondaryHoverBackground);
     }
     .button-group {
-      margin-top: 24px;
-      padding-top: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
       border-top: 1px solid var(--vscode-panel-border);
     }
     .tag-input-group {
@@ -418,24 +454,44 @@ export class MetadataEditorProvider {
     .info-box {
       background: var(--vscode-textBlockQuote-background);
       border-left: 4px solid var(--vscode-textLink-foreground);
-      padding: 12px;
-      margin: 16px 0;
+      padding: 8px;
+      margin: 8px 0;
       font-size: 0.9em;
+    }
+    .metadata-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 3px;
+      font-size: 0.85em;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .metadata-status.has-metadata {
+      background: #1a7f37;
+      color: #ffffff;
+    }
+    .metadata-status.no-metadata {
+      background: #6e6e6e;
+      color: #ffffff;
     }
   </style>
 </head>
 <body>
-  <h1>📝 Edit JSDoc Metadata</h1>
-  <div class="file-path">${filePath}</div>
+  <h1 id="pageTitle">📝 File: ${fileName}</h1>
+
+  <div class="file-mismatch-warning" id="fileMismatchWarning">
+    ⚠️ WARNING: You are no longer editing this file! Please switch back to the correct file tab or your changes may be applied to the wrong library.
+  </div>
+
+  <div class="metadata-status ${Object.keys(metadata).length > 0 ? 'has-metadata' : 'no-metadata'}">
+    ${Object.keys(metadata).length > 0 ? '✓ Has JSDoc comment block' : '✗ No JSDoc comment block found'}
+  </div>
 
   <div class="info-box">
     💡 <strong>Tip:</strong> Fill in as many fields as possible to help LLMs and package managers understand your library. Leave fields empty if not applicable.
   </div>
 
-  <!-- Basic Information -->
   <div class="section">
-    <h2>📋 Basic Information</h2>
-
     <div class="field-row">
       <div class="field">
         <label for="file">File Name</label>
@@ -466,10 +522,7 @@ export class MetadataEditorProvider {
     </div>
   </div>
 
-  <!-- Authorship & Licensing -->
   <div class="section">
-    <h2>👤 Authorship & Licensing</h2>
-
     <div class="field-row">
       <div class="field">
         <label for="author">Author</label>
@@ -502,10 +555,7 @@ export class MetadataEditorProvider {
     </div>
   </div>
 
-  <!-- Version & Dates -->
   <div class="section">
-    <h2>📅 Version & Dates</h2>
-
     <div class="field-row">
       <div class="field">
         <label for="version">Version (semver)</label>
@@ -530,10 +580,7 @@ export class MetadataEditorProvider {
     </div>
   </div>
 
-  <!-- Links & References -->
   <div class="section">
-    <h2>🔗 Links & References</h2>
-
     <div class="field">
       <label for="homepage">Homepage</label>
       <input type="url" id="homepage" value="${metadata.homepage || ''}" placeholder="https://..." />
@@ -568,10 +615,7 @@ export class MetadataEditorProvider {
     </div>
   </div>
 
-  <!-- Classification -->
   <div class="section">
-    <h2>🏷️ Classification</h2>
-
     <div class="field-row">
       <div class="field">
         <label for="module">Module Name</label>
@@ -600,10 +644,7 @@ export class MetadataEditorProvider {
     </div>
   </div>
 
-  <!-- Dependencies & API -->
   <div class="section">
-    <h2>📦 Dependencies & API</h2>
-
     <div class="field">
       <label>Requires</label>
       <div class="tag-input-group">
@@ -634,10 +675,7 @@ export class MetadataEditorProvider {
     </div>
   </div>
 
-  <!-- Usage & Behavior -->
   <div class="section">
-    <h2>⚙️ Usage & Behavior</h2>
-
     <div class="field">
       <label for="entrypoint">Entry Point</label>
       <input type="text" id="entrypoint" value="${metadata.entrypoint || ''}" placeholder="Auto-execute section, Main()" />
@@ -678,10 +716,7 @@ export class MetadataEditorProvider {
     </div>
   </div>
 
-  <!-- Documentation -->
   <div class="section">
-    <h2>📖 Documentation</h2>
-
     <div class="field">
       <label for="examples">Examples</label>
       <textarea id="examples" rows="4">${metadata.examples || ''}</textarea>
@@ -704,15 +739,17 @@ export class MetadataEditorProvider {
     </div>
   </div>
 
-  <!-- Save Button -->
   <div class="button-group">
+    <button class="secondary" onclick="goBack()">← Back</button>
     <button onclick="saveMetadata()">💾 Save Metadata</button>
-    <button class="secondary" onclick="generateMetadata()">🤖 AI Generate (Coming Soon)</button>
-    <button class="secondary" onclick="resetForm()">🔄 Reset</button>
+    <button class="secondary" onclick="cancelEdit()">✕ Cancel</button>
   </div>
 
   <script>
     const vscode = acquireVsCodeApi();
+
+    // Track the original file path being edited
+    const originalFilePath = '${filePath}';
 
     // Initialize array fields
     const metadata = ${JSON.stringify(metadata)};
@@ -772,6 +809,7 @@ export class MetadataEditorProvider {
     renderArrayField('contributors', 'contributorsList');
 
     function saveMetadata() {
+      console.log('saveMetadata called');
       const formData = {
         file: document.getElementById('file').value,
         title: document.getElementById('title').value,
@@ -810,18 +848,63 @@ export class MetadataEditorProvider {
         contributors: metadata.contributors
       };
 
-      vscode.postMessage({ type: 'save', metadata: formData });
+      console.log('Sending save message with data:', formData);
+      try {
+        vscode.postMessage({ type: 'save', metadata: formData });
+      } catch (error) {
+        console.error('Error sending save message:', error);
+        alert('Failed to save: ' + error.message);
+      }
     }
 
     function generateMetadata() {
+      console.log('Generate metadata called');
       vscode.postMessage({ type: 'generate' });
     }
 
-    function resetForm() {
-      if (confirm('Reset all changes? This cannot be undone.')) {
-        location.reload();
+    function goBack() {
+      console.log('goBack called');
+      try {
+        vscode.postMessage({ type: 'back' });
+      } catch (error) {
+        console.error('Error sending back message:', error);
+        alert('Failed to go back: ' + error.message);
       }
     }
+
+    function cancelEdit() {
+      console.log('cancelEdit called');
+      if (confirm('Discard all changes and close?')) {
+        try {
+          vscode.postMessage({ type: 'cancel' });
+        } catch (error) {
+          console.error('Error sending cancel message:', error);
+          alert('Failed to cancel: ' + error.message);
+        }
+      }
+    }
+
+    // Listen for active file change messages from extension
+    window.addEventListener('message', event => {
+      const message = event.data;
+
+      if (message.type === 'activeFileChanged') {
+        const currentFilePath = message.filePath;
+        const pageTitle = document.getElementById('pageTitle');
+        const warning = document.getElementById('fileMismatchWarning');
+
+        // Check if the current file matches the file being edited
+        if (currentFilePath !== originalFilePath) {
+          // File mismatch - show warning
+          pageTitle.classList.add('file-mismatch');
+          warning.classList.add('visible');
+        } else {
+          // File matches - hide warning
+          pageTitle.classList.remove('file-mismatch');
+          warning.classList.remove('visible');
+        }
+      }
+    });
   </script>
 </body>
 </html>`;

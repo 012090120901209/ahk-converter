@@ -22,7 +22,8 @@ export class FunctionTreeItem extends vscode.TreeItem {
     diagnostics: vscode.Diagnostic[] = [],
     scope?: 'global' | 'static' | 'local',
     includePath?: string,
-    includeLineNumber?: number
+    includeLineNumber?: number,
+    parameterNames?: string[]
   ) {
     // Don't add Nerd Font icons to labels - causes rendering issues
     super(label, collapsibleState);
@@ -53,12 +54,28 @@ export class FunctionTreeItem extends vscode.TreeItem {
       }
 
       if (symbol) {
+        // Check if we should show parameters inline
+        const config = vscode.workspace.getConfiguration('ahkConverter.codeMap');
+        const showParamsInline = config.get<boolean>('showParametersInline', false);
+
+        let descriptionText = '';
+
         // Add static label for methods
         if (itemType === 'method') {
-          this.description = this.isStatic ? 'static' : '';
+          descriptionText = this.isStatic ? 'static' : '';
         } else {
-          this.description = symbol.detail;
+          descriptionText = symbol.detail || '';
         }
+
+        if (showParamsInline && parameterNames && parameterNames.length > 0) {
+          // Show parameters in description field (darker grey, right-aligned)
+          // Format: "local (Param1, Param2)" or "static (Param1, Param2)"
+          const paramList = parameterNames.join(', ');
+          const prefix = itemType === 'method' && this.isStatic ? 'static' : 'local';
+          descriptionText = `${prefix} (${paramList})`;
+        }
+
+        this.description = descriptionText;
 
         // Use rich hover content if available, otherwise fall back to basic info
         if (hoverContent) {
@@ -162,11 +179,15 @@ export class FunctionTreeItem extends vscode.TreeItem {
         new vscode.ThemeColor('symbolIcon.variableForeground'));
       this.contextValue = 'parameter';
       if (symbol) {
+        // Parameters are always local scope in AHK v2
+        this.description = scope || 'local';
+
         const detail = symbol.detail ? `: ${symbol.detail}` : '';
         if (hoverContent) {
           this.tooltip = new vscode.MarkdownString(hoverContent);
         } else {
-          this.tooltip = new vscode.MarkdownString(`**Parameter:** ${symbol.name}${detail}`);
+          const scopeLabel = scope ? scope.charAt(0).toUpperCase() + scope.slice(1) : 'Local';
+          this.tooltip = new vscode.MarkdownString(`**${scopeLabel} parameter:** ${symbol.name}${detail}`);
         }
       }
     } else if (itemType === 'variable') {
@@ -299,6 +320,7 @@ export class FunctionTreeItem extends vscode.TreeItem {
         return '';
     }
   }
+
 }
 
 export class FunctionTreeProvider implements
@@ -840,6 +862,11 @@ export class FunctionTreeProvider implements
         // Get diagnostics for this symbol
         const diagnostics = this.getDiagnosticsForSymbol(document, symbol);
 
+        // Extract parameters for functions and methods
+        const parameterNames = (itemType === 'function' || itemType === 'method')
+          ? this.extractParameterNames(document, symbol)
+          : undefined;
+
         items.push(new FunctionTreeItem(
           symbol.name,
           collapsibleState,
@@ -849,7 +876,10 @@ export class FunctionTreeProvider implements
           childCount,
           isStatic,
           diagnostics,
-          scope
+          scope,
+          undefined,
+          undefined,
+          parameterNames
         ));
       }
 
@@ -883,6 +913,11 @@ export class FunctionTreeProvider implements
         // Get diagnostics for this symbol
         const diagnostics = this.getDiagnosticsForSymbol(document, child);
 
+        // Extract parameters for functions and methods
+        const parameterNames = (itemType === 'function' || itemType === 'method')
+          ? this.extractParameterNames(document, child)
+          : undefined;
+
         childItems.push(new FunctionTreeItem(
           child.name,
           collapsibleState,
@@ -892,7 +927,10 @@ export class FunctionTreeProvider implements
           childCount,
           isStatic,
           diagnostics,
-          scope
+          scope,
+          undefined,
+          undefined,
+          parameterNames
         ));
       }
 
@@ -1116,6 +1154,11 @@ ${asciiTree}
           const scope = itemType === 'variable' ? this.getVariableScope(document, child, item.symbol) : undefined;
           const diagnostics = this.getDiagnosticsForSymbol(document, child);
 
+          // Extract parameters for functions and methods
+          const parameterNames = (itemType === 'function' || itemType === 'method')
+            ? this.extractParameterNames(document, child)
+            : undefined;
+
           childItems.push(new FunctionTreeItem(
             child.name,
             collapsibleState,
@@ -1125,7 +1168,10 @@ ${asciiTree}
             childCount,
             isStatic,
             diagnostics,
-            scope
+            scope,
+            undefined,
+            undefined,
+            parameterNames
           ));
         }
 
@@ -1169,6 +1215,103 @@ ${asciiTree}
         return '[#?]';
       default:
         return '[ ]';
+    }
+  }
+
+  /**
+   * Extract parameter names from a function/method symbol by parsing the source code
+   * Returns only actual parameters from the function signature
+   */
+  private extractParameterNames(document: vscode.TextDocument, symbol: vscode.DocumentSymbol): string[] {
+    try {
+      // Get the text of the function declaration
+      // We'll read a few lines to handle multi-line signatures
+      const startLine = symbol.range.start.line;
+      const endLine = Math.min(startLine + 3, document.lineCount - 1); // Look at most 3 lines
+
+      let declarationText = '';
+      for (let i = startLine; i <= endLine; i++) {
+        declarationText += document.lineAt(i).text + '\n';
+      }
+
+      // Match function/method signature patterns:
+      // 1. Regular function: FunctionName(param1, param2) {
+      // 2. Arrow function: MethodName(param1, param2) => expression
+      // 3. With optional params: Function(param1?, param2 := default)
+      // 4. With ByRef: Function(&param1, param2*)
+
+      const functionNameEscaped = symbol.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const paramRegex = new RegExp(functionNameEscaped + '\\s*\\(([^)]*)\\)', 'i');
+      const match = declarationText.match(paramRegex);
+
+      if (!match || !match[1]) {
+        return [];
+      }
+
+      const paramString = match[1].trim();
+      if (!paramString) {
+        return [];
+      }
+
+      // Split by comma, but handle nested parentheses (for default values)
+      const parameters: string[] = [];
+      let current = '';
+      let depth = 0;
+
+      for (let i = 0; i < paramString.length; i++) {
+        const char = paramString[i];
+
+        if (char === '(' || char === '[') {
+          depth++;
+          current += char;
+        } else if (char === ')' || char === ']') {
+          depth--;
+          current += char;
+        } else if (char === ',' && depth === 0) {
+          // End of parameter
+          const param = current.trim();
+          if (param) {
+            // Extract just the parameter name, removing:
+            // - Optional marker (?)
+            // - ByRef marker (&)
+            // - Variadic marker (*)
+            // - Default values (:= ...)
+            let paramName = param
+              .replace(/^\s*&/, '')  // Remove ByRef &
+              .replace(/\*\s*$/, '') // Remove variadic *
+              .replace(/\?\s*$/, '') // Remove optional ?
+              .split(':=')[0]        // Remove default value
+              .trim();
+
+            if (paramName) {
+              parameters.push(paramName);
+            }
+          }
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+
+      // Don't forget the last parameter
+      if (current.trim()) {
+        const param = current.trim();
+        let paramName = param
+          .replace(/^\s*&/, '')
+          .replace(/\*\s*$/, '')
+          .replace(/\?\s*$/, '')
+          .split(':=')[0]
+          .trim();
+
+        if (paramName) {
+          parameters.push(paramName);
+        }
+      }
+
+      return parameters;
+    } catch (error) {
+      console.error('Error extracting parameter names:', error);
+      return [];
     }
   }
 }

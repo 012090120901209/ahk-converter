@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs/promises';
+import { insertIncludeLine, previewIncludeInsertion } from './includeLineInserter';
 
 /**
  * Represents a package or library item in the package manager
@@ -403,15 +404,18 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
       installedPath = path.join(this.workspaceRoot, 'Lib', `${packageItem.packageName}.ahk`);
     }
 
-    // Show success notification with "Open" button
+    // Show success notification with "Open" and "Add #Include" buttons
     const action = await vscode.window.showInformationMessage(
       `${packageItem.packageName} installed successfully!`,
+      'Add #Include',
       'Open',
       'Dismiss'
     );
 
-    // If user clicks "Open", open the installed file
-    if (action === 'Open') {
+    // Handle user action
+    if (action === 'Add #Include') {
+      await this.addIncludeToActiveFile(packageItem.packageName);
+    } else if (action === 'Open') {
       try {
         // Check if file exists, if not try to find it in installed packages
         let fileToOpen = installedPath;
@@ -506,6 +510,109 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
     }
 
     this.refresh();
+  }
+
+  /**
+   * Add #Include line to active file or prompt user to select a file
+   */
+  private async addIncludeToActiveFile(packageName: string): Promise<void> {
+    try {
+      // Try to get the active text editor
+      let targetDocument = vscode.window.activeTextEditor?.document;
+
+      // Check if active document is an AHK file
+      if (targetDocument && !this.isAhkFile(targetDocument)) {
+        targetDocument = undefined;
+      }
+
+      // If no active AHK file, prompt user to select one
+      if (!targetDocument) {
+        const ahkFiles = await this.findWorkspaceAhkFiles();
+
+        if (ahkFiles.length === 0) {
+          vscode.window.showWarningMessage('No .ahk files found in workspace');
+          return;
+        }
+
+        // Prompt user to select a file
+        const selected = await vscode.window.showQuickPick(
+          ahkFiles.map(uri => ({
+            label: path.basename(uri.fsPath),
+            description: vscode.workspace.asRelativePath(uri),
+            uri
+          })),
+          {
+            placeHolder: `Select an .ahk file to add #Include for ${packageName}`
+          }
+        );
+
+        if (!selected) {
+          return; // User cancelled
+        }
+
+        targetDocument = await vscode.workspace.openTextDocument(selected.uri);
+      }
+
+      // Now insert the #Include line
+      const result = await insertIncludeLine(targetDocument, {
+        packageName
+      });
+
+      // Show result to user
+      switch (result.status) {
+        case 'inserted':
+          vscode.window.showInformationMessage(
+            `✓ Added #Include for ${packageName} at line ${result.lineNumber}`
+          );
+          break;
+        case 'headers_added':
+          vscode.window.showInformationMessage(
+            `✓ Added headers and #Include for ${packageName}`
+          );
+          break;
+        case 'already_included':
+          vscode.window.showInformationMessage(
+            `${packageName} is already included in this file (line ${result.lineNumber})`
+          );
+          break;
+        case 'error':
+          vscode.window.showErrorMessage(
+            `Failed to add #Include: ${result.message}`
+          );
+          break;
+      }
+    } catch (error) {
+      vscode.window.showErrorMessage(
+        `Error adding #Include: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  /**
+   * Check if a document is an AutoHotkey file
+   */
+  private isAhkFile(document: vscode.TextDocument): boolean {
+    return document.languageId === 'ahk' ||
+           document.languageId === 'ahk2' ||
+           document.fileName.endsWith('.ahk') ||
+           document.fileName.endsWith('.ahk2');
+  }
+
+  /**
+   * Find all .ahk files in the workspace
+   */
+  private async findWorkspaceAhkFiles(): Promise<vscode.Uri[]> {
+    // Search for .ahk and .ahk2 files in workspace
+    const ahkFiles = await vscode.workspace.findFiles('**/*.ahk', '**/node_modules/**');
+    const ahk2Files = await vscode.workspace.findFiles('**/*.ahk2', '**/node_modules/**');
+
+    // Combine and filter out files in Lib/ and vendor/ folders (the libraries themselves)
+    const allFiles = [...ahkFiles, ...ahk2Files];
+
+    return allFiles.filter(uri => {
+      const relativePath = vscode.workspace.asRelativePath(uri);
+      return !relativePath.startsWith('Lib/') && !relativePath.startsWith('vendor/');
+    });
   }
 
   /**

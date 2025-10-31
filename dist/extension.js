@@ -26,6 +26,8 @@ const dependencyTreeProvider_1 = require("./dependencyTreeProvider");
 const packageManagerProvider_1 = require("./packageManagerProvider");
 const settingsWebviewProvider_1 = require("./settingsWebviewProvider");
 const metadataEditorProvider_1 = require("./metadataEditorProvider");
+const chatParticipant_1 = require("./chatParticipant");
+const libraryAttributionParticipant_1 = require("./libraryAttributionParticipant");
 // Enhanced error types for better error handling with user-friendly messages
 class AHKConverterError extends Error {
     constructor(message, code, details, userMessage, learnMoreUrl, recoveryActions) {
@@ -229,8 +231,10 @@ async function getPaths(ctx) {
                         return exe;
                     }
                 }
-                catch {
-                    // try next
+                catch (error) {
+                    // Log for debugging but continue trying other paths
+                    const errorMessage = error instanceof Error ? error.message : String(error);
+                    getOutput().appendLine(`[findExisting] Failed to validate ${exe}: ${errorMessage}`);
                 }
             }
             return undefined;
@@ -407,7 +411,34 @@ async function convertText(ctx, srcText) {
             }
             // Wait for output file to appear; the converter writes alongside input
             try {
-                const outText = await fs.promises.readFile(expectedOut, 'utf8');
+                // Read as Buffer first to detect actual encoding from BOM
+                const buffer = await fs.promises.readFile(expectedOut);
+                // Detect encoding from BOM bytes
+                let encoding = 'utf8';
+                let bomLength = 0;
+                if (buffer.length >= 3 && buffer[0] === 0xEF && buffer[1] === 0xBB && buffer[2] === 0xBF) {
+                    // UTF-8 BOM: EF BB BF
+                    encoding = 'utf8';
+                    bomLength = 3;
+                    getOutput().appendLine('[converter] Detected UTF-8 BOM');
+                }
+                else if (buffer.length >= 2 && buffer[0] === 0xFF && buffer[1] === 0xFE) {
+                    // UTF-16 LE BOM: FF FE
+                    encoding = 'utf16le';
+                    bomLength = 2;
+                    getOutput().appendLine('[converter] Detected UTF-16 LE BOM');
+                }
+                else if (buffer.length >= 2 && buffer[0] === 0xFE && buffer[1] === 0xFF) {
+                    // UTF-16 BE BOM: FE FF
+                    encoding = 'utf16le';
+                    bomLength = 2;
+                    getOutput().appendLine('[converter] Warning: UTF-16 BE detected, decoding as UTF-16 LE');
+                }
+                // Decode with correct encoding and strip BOM
+                const outText = buffer.slice(bomLength).toString(encoding);
+                if (bomLength > 0) {
+                    getOutput().appendLine(`[converter] Stripped ${encoding} BOM (${bomLength} bytes)`);
+                }
                 // Validate conversion result
                 const conversionValidation = validateConversionResult(srcText, outText);
                 stats.warnings += conversionValidation.warnings.length;
@@ -429,8 +460,9 @@ async function convertText(ctx, srcText) {
                 }
                 return { result: outText, stats };
             }
-            catch {
-                throw new ConversionError(`Expected output not found: ${expectedOut}${stderr ? '\n' + stderr : ''}`);
+            catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                throw new ConversionError(`Failed to read converted output: ${expectedOut}`, { originalError: errorMessage, stderr });
             }
         });
     }
@@ -646,7 +678,7 @@ async function saveBatchResults(results, outputDirectory) {
         actions: ['Open Folder']
     });
 }
-function activate(ctx) {
+async function activate(ctx) {
     // Check for LSP extension and show notification if not found
     const lspIntegration = lspIntegration_1.AHKLSPIntegration.getInstance();
     // Check LSP availability after a short delay to let other extensions activate
@@ -824,6 +856,83 @@ function activate(ctx) {
     catch (error) {
         console.log('Settings Provider not initialized:', error);
     }
+    // Activate LSP Output Capture
+    try {
+        const { activateLSPCapture } = await Promise.resolve().then(() => require('./utils/lspOutputCapture'));
+        activateLSPCapture(ctx);
+    }
+    catch (error) {
+        console.log('LSP Output Capture not initialized:', error);
+    }
+    // Register AHK v2 Chat Participant
+    try {
+        const chatParticipant = (0, chatParticipant_1.registerAHKChatParticipant)(ctx, 
+        // TODO: pass actual instances when available
+        undefined, // metadataHandler
+        undefined, // functionAnalyzer
+        undefined // conversionProfileManager
+        );
+        ctx.subscriptions.push(chatParticipant);
+        console.log('AHK v2 Chat Participant registered');
+    }
+    catch (error) {
+        console.log('Chat Participant not initialized (requires VS Code 1.90+ and GitHub Copilot):', error);
+    }
+    // Register Library Attribution Participant
+    try {
+        const libraryAttributionParticipant = (0, libraryAttributionParticipant_1.registerLibraryAttributionParticipant)(ctx);
+        ctx.subscriptions.push(libraryAttributionParticipant);
+        console.log('Library Attribution Participant registered');
+    }
+    catch (error) {
+        console.log('Library Attribution Participant not initialized:', error);
+    }
+    // Register Metadata Validation Provider
+    try {
+        const { registerMetadataValidation } = await Promise.resolve().then(() => require('./metadataValidationProvider'));
+        const metadataValidation = registerMetadataValidation(ctx);
+        ctx.subscriptions.push(metadataValidation);
+        console.log('Metadata Validation Provider registered');
+    }
+    catch (error) {
+        console.log('Metadata Validation Provider not initialized:', error);
+    }
+    // Register command to manually add output for testing
+    ctx.subscriptions.push(vscode.commands.registerCommand('ahkv2Toolbox.addTestOutput', async () => {
+        const { getOutputChannelMonitor } = await Promise.resolve().then(() => require('./utils/outputChannelMonitor'));
+        const { LSPOutputCapture } = await Promise.resolve().then(() => require('./utils/lspOutputCapture'));
+        const monitor = getOutputChannelMonitor();
+        // Get test output from clipboard or input box
+        const clipboardText = await vscode.env.clipboard.readText();
+        if (clipboardText && clipboardText.includes('.ahk')) {
+            // Add to monitor as if from "AutoHotkey v2 LSP" channel
+            const lines = clipboardText.split('\n');
+            monitor.addOutputLines('AutoHotkey v2 LSP', lines);
+            // Also notify LSP capture service
+            const lspCapture = LSPOutputCapture.getInstance();
+            lspCapture.captureOutput(clipboardText);
+            const stats = monitor.getStats();
+            vscode.window.showInformationMessage(`✅ Added ${lines.length} lines to output monitor. ${stats.recentErrors} errors tracked.`);
+        }
+        else {
+            vscode.window.showWarningMessage('⚠️ No valid AHK output found in clipboard. Copy error output first.');
+        }
+    }));
+    // Register command to show output capture stats
+    ctx.subscriptions.push(vscode.commands.registerCommand('ahkv2Toolbox.showOutputStats', async () => {
+        const { getOutputChannelMonitor } = await Promise.resolve().then(() => require('./utils/outputChannelMonitor'));
+        const { LSPOutputCapture } = await Promise.resolve().then(() => require('./utils/lspOutputCapture'));
+        const monitor = getOutputChannelMonitor();
+        const lspCapture = LSPOutputCapture.getInstance();
+        const stats = monitor.getStats();
+        const isLSPActive = await lspCapture.isAvailable();
+        const message = `📊 Output Capture Stats:
+• Channels: ${stats.channels}
+• Total Lines: ${stats.totalLines}
+• Recent Errors: ${stats.recentErrors}
+• LSP Integration: ${isLSPActive ? '✅ Active' : '❌ Not Available'}`;
+        vscode.window.showInformationMessage(message, { modal: false });
+    }));
     // Compile and Reload Debugger Command
     ctx.subscriptions.push(vscode.commands.registerCommand('ahk.compileAndReload', async () => {
         try {

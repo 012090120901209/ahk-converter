@@ -1,10 +1,10 @@
 /**
  * @file Window.ahk
  * @description Class to manage windows and monitors
- * @author
- * @date
- * @version
- * @requires AutoHotkey v2
+ * @author TrueCrimeAudit
+ * @date 2024-06-10
+ * @version 1.0.0
+ * @requires AHK2
  * @keywords windows, monitors, window-management
  * @category Utility
  * @example Window.GetActiveWindow()

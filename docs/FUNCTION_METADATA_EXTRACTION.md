@@ -50,7 +50,7 @@ Function(p1 := Random(1, 6), p2 := obj.prop, p3 := [], p4 := 2 + 2) {
 **Metadata:**
 - `hasDefault: true/false`
 - `defaultValue: string` - The raw default value text
-- `defaultType: DefaultValueType` - Constant, Expression, or None
+- `defaultValueType: DefaultValueType` - Constant, Expression, or None
 
 **Note:** As discussed in the AHK community, when a default value is an expression like `Random(1, 6)`, it's impossible to determine the actual runtime value through static analysis. The system correctly identifies this as `DefaultValueType.Expression`.
 
@@ -191,7 +191,7 @@ interface Parameter {
   isOptional: boolean;
   hasDefault: boolean;
   defaultValue?: string;
-  defaultType: DefaultValueType;
+  defaultValueType: DefaultValueType;
   typeHint?: string;
   position: number;
 }
@@ -286,3 +286,4 @@ See `test/enhanced-metadata.test.ahk` for comprehensive examples demonstrating a
 - [Code Map](../README.md#language-support) - Visual function tree with metadata
 - [Function Analyzer API](../src/functionAnalyzer.ts) - Implementation details
 - [Metadata Types](../src/models/functionMetadata.ts) - TypeScript interfaces
+

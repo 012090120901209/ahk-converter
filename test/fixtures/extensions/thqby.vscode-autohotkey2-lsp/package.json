@@ -1,0 +1,10 @@
+{
+  "name": "vscode-autohotkey2-lsp",
+  "displayName": "Stub AutoHotkey v2 LSP",
+  "publisher": "thqby",
+  "version": "0.0.0",
+  "engines": {
+    "vscode": "^1.84.0"
+  },
+  "main": "./out/extension.js"
+}
