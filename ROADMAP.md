@@ -1,6 +1,6 @@
 # AHKv2 Toolbox - Roadmap & Future Updates
 
-## Current Version: 0.4.2
+## Current Version: 0.4.3
 
 This document outlines planned features, enhancements, and long-term goals for the AHKv2 Toolbox extension.
 
@@ -34,11 +34,12 @@ Automatically insert `#Include` statements when installing packages.
 5. User confirms → Include line inserted with proper formatting
 6. Success notification with "Open File" button
 
-**Configuration Options (Future):**
-- `ahk.includeFormat`: Template for include path (default: `Lib/{name}.ahk`)
-- `ahk.autoInsertHeaders`: Auto-add #Requires and #SingleInstance (default: false)
-- `ahk.headerOrder`: Order of directives to insert
-- `ahk.confirmBeforeInsert`: Show preview dialog (default: true)
+**Configuration Options:**
+- `ahkv2Toolbox.includeFormat`: Template for include path (default: `Lib/{name}.ahk`) ✅
+- `ahkv2Toolbox.autoInsertHeaders`: Auto-add #Requires and #SingleInstance (default: false) ✅
+- `ahkv2Toolbox.headerOrder`: Order of directives to insert ✅
+- `ahkv2Toolbox.defaultRequires`: Default AutoHotkey version (default: "AutoHotkey v2.1") ✅
+- `ahkv2Toolbox.defaultSingleInstance`: Default SingleInstance mode (default: "Force") ✅
 
 **Related Files:**
 - Implementation: `src/includeLineInserter.ts` ✅
@@ -433,7 +434,17 @@ Want to help implement these features? Check out:
 
 ## 📝 Changelog
 
-### Version 0.4.2 (Current)
+### Version 0.4.3 (Current)
+- ✅ Auto-Add #Include feature fully implemented
+- ✅ Smart include insertion with directive anchor detection
+- ✅ Duplicate prevention with normalized path comparison
+- ✅ EOL preservation (CRLF/LF)
+- ✅ Optional header auto-insertion
+- ✅ Configurable include path templates
+- ✅ Comprehensive test suite (20 test cases)
+- ✅ Complete documentation (3 guides)
+
+### Version 0.4.2
 - ✅ Added Dependency Manager (package view)
 - ✅ Added Dependency Map (file includes view)
 - ✅ Renamed and reordered sidebar views
@@ -453,7 +464,7 @@ Want to help implement these features? Check out:
 
 ---
 
-**Last Updated:** 2025-10-25
+**Last Updated:** 2025-10-31
 **Next Review:** After v0.5.0 release
 
 For detailed implementation status, see individual feature tracking in [GitHub Issues](https://github.com/012090120901209/ahk-converter/issues).

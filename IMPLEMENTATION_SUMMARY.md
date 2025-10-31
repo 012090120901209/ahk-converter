@@ -266,12 +266,27 @@ This implementation follows **100%** of the rules documented in [INCLUDE_INSERTI
 
 ## Known Limitations
 
-None identified. The implementation is feature-complete according to the specification.
+### Current Limitations
+1. **Manual Testing Pending**: Only automated unit tests have been run. Manual testing in VS Code extension host environment is required before production use.
+
+2. **No Test Runner**: Unit tests exist but there's no test script configured in package.json. Tests cannot be run with `npm test`.
+
+3. **No Preview Dialog**: Include lines are inserted immediately without a preview/confirmation dialog. Users cannot review the insertion before it happens.
+
+4. **Performance Not Tested**: Behavior with very large files (>10,000 lines) or workspaces with hundreds of .ahk files hasn't been tested.
+
+5. **Multi-root Workspaces**: Edge cases in multi-root workspaces may not be fully handled.
+
+6. **Limited #Include Format Detection**: Only standard formats are detected for duplicate prevention. Exotic or malformed includes might not be recognized:
+   - Handles: `Lib/Name.ahk`, `<Name>`, `../path/Name.ahk`
+   - May miss: includes with complex string concatenation, conditional includes
 
 ### Future Considerations
-- Preview dialog before insertion (currently inserts immediately)
+- Preview dialog before insertion (planned enhancement)
 - Batch insert for multiple packages
 - Include sorting option (append-only is current behavior)
+- Undo/redo support for include insertion
+- Integration with package uninstall (remove #Include when uninstalling)
 
 ---
 
