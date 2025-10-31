@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --inspector-content: rgba(135, 206, 250, 0.3);
+      --inspector-padding: rgba(147, 196, 125, 0.3);
+      --inspector-border: rgba(255, 229, 153, 0.3);
+      --inspector-margin: rgba(246, 178, 107, 0.3);
+      --inspector-outline: rgba(135, 206, 250, 0.8);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #1e1e1e;
+      color: #cccccc;
+      padding: 20px;
+      line-height: 1.5;
+    }
+
+    .page-header {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .page-header p {
+      font-size: 14px;
+      color: #969696;
+    }
+
+    .mockup-container {
+      max-width: 300px;
+      margin: 0 auto;
+      background: #252526;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Header bar with back button */
+    .header-bar {
+      background: #2d2d30;
+      padding: 12px 16px;
+      border-bottom: 1px solid #3c3c3c;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .back-button {
+      background: transparent;
+      border: none;
+      color: #cccccc;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      min-height: 32px;
+      transition: background 0.1s ease;
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .back-button:active {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .header-bar h1 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      flex: 1;
+      margin-left: 10px;
+    }
+
+    /* Settings content */
+    .settings-content {
+      padding: 12px 0;
+    }
+
+    .settings-section {
+      margin-bottom: 12px;
+      padding: 0 24px;
+    }
+
+    .section-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #969696;
+      margin: 0 0 12px 0;
+      padding: 0;
+    }
+
+    /* Form fields - styled to match vscode-text-field */
+    .form-field {
+      margin-bottom: 12px;
+    }
+
+    .form-field:last-child {
+      margin-bottom: 0;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #cccccc;
+      margin-bottom: 6px;
+    }
+
+    .field-input,
+    .field-select {
+      width: 100%;
+      background: #3c3c3c;
+      color: #cccccc;
+      border: 1px solid #3e3e42;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      border-radius: 2px;
+      height: 26px;
+      transition: border-color 0.15s ease, outline 0.15s ease;
+      box-sizing: border-box;
+    }
+
+    .field-input:focus,
+    .field-select:focus {
+      outline: 1px solid #007acc;
+      outline-offset: -1px;
+      border-color: #007acc;
+    }
+
+    .field-input::placeholder {
+      color: #858585;
+    }
+
+    .field-select {
+      cursor: pointer;
+      padding: 2px 8px;
+    }
+
+    .field-description {
+      font-size: 11px;
+      color: #858585;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* Checkbox - styled to match vscode-checkbox */
+    .checkbox-field {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .checkbox-field input[type="checkbox"] {
+      margin-top: 2px;
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+      accent-color: #007acc;
+    }
+
+    .checkbox-field label {
+      font-size: 12px;
+      color: #cccccc;
+      cursor: pointer;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: #3c3c3c;
+      margin: 12px 0;
+    }
+
+    /* Button styles matching mockup */
+    button {
+      background: #2e2e2e;
+      color: #cccccc;
+      border: 1px solid #3c3c3c;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 400;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.1s ease;
+      width: 100%;
+      min-height: 32px;
+      height: 32px;
+    }
+
+    button:hover {
+      background: #2a2a2a;
+    }
+
+    button:active {
+      background: #242424;
+    }
+
+    button.primary {
+      background: #0e639c;
+      color: #ffffff;
+      border: none;
+    }
+
+    button.primary:hover {
+      background: #1177bb;
+    }
+
+    button.primary:active {
+      background: #0d5a8f;
+    }
+
+    /* Button group */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Library link styling */
+    .library-item {
+      margin-bottom: 12px;
+    }
+
+    .library-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .library-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: #cccccc;
+      margin-bottom: 4px;
+    }
+
+    .library-link {
+      color: #3794ff;
+      font-size: 12px;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .library-link:hover {
+      text-decoration: underline;
+      color: #4fc1ff;
+    }
+
+    .library-description {
+      font-size: 11px;
+      color: #858585;
+      line-height: 1.3;
+    }
+
+    .intro-text {
+      font-size: 11px;
+      color: #858585;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    /* Inspector overlay styles (copied from original mockup) */
+    #inspector-overlay {
+      position: absolute;
+      pointer-events: none;
+      z-index: 999999;
+      display: none;
+    }
+
+    #inspector-margin {
+      position: absolute;
+      background: var(--inspector-margin);
+      border: 1px solid rgba(246, 178, 107, 0.8);
+    }
+
+    #inspector-border {
+      position: absolute;
+      background: var(--inspector-border);
+      border: 1px solid rgba(255, 229, 153, 0.8);
+    }
+
+    #inspector-padding {
+      position: absolute;
+      background: var(--inspector-padding);
+      border: 1px solid rgba(147, 196, 125, 0.8);
+    }
+
+    #inspector-content {
+      position: absolute;
+      background: var(--inspector-content);
+      border: 2px solid var(--inspector-outline);
+    }
+
+    #inspector-tooltip {
+      position: fixed;
+      background: #1e1e1e;
+      border: 1px solid #007acc;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 11px;
+      color: #cccccc;
+      z-index: 1000000;
+      pointer-events: auto;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+      max-width: 350px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    #inspector-tooltip:hover {
+      border-color: #00ff00;
+    }
+
+    #inspector-tooltip-content {
+      margin-bottom: 6px;
+    }
+
+    #inspector-tooltip-content div {
+      margin: 2px 0;
+    }
+
+    #inspector-tooltip-copy {
+      background: #007acc;
+      color: #fff;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 10px;
+      width: 100%;
+      margin-top: 6px;
+      min-height: auto;
+      height: auto;
+    }
+
+    #inspector-tooltip-copy:hover {
+      background: #005a9e;
+    }
+
+    #inspector-metrics {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #252526;
+      border: 1px solid #3c3c3c;
+      border-radius: 4px;
+      padding: 12px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 11px;
+      color: #cccccc;
+      z-index: 1000001;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+      min-width: 200px;
+    }
+
+    #inspector-metrics h4 {
+      color: #007acc;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    #inspector-metrics .metric-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+    }
+
+    #inspector-metrics .metric-label {
+      color: #969696;
+    }
+
+    #inspector-metrics .metric-value {
+      color: #4fc1ff;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>AHKv2 Toolbox Settings Form</h1>
+    <p>Complete settings form mockup with all form controls and buttons</p>
+    <p style="font-size: 12px; margin-top: 8px;">✨ Hover over elements to inspect • Space = freeze • F = metrics • Ctrl+C = copy</p>
+  </div>
+
+  <div class="mockup-container">
+    <!-- Header bar -->
+    <div class="header-bar">
+      <button class="back-button" aria-label="Settings - Navigate Back to Toolbox: Button">←</button>
+      <h1>Settings</h1>
+    </div>
+
+    <div class="settings-content">
+
+      <!-- Header Configuration Section -->
+      <section class="settings-section">
+        <h3 class="section-header">Header Configuration</h3>
+
+        <div class="checkbox-field">
+          <input type="checkbox" id="auto-insert" checked>
+          <label for="auto-insert">Auto-insert headers when installing packages</label>
+        </div>
+        <div class="field-description" style="margin-bottom: 12px;">
+          Automatically adds #Requires and #Include directives to your script
+        </div>
+
+        <div class="form-field">
+          <label for="requires-version" class="field-label">Default Version</label>
+          <input type="text" id="requires-version" class="field-input" value="AutoHotkey v2.1" placeholder="e.g., AutoHotkey v2.1">
+          <div class="field-description">Version string for #Requires directive</div>
+        </div>
+
+        <div class="form-field">
+          <label for="single-instance" class="field-label">Single Instance Mode</label>
+          <select id="single-instance" class="field-select">
+            <option value="Force" selected>Force</option>
+            <option value="Ignore">Ignore</option>
+            <option value="Prompt">Prompt</option>
+            <option value="Off">Off</option>
+          </select>
+          <div class="field-description">Default #SingleInstance mode for new scripts</div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- Library Folders Section -->
+      <section class="settings-section">
+        <h3 class="section-header">Library Folders</h3>
+
+        <div class="form-field">
+          <label for="include-format" class="field-label">Include Path Format</label>
+          <input type="text" id="include-format" class="field-input" value="Lib/{name}.ahk" placeholder="Lib/{name}.ahk">
+          <div class="field-description">Template for #Include paths. Use {name} as placeholder</div>
+        </div>
+
+        <div class="form-field">
+          <label for="lib-folders" class="field-label">Search Folders</label>
+          <input type="text" id="lib-folders" class="field-input" value="Lib, vendor" placeholder="Lib, vendor">
+          <div class="field-description">Comma-separated list of library search folders</div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- Popular Libraries Section -->
+      <section class="settings-section">
+        <h3 class="section-header">Popular AHK v2 Libraries</h3>
+
+        <div class="intro-text">
+          Quick access to commonly used AutoHotkey v2 libraries. Click to open in browser.
+        </div>
+
+        <div class="library-item">
+          <div class="library-name">JSON Parser</div>
+          <a href="https://github.com/thqby/ahk2_lib" class="library-link">github.com/thqby/ahk2_lib</a>
+          <div class="library-description">JSON parsing and stringification for AHK v2</div>
+        </div>
+
+        <div class="library-item">
+          <div class="library-name">WinClip</div>
+          <a href="https://github.com/Clip-AHK/WinClip-v2" class="library-link">github.com/Clip-AHK/WinClip-v2</a>
+          <div class="library-description">Advanced clipboard manipulation library</div>
+        </div>
+
+        <div class="library-item">
+          <div class="library-name">Socket</div>
+          <a href="https://github.com/G33kDude/Socket.ahk" class="library-link">github.com/G33kDude/Socket.ahk</a>
+          <div class="library-description">TCP/UDP socket communication library</div>
+        </div>
+
+        <div class="library-item">
+          <div class="library-name">WebView2</div>
+          <a href="https://github.com/thqby/ahk2_lib" class="library-link">github.com/thqby/ahk2_lib</a>
+          <div class="library-description">Microsoft Edge WebView2 control for AHK v2</div>
+        </div>
+
+        <div class="library-item">
+          <div class="library-name">Gdip</div>
+          <a href="https://github.com/mmikeww/AHK-v2-Gdip" class="library-link">github.com/mmikeww/AHK-v2-Gdip</a>
+          <div class="library-description">GDI+ graphics library for advanced image manipulation</div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- Action Buttons -->
+      <section class="settings-section">
+        <div class="button-group">
+          <button class="primary" aria-label="Settings - Save Settings: Button">Save Settings</button>
+          <button aria-label="Settings - Reset to Defaults: Button">Reset to Defaults</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div style="text-align: center; margin: 40px 0; color: #969696; font-size: 12px;">
+    <p><strong>Complete Settings Form Layout:</strong></p>
+    <p style="margin-top: 8px;">✅ Checkbox for auto-insert • ✅ Text inputs • ✅ Dropdown select</p>
+    <p style="margin-top: 8px;">✅ Library links • ✅ Save & Reset buttons</p>
+    <p style="margin-top: 12px;">All form controls are visible and properly styled!</p>
+  </div>
+
+  <!-- Inspector overlay elements -->
+  <div id="inspector-overlay">
+    <div id="inspector-margin"></div>
+    <div id="inspector-border"></div>
+    <div id="inspector-padding"></div>
+    <div id="inspector-content"></div>
+  </div>
+
+  <div id="inspector-tooltip">
+    <div id="inspector-tooltip-content"></div>
+    <button id="inspector-tooltip-copy" aria-label="Inspector - Copy Element Details: Button">📋 Click or Ctrl+C to copy</button>
+  </div>
+
+  <div id="inspector-metrics">
+    <h4>Box Model</h4>
+    <div id="inspector-metrics-content"></div>
+  </div>
+
+  <script>
+    // Inspector code (same as mockup.html)
+    (function() {
+      const overlay = document.getElementById('inspector-overlay');
+      const marginBox = document.getElementById('inspector-margin');
+      const borderBox = document.getElementById('inspector-border');
+      const paddingBox = document.getElementById('inspector-padding');
+      const contentBox = document.getElementById('inspector-content');
+      const tooltip = document.getElementById('inspector-tooltip');
+      const tooltipContent = document.getElementById('inspector-tooltip-content');
+      const tooltipCopy = document.getElementById('inspector-tooltip-copy');
+      const metrics = document.getElementById('inspector-metrics');
+      const metricsContent = document.getElementById('inspector-metrics-content');
+
+      let currentElement = null;
+      let frozen = false;
+      let metricsVisible = false;
+      let lastUpdate = 0;
+      let rafId = null;
+      let cachedData = null;
+
+      function throttle(fn, ms) {
+        return function(...args) {
+          const now = Date.now();
+          if (now - lastUpdate >= ms) {
+            lastUpdate = now;
+            fn.apply(this, args);
+          }
+        };
+      }
+
+      function getElementInfo(el) {
+        if (!el || el === document.body || el === document.documentElement) return null;
+
+        const rect = el.getBoundingClientRect();
+        const computed = window.getComputedStyle(el);
+
+        const margin = {
+          top: parseFloat(computed.marginTop) || 0,
+          right: parseFloat(computed.marginRight) || 0,
+          bottom: parseFloat(computed.marginBottom) || 0,
+          left: parseFloat(computed.marginLeft) || 0
+        };
+
+        const border = {
+          top: parseFloat(computed.borderTopWidth) || 0,
+          right: parseFloat(computed.borderRightWidth) || 0,
+          bottom: parseFloat(computed.borderBottomWidth) || 0,
+          left: parseFloat(computed.borderLeftWidth) || 0
+        };
+
+        const padding = {
+          top: parseFloat(computed.paddingTop) || 0,
+          right: parseFloat(computed.paddingRight) || 0,
+          bottom: parseFloat(computed.paddingBottom) || 0,
+          left: parseFloat(computed.paddingLeft) || 0
+        };
+
+        // Determine element type/name
+        const tag = el.tagName.toLowerCase();
+        const classes = Array.from(el.classList);
+        let elementName = tag;
+
+        if (tag === 'button') {
+          if (classes.includes('primary')) {
+            elementName = 'Primary Button';
+          } else if (classes.includes('back-button')) {
+            elementName = 'Back Button';
+          } else {
+            elementName = 'Button';
+          }
+        } else if (classes.includes('section-header')) {
+          elementName = 'Section Header';
+        } else if (classes.includes('field-label')) {
+          elementName = 'Field Label';
+        } else if (classes.includes('field-input')) {
+          elementName = 'Text Input';
+        } else if (classes.includes('field-select')) {
+          elementName = 'Select Dropdown';
+        } else if (classes.includes('field-description')) {
+          elementName = 'Field Description';
+        } else if (classes.includes('divider')) {
+          elementName = 'Divider';
+        } else if (classes.includes('library-item')) {
+          elementName = 'Library Item';
+        } else if (classes.includes('library-link')) {
+          elementName = 'Library Link';
+        } else if (classes.includes('settings-section')) {
+          elementName = 'Settings Section';
+        } else if (classes.includes('header-bar')) {
+          elementName = 'Header Bar';
+        } else if (tag === 'input' && el.type === 'checkbox') {
+          elementName = 'Checkbox';
+        } else if (tag === 'label') {
+          elementName = 'Label';
+        } else if (tag === 'h3' || tag === 'h2' || tag === 'h1') {
+          elementName = 'Heading';
+        }
+
+        return {
+          element: el,
+          rect,
+          computed,
+          margin,
+          border,
+          padding,
+          tag: tag,
+          id: el.id,
+          classes: classes.join(' '),
+          elementName: elementName,
+          contentWidth: Math.round(rect.width - border.left - border.right - padding.left - padding.right),
+          contentHeight: Math.round(rect.height - border.top - border.bottom - padding.top - padding.bottom)
+        };
+      }
+
+      function updateOverlay(data) {
+        if (!data) {
+          overlay.style.display = 'none';
+          return;
+        }
+
+        overlay.style.display = 'block';
+
+        const { rect, margin, border, padding } = data;
+        const scrollX = window.scrollX;
+        const scrollY = window.scrollY;
+
+        const marginRect = {
+          left: rect.left + scrollX - margin.left,
+          top: rect.top + scrollY - margin.top,
+          width: rect.width + margin.left + margin.right,
+          height: rect.height + margin.top + margin.bottom
+        };
+
+        marginBox.style.left = marginRect.left + 'px';
+        marginBox.style.top = marginRect.top + 'px';
+        marginBox.style.width = marginRect.width + 'px';
+        marginBox.style.height = marginRect.height + 'px';
+
+        const borderRect = {
+          left: rect.left + scrollX,
+          top: rect.top + scrollY,
+          width: rect.width,
+          height: rect.height
+        };
+
+        borderBox.style.left = borderRect.left + 'px';
+        borderBox.style.top = borderRect.top + 'px';
+        borderBox.style.width = borderRect.width + 'px';
+        borderBox.style.height = borderRect.height + 'px';
+
+        const paddingRect = {
+          left: rect.left + scrollX + border.left,
+          top: rect.top + scrollY + border.top,
+          width: rect.width - border.left - border.right,
+          height: rect.height - border.top - border.bottom
+        };
+
+        paddingBox.style.left = paddingRect.left + 'px';
+        paddingBox.style.top = paddingRect.top + 'px';
+        paddingBox.style.width = paddingRect.width + 'px';
+        paddingBox.style.height = paddingRect.height + 'px';
+
+        const contentRect = {
+          left: rect.left + scrollX + border.left + padding.left,
+          top: rect.top + scrollY + border.top + padding.top,
+          width: rect.width - border.left - border.right - padding.left - padding.right,
+          height: rect.height - border.top - border.bottom - padding.top - padding.bottom
+        };
+
+        contentBox.style.left = contentRect.left + 'px';
+        contentBox.style.top = contentRect.top + 'px';
+        contentBox.style.width = contentRect.width + 'px';
+        contentBox.style.height = contentRect.height + 'px';
+      }
+
+      function updateTooltip(data, mouseX, mouseY) {
+        if (!data) {
+          tooltip.style.display = 'none';
+          return;
+        }
+
+        tooltip.style.display = 'block';
+
+        const { tag, id, classes, contentWidth, contentHeight, computed, elementName, element } = data;
+
+        const textContent = element.textContent.trim();
+        const displayText = textContent.length > 30 ? textContent.substring(0, 30) + '...' : textContent;
+
+        let info = `<div><strong>${elementName}</strong>`;
+        if (elementName !== tag) info += ` (${tag})`;
+        if (id) info += ` #${id}`;
+        if (classes) info += ` .${classes.split(' ').join('.')}`;
+        info += `</div>`;
+        if (textContent) info += `<div>Text: "${displayText}"</div>`;
+        info += `<div>Size: ${contentWidth}×${contentHeight}px</div>`;
+        info += `<div>Color: ${computed.color}</div>`;
+        info += `<div>Background: ${computed.backgroundColor}</div>`;
+        info += `<div>Font: ${computed.fontSize}</div>`;
+
+        tooltipContent.innerHTML = info;
+
+        if (frozen && tooltip.style.left && tooltip.style.top) {
+          return;
+        }
+
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const tooltipRect = tooltip.getBoundingClientRect();
+        const offset = 15;
+
+        let left = mouseX + offset;
+        let top = mouseY + offset;
+
+        if (left + tooltipRect.width > viewportWidth) {
+          left = mouseX - tooltipRect.width - offset;
+        }
+
+        if (top + tooltipRect.height > viewportHeight) {
+          top = mouseY - tooltipRect.height - offset;
+        }
+
+        left = Math.max(5, Math.min(left, viewportWidth - tooltipRect.width - 5));
+        top = Math.max(5, Math.min(top, viewportHeight - tooltipRect.height - 5));
+
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+      }
+
+      function updateMetrics(data) {
+        if (!data || !metricsVisible) {
+          metrics.style.display = 'none';
+          return;
+        }
+
+        metrics.style.display = 'block';
+
+        const { margin, border, padding, contentWidth, contentHeight } = data;
+
+        let html = '';
+        html += `<div class="metric-row"><span class="metric-label">Margin:</span><span class="metric-value">${margin.top}px ${margin.right}px ${margin.bottom}px ${margin.left}px</span></div>`;
+        html += `<div class="metric-row"><span class="metric-label">Border:</span><span class="metric-value">${border.top}px ${border.right}px ${border.bottom}px ${border.left}px</span></div>`;
+        html += `<div class="metric-row"><span class="metric-label">Padding:</span><span class="metric-value">${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px</span></div>`;
+        html += `<div class="metric-row"><span class="metric-label">Content:</span><span class="metric-value">${contentWidth}×${contentHeight}px</span></div>`;
+
+        metricsContent.innerHTML = html;
+      }
+
+      function getTooltipText(data) {
+        if (!data) return '';
+        const { tag, id, classes, contentWidth, contentHeight, computed, elementName, element } = data;
+        const textContent = element.textContent.trim();
+
+        let text = `Element: ${elementName}`;
+        if (elementName !== tag) text += ` (${tag})`;
+        if (id) text += `\nID: ${id}`;
+        if (classes) text += `\nClasses: ${classes.split(' ').join(', ')}`;
+        if (textContent) text += `\nText: "${textContent}"`;
+        text += `\nSize: ${contentWidth}×${contentHeight}px`;
+        text += `\nColor: ${computed.color}`;
+        text += `\nBackground: ${computed.backgroundColor}`;
+        text += `\nFont: ${computed.fontSize}`;
+        return text;
+      }
+
+      function copyToClipboard() {
+        const text = getTooltipText(cachedData);
+        if (!text) return;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            showCopySuccess();
+          }).catch(() => {
+            fallbackCopy(text);
+          });
+        } else {
+          fallbackCopy(text);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
+        try {
+          const successful = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          if (successful) {
+            showCopySuccess();
+          } else {
+            showCopyFail();
+          }
+        } catch (err) {
+          document.body.removeChild(textarea);
+          showCopyFail();
+        }
+      }
+
+      function showCopySuccess() {
+        tooltipCopy.textContent = '✓ Copied!';
+        tooltip.style.borderColor = '#00ff00';
+        setTimeout(() => {
+          tooltipCopy.textContent = '📋 Click or Ctrl+C to copy';
+          tooltip.style.borderColor = '#007acc';
+        }, 1000);
+      }
+
+      function showCopyFail() {
+        tooltipCopy.textContent = '✗ Failed - Try Ctrl+C manually';
+        setTimeout(() => {
+          tooltipCopy.textContent = '📋 Click or Ctrl+C to copy';
+        }, 2000);
+      }
+
+      const handleMouseMove = throttle((e) => {
+        if (frozen) return;
+
+        if (rafId) cancelAnimationFrame(rafId);
+
+        rafId = requestAnimationFrame(() => {
+          const target = e.target;
+          if (target === overlay || target.closest('#inspector-overlay') ||
+              target === tooltip || target.closest('#inspector-tooltip') ||
+              target === metrics || target.closest('#inspector-metrics')) {
+            return;
+          }
+
+          currentElement = target;
+          cachedData = getElementInfo(target);
+          updateOverlay(cachedData);
+          updateTooltip(cachedData, e.clientX, e.clientY);
+          updateMetrics(cachedData);
+        });
+      }, 33);
+
+      document.addEventListener('mousemove', handleMouseMove, true);
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === ' ' && !e.target.matches('input, textarea')) {
+          e.preventDefault();
+          frozen = !frozen;
+          if (!frozen) {
+            cachedData = null;
+            overlay.style.display = 'none';
+            tooltip.style.display = 'none';
+            if (!metricsVisible) {
+              metrics.style.display = 'none';
+            }
+          }
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          frozen = false;
+          metricsVisible = false;
+          cachedData = null;
+          overlay.style.display = 'none';
+          tooltip.style.display = 'none';
+          metrics.style.display = 'none';
+        } else if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault();
+          metricsVisible = !metricsVisible;
+          updateMetrics(cachedData);
+        } else if ((e.ctrlKey || e.metaKey) && e.key === 'c' && cachedData && tooltip.style.display !== 'none') {
+          e.preventDefault();
+          copyToClipboard();
+        }
+      });
+
+      tooltip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyToClipboard();
+      });
+
+      tooltipCopy.addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyToClipboard();
+      });
+    })();
+  </script>
+
+</body>
+</html>

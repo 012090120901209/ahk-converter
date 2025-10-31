@@ -22,6 +22,8 @@ import { DependencyTreeProvider } from './dependencyTreeProvider';
 import { PackageManagerProvider } from './packageManagerProvider';
 import { SettingsWebviewProvider } from './settingsWebviewProvider';
 import { MetadataEditorProvider } from './metadataEditorProvider';
+import { registerAHKChatParticipant } from './chatParticipant';
+import { registerLibraryAttributionParticipant } from './libraryAttributionParticipant';
 
 type RunResult = { stdout: string; stderr: string; code: number };
 
@@ -291,8 +293,10 @@ async function getPaths(ctx: vscode.ExtensionContext) {
             await fs.promises.access(exe, fs.constants.X_OK | fs.constants.F_OK);
             return exe;
           }
-        } catch {
-          // try next
+        } catch (error) {
+          // Log for debugging but continue trying other paths
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          getOutput().appendLine(`[findExisting] Failed to validate ${exe}: ${errorMessage}`);
         }
       }
       return undefined;
@@ -497,8 +501,37 @@ async function convertText(ctx: vscode.ExtensionContext, srcText: string): Promi
       
       // Wait for output file to appear; the converter writes alongside input
       try {
-        const outText = await fs.promises.readFile(expectedOut, 'utf8');
-        
+        // Read as Buffer first to detect actual encoding from BOM
+        const buffer = await fs.promises.readFile(expectedOut);
+
+        // Detect encoding from BOM bytes
+        let encoding: BufferEncoding = 'utf8';
+        let bomLength = 0;
+
+        if (buffer.length >= 3 && buffer[0] === 0xEF && buffer[1] === 0xBB && buffer[2] === 0xBF) {
+          // UTF-8 BOM: EF BB BF
+          encoding = 'utf8';
+          bomLength = 3;
+          getOutput().appendLine('[converter] Detected UTF-8 BOM');
+        } else if (buffer.length >= 2 && buffer[0] === 0xFF && buffer[1] === 0xFE) {
+          // UTF-16 LE BOM: FF FE
+          encoding = 'utf16le';
+          bomLength = 2;
+          getOutput().appendLine('[converter] Detected UTF-16 LE BOM');
+        } else if (buffer.length >= 2 && buffer[0] === 0xFE && buffer[1] === 0xFF) {
+          // UTF-16 BE BOM: FE FF
+          encoding = 'utf16le';
+          bomLength = 2;
+          getOutput().appendLine('[converter] Warning: UTF-16 BE detected, decoding as UTF-16 LE');
+        }
+
+        // Decode with correct encoding and strip BOM
+        const outText = buffer.slice(bomLength).toString(encoding);
+
+        if (bomLength > 0) {
+          getOutput().appendLine(`[converter] Stripped ${encoding} BOM (${bomLength} bytes)`);
+        }
+
         // Validate conversion result
         const conversionValidation = validateConversionResult(srcText, outText);
         stats.warnings += conversionValidation.warnings.length;
@@ -523,8 +556,12 @@ async function convertText(ctx: vscode.ExtensionContext, srcText: string): Promi
         }
 
         return { result: outText, stats };
-      } catch {
-        throw new ConversionError(`Expected output not found: ${expectedOut}${stderr ? '\n' + stderr : ''}`);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        throw new ConversionError(
+          `Failed to read converted output: ${expectedOut}`,
+          { originalError: errorMessage, stderr }
+        );
       }
     });
   } catch (error) {
@@ -759,7 +796,7 @@ async function saveBatchResults(results: BatchConversionResult[], outputDirector
   });
 }
 
-export function activate(ctx: vscode.ExtensionContext) {
+export async function activate(ctx: vscode.ExtensionContext) {
   // Check for LSP extension and show notification if not found
   const lspIntegration = AHKLSPIntegration.getInstance();
 
@@ -771,6 +808,9 @@ export function activate(ctx: vscode.ExtensionContext) {
       const dontShowAgain = ctx.globalState.get('ahkv2-toolbox.dontShowLSPWarning', false);
 
       if (!dontShowAgain) {
+        if (ctx.extensionMode === vscode.ExtensionMode.Test) {
+          return;
+        }
         const choice = await vscode.window.showInformationMessage(
           'AHKv2 Toolbox works best with the "AutoHotkey v2 Language Support" extension by thqby for accurate parsing and IntelliSense.',
           'Install Extension',
@@ -994,6 +1034,98 @@ export function activate(ctx: vscode.ExtensionContext) {
   } catch (error) {
     console.log('Settings Provider not initialized:', error);
   }
+
+  // Activate LSP Output Capture
+  try {
+    const { activateLSPCapture } = await import('./utils/lspOutputCapture');
+    activateLSPCapture(ctx);
+  } catch (error) {
+    console.log('LSP Output Capture not initialized:', error);
+  }
+
+  // Register AHK v2 Chat Participant
+  try {
+    const chatParticipant = registerAHKChatParticipant(
+      ctx,
+      // TODO: pass actual instances when available
+      undefined, // metadataHandler
+      undefined, // functionAnalyzer
+      undefined  // conversionProfileManager
+    );
+    ctx.subscriptions.push(chatParticipant);
+    console.log('AHK v2 Chat Participant registered');
+  } catch (error) {
+    console.log('Chat Participant not initialized (requires VS Code 1.90+ and GitHub Copilot):', error);
+  }
+
+  // Register Library Attribution Participant
+  try {
+    const libraryAttributionParticipant = registerLibraryAttributionParticipant(ctx);
+    ctx.subscriptions.push(libraryAttributionParticipant);
+    console.log('Library Attribution Participant registered');
+  } catch (error) {
+    console.log('Library Attribution Participant not initialized:', error);
+  }
+
+  // Register Metadata Validation Provider
+  try {
+    const { registerMetadataValidation } = await import('./metadataValidationProvider');
+    const metadataValidation = registerMetadataValidation(ctx);
+    ctx.subscriptions.push(metadataValidation);
+    console.log('Metadata Validation Provider registered');
+  } catch (error) {
+    console.log('Metadata Validation Provider not initialized:', error);
+  }
+
+  // Register command to manually add output for testing
+  ctx.subscriptions.push(
+    vscode.commands.registerCommand('ahkv2Toolbox.addTestOutput', async () => {
+      const { getOutputChannelMonitor } = await import('./utils/outputChannelMonitor');
+      const { LSPOutputCapture } = await import('./utils/lspOutputCapture');
+      const monitor = getOutputChannelMonitor();
+
+      // Get test output from clipboard or input box
+      const clipboardText = await vscode.env.clipboard.readText();
+
+      if (clipboardText && clipboardText.includes('.ahk')) {
+        // Add to monitor as if from "AutoHotkey v2 LSP" channel
+        const lines = clipboardText.split('\n');
+        monitor.addOutputLines('AutoHotkey v2 LSP', lines);
+
+        // Also notify LSP capture service
+        const lspCapture = LSPOutputCapture.getInstance();
+        lspCapture.captureOutput(clipboardText);
+
+        const stats = monitor.getStats();
+        vscode.window.showInformationMessage(
+          `✅ Added ${lines.length} lines to output monitor. ${stats.recentErrors} errors tracked.`
+        );
+      } else {
+        vscode.window.showWarningMessage('⚠️ No valid AHK output found in clipboard. Copy error output first.');
+      }
+    })
+  );
+
+  // Register command to show output capture stats
+  ctx.subscriptions.push(
+    vscode.commands.registerCommand('ahkv2Toolbox.showOutputStats', async () => {
+      const { getOutputChannelMonitor } = await import('./utils/outputChannelMonitor');
+      const { LSPOutputCapture } = await import('./utils/lspOutputCapture');
+      const monitor = getOutputChannelMonitor();
+      const lspCapture = LSPOutputCapture.getInstance();
+
+      const stats = monitor.getStats();
+      const isLSPActive = await lspCapture.isAvailable();
+
+      const message = `📊 Output Capture Stats:
+• Channels: ${stats.channels}
+• Total Lines: ${stats.totalLines}
+• Recent Errors: ${stats.recentErrors}
+• LSP Integration: ${isLSPActive ? '✅ Active' : '❌ Not Available'}`;
+
+      vscode.window.showInformationMessage(message, { modal: false });
+    })
+  );
 
   // Compile and Reload Debugger Command
   ctx.subscriptions.push(

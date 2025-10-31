@@ -38,5 +38,22 @@
     "debugConsole.infoForeground": "#00FF00",
     "debugConsole.warningForeground": "#fdec34ff",
     "debugConsole.errorForeground": "#ff2828ff"
+  },
+  "workbench.colorTheme": "Default Dark Modern",
+  // Extension Test Runner configuration
+  "extension-test-runner.debugOptions": {
+    "args": [
+      "--disable-extension=ms-edgedevtools.vscode-edge-devtools",
+      "--disable-extension=artalatarta.unofficial-material-icon-theme",
+      "--disable-extension=vsls-contrib.gistfs"
+    ],
+    "outFiles": [
+      "${workspaceFolder}/dist/**/*.js"
+    ]
+  },
+  "extension-test-runner.extractSettings": {
+    "suite": ["suite", "describe"],
+    "test": ["test", "it"],
+    "extractWith": "evaluation"
   }
 }

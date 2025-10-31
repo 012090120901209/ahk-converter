@@ -19,9 +19,10 @@ export interface Parameter {
   isOptional: boolean;        // Has ? suffix (v2.1+)
   hasDefault: boolean;
   defaultValue?: string;
-  defaultType: DefaultValueType;
+  defaultValueType: DefaultValueType;
   typeHint?: string;          // Type hint if present (v2.1+)
   position: number;
+  isVariadic?: boolean;
 }
 
 /**

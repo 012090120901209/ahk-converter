@@ -1072,3 +1072,835 @@
 [2025-10-27T14:04:12.039Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
 [2025-10-27T14:04:12.374Z] | resources.list | START | Enumerating exposed resources
 [2025-10-27T14:04:12.375Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T14:04:30.756Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T14:04:30.760Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T14:04:30.760Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T14:04:30.761Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T14:04:32.322Z] | tools.list | START | Standard tool listing
+[2025-10-27T14:04:32.322Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T14:04:32.702Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T14:04:32.703Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T14:08:18.299Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T14:08:18.302Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T14:08:18.303Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T14:08:18.304Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T14:08:18.310Z] | tools.list | START | Standard tool listing
+[2025-10-27T14:08:18.310Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T14:08:18.327Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T14:08:18.327Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T14:27:17.611Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T14:27:17.615Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T14:27:17.616Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T14:27:17.617Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T14:27:17.636Z] | tools.list | START | Standard tool listing
+[2025-10-27T14:27:17.636Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T14:27:17.641Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T14:27:17.642Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T14:28:14.361Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T14:28:14.365Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T14:28:14.366Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T14:28:14.367Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T14:28:14.392Z] | tools.list | START | Standard tool listing
+[2025-10-27T14:28:14.393Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T14:28:14.416Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T14:28:14.416Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T15:36:29.036Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T15:36:29.039Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T15:36:29.073Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T15:36:29.073Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T15:36:29.074Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T15:36:29.098Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T15:36:29.107Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T15:36:29.110Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T15:36:29.116Z] | tools.list | START | Standard tool listing
+[2025-10-27T15:36:29.118Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T15:36:29.128Z] | tools.list | START | Standard tool listing
+[2025-10-27T15:36:29.129Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T15:36:29.137Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T15:36:29.139Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T15:36:29.154Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T15:36:29.157Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T15:40:32.323Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T15:40:32.326Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T15:40:32.327Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T15:40:32.328Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T15:40:33.610Z] | tools.list | START | Standard tool listing
+[2025-10-27T15:40:33.612Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T15:40:33.948Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T15:40:33.949Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T15:46:28.466Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T15:46:28.469Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T15:46:28.470Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T15:46:28.471Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T15:46:28.475Z] | tools.list | START | Standard tool listing
+[2025-10-27T15:46:28.475Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T15:46:28.479Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T15:46:28.479Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T15:50:00.866Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T15:50:00.870Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T15:50:00.871Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T15:50:00.873Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T15:50:02.481Z] | tools.list | START | Standard tool listing
+[2025-10-27T15:50:02.481Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T15:50:02.929Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T15:50:02.930Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T16:16:04.910Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T16:16:04.914Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T16:16:04.915Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T16:16:04.916Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T16:16:04.929Z] | tools.list | START | Standard tool listing
+[2025-10-27T16:16:04.929Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T16:16:04.933Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T16:16:04.934Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T16:17:30.665Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T16:17:30.922Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T16:17:30.923Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T16:17:30.924Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T16:17:31.104Z] | tools.list | START | Standard tool listing
+[2025-10-27T16:17:31.105Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T16:17:31.370Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T16:17:31.371Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T16:23:12.802Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T16:23:12.806Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T16:23:12.807Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T16:23:12.808Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T16:23:14.283Z] | tools.list | START | Standard tool listing
+[2025-10-27T16:23:14.284Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T16:23:14.966Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T16:23:14.967Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T16:23:58.772Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T16:23:58.775Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T16:23:58.776Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T16:23:58.777Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T16:23:58.825Z] | tools.list | START | Standard tool listing
+[2025-10-27T16:23:58.826Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T16:23:59.032Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T16:23:59.033Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T16:32:27.639Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T16:32:27.641Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T16:32:27.642Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T16:32:27.643Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T16:32:28.994Z] | tools.list | START | Standard tool listing
+[2025-10-27T16:32:28.995Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T16:32:29.322Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T16:32:29.323Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T16:36:58.903Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T16:36:58.908Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T16:36:58.908Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T16:36:58.909Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T16:36:58.999Z] | tools.list | START | Standard tool listing
+[2025-10-27T16:36:58.999Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T16:36:59.242Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T16:36:59.242Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T18:42:26.569Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T18:42:26.574Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T18:42:26.575Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T18:42:26.576Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T18:42:26.581Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T18:42:26.586Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T18:42:26.587Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T18:42:26.588Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T18:42:26.616Z] | tools.list | START | Standard tool listing
+[2025-10-27T18:42:26.617Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T18:42:26.617Z] | tools.list | START | Standard tool listing
+[2025-10-27T18:42:26.618Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T18:42:26.747Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T18:42:26.747Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T18:42:26.748Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T18:42:26.749Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T18:44:35.213Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T18:44:35.236Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T18:44:35.237Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T18:44:35.238Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T18:44:36.207Z] | tools.list | START | Standard tool listing
+[2025-10-27T18:44:36.208Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T18:44:37.041Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T18:44:37.042Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T19:22:00.705Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T19:22:00.709Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T19:22:00.710Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T19:22:00.710Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T19:22:00.718Z] | tools.list | START | Standard tool listing
+[2025-10-27T19:22:00.718Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T19:22:00.728Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T19:22:00.729Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T19:22:37.472Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T19:22:37.475Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T19:22:37.476Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T19:22:37.477Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T19:22:38.632Z] | tools.list | START | Standard tool listing
+[2025-10-27T19:22:38.633Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T19:22:39.222Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T19:22:39.222Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T20:33:42.971Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T20:33:42.995Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T20:33:42.996Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T20:33:42.997Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T20:33:43.037Z] | tools.list | START | Standard tool listing
+[2025-10-27T20:33:43.038Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T20:33:43.066Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T20:33:43.067Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T20:38:46.065Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T20:38:46.068Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T20:38:46.069Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T20:38:46.069Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T20:38:47.219Z] | tools.list | START | Standard tool listing
+[2025-10-27T20:38:47.219Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T20:38:47.654Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T20:38:47.655Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T20:39:57.920Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T20:39:57.923Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T20:39:57.926Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T20:39:57.927Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T20:39:59.065Z] | tools.list | START | Standard tool listing
+[2025-10-27T20:39:59.066Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T20:39:59.428Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T20:39:59.429Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T20:40:34.199Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T20:40:34.202Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T20:40:34.202Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T20:40:34.203Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T20:40:35.291Z] | tools.list | START | Standard tool listing
+[2025-10-27T20:40:35.292Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T20:40:35.575Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T20:40:35.575Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T22:23:26.313Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T22:23:26.336Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T22:23:26.337Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T22:23:26.338Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T22:23:26.344Z] | tools.list | START | Standard tool listing
+[2025-10-27T22:23:26.344Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T22:23:26.349Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T22:23:26.350Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-27T22:54:34.159Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-27T22:54:34.162Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-27T22:54:34.163Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-27T22:54:34.163Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-27T22:54:34.169Z] | tools.list | START | Standard tool listing
+[2025-10-27T22:54:34.169Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-27T22:54:35.885Z] | resources.list | START | Enumerating exposed resources
+[2025-10-27T22:54:35.886Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T01:31:38.287Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T01:31:38.291Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T01:31:38.292Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T01:31:38.293Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T01:31:38.298Z] | tools.list | START | Standard tool listing
+[2025-10-28T01:31:38.299Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T01:31:38.303Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T01:31:38.304Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T01:31:55.245Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T01:31:55.249Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T01:31:55.250Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T01:31:55.251Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T01:31:55.354Z] | tools.list | START | Standard tool listing
+[2025-10-28T01:31:55.355Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T01:31:55.495Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T01:31:55.495Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T01:49:13.698Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T01:49:13.702Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T01:49:13.702Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T01:49:13.703Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T01:49:13.709Z] | tools.list | START | Standard tool listing
+[2025-10-28T01:49:13.710Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T01:49:13.725Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T01:49:13.726Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T01:53:06.195Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T01:53:06.199Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T01:53:06.200Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T01:53:06.201Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T01:53:06.240Z] | tools.list | START | Standard tool listing
+[2025-10-28T01:53:06.241Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T01:53:06.281Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T01:53:06.282Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T01:55:09.652Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T01:55:09.656Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T01:55:09.656Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T01:55:09.657Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T01:55:09.663Z] | tools.list | START | Standard tool listing
+[2025-10-28T01:55:09.664Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T01:55:09.673Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T01:55:09.673Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T01:58:35.116Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T01:58:35.119Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T01:58:35.120Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T01:58:35.120Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T01:58:36.186Z] | tools.list | START | Standard tool listing
+[2025-10-28T01:58:36.186Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T01:58:36.527Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T01:58:36.528Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T02:05:35.781Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T02:05:35.785Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T02:05:35.786Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T02:05:35.787Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T02:05:35.798Z] | tools.list | START | Standard tool listing
+[2025-10-28T02:05:35.799Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T02:05:35.812Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T02:05:35.812Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T02:13:48.474Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T02:13:48.478Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T02:13:48.478Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T02:13:48.480Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T02:13:48.489Z] | tools.list | START | Standard tool listing
+[2025-10-28T02:13:48.490Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T02:13:48.502Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T02:13:48.504Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T02:16:08.034Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T02:16:08.037Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T02:16:08.038Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T02:16:08.038Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T02:16:08.045Z] | tools.list | START | Standard tool listing
+[2025-10-28T02:16:08.045Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T02:16:08.049Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T02:16:08.050Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T10:43:40.828Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T10:43:40.847Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T10:43:40.848Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T10:43:40.848Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T10:43:41.915Z] | tools.list | START | Standard tool listing
+[2025-10-28T10:43:41.916Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T10:43:42.439Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T10:43:42.442Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T10:53:45.725Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T10:53:45.728Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T10:53:45.728Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T10:53:45.729Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T10:53:45.757Z] | tools.list | START | Standard tool listing
+[2025-10-28T10:53:45.757Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T10:53:45.783Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T10:53:45.784Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T10:56:36.388Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T10:56:36.391Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T10:56:36.391Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T10:56:36.392Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T10:56:37.504Z] | tools.list | START | Standard tool listing
+[2025-10-28T10:56:37.505Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T10:56:37.871Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T10:56:37.872Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T10:57:52.410Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T10:57:52.413Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T10:57:52.413Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T10:57:52.414Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T10:57:53.542Z] | tools.list | START | Standard tool listing
+[2025-10-28T10:57:53.543Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T10:57:53.950Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T10:57:53.951Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T10:58:54.859Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T10:58:54.863Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T10:58:54.863Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T10:58:54.864Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T10:58:54.898Z] | tools.list | START | Standard tool listing
+[2025-10-28T10:58:54.899Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T10:58:54.903Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T10:58:54.903Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T12:28:46.539Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T12:28:46.561Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T12:28:46.562Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T12:28:46.563Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T12:28:47.486Z] | tools.list | START | Standard tool listing
+[2025-10-28T12:28:47.487Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T12:28:48.107Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T12:28:48.107Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T13:30:59.429Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T13:30:59.433Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T13:30:59.433Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T13:30:59.434Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T13:30:59.439Z] | tools.list | START | Standard tool listing
+[2025-10-28T13:30:59.439Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T13:30:59.441Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T13:30:59.445Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T13:30:59.445Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T13:30:59.446Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T13:30:59.460Z] | tools.list | START | Standard tool listing
+[2025-10-28T13:30:59.461Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T13:30:59.470Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T13:30:59.470Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T13:30:59.471Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T13:30:59.472Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T16:07:09.412Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T16:07:09.442Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T16:07:09.443Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T16:07:09.444Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T16:07:10.893Z] | tools.list | START | Standard tool listing
+[2025-10-28T16:07:10.894Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T16:07:11.659Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T16:07:11.660Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T16:09:59.715Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T16:09:59.721Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T16:09:59.721Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T16:09:59.723Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T16:09:59.806Z] | tools.list | START | Standard tool listing
+[2025-10-28T16:09:59.808Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T16:09:59.904Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T16:09:59.905Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T17:45:40.348Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T17:45:40.351Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T17:45:40.352Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T17:45:40.353Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T17:45:41.969Z] | tools.list | START | Standard tool listing
+[2025-10-28T17:45:41.970Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T17:45:42.715Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T17:45:42.717Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T17:49:42.363Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T17:49:42.367Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T17:49:42.368Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T17:49:42.369Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T17:49:42.426Z] | tools.list | START | Standard tool listing
+[2025-10-28T17:49:42.426Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T17:49:42.484Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T17:49:42.485Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T17:58:41.639Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T17:58:41.643Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T17:58:41.644Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T17:58:41.645Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T17:58:41.669Z] | tools.list | START | Standard tool listing
+[2025-10-28T17:58:41.670Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T17:58:41.693Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T17:58:41.694Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T18:08:56.126Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T18:08:56.130Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T18:08:56.130Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T18:08:56.131Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T18:08:57.675Z] | tools.list | START | Standard tool listing
+[2025-10-28T18:08:57.675Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T18:08:58.612Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T18:08:58.613Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T18:58:01.487Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T18:58:01.492Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T18:58:01.493Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T18:58:01.495Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T18:58:03.804Z] | tools.list | START | Standard tool listing
+[2025-10-28T18:58:03.805Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T18:58:04.635Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T18:58:04.637Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T20:55:39.410Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T20:55:39.435Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T20:55:39.435Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T20:55:39.436Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T20:55:40.666Z] | tools.list | START | Standard tool listing
+[2025-10-28T20:55:40.667Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T20:55:41.227Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T20:55:41.228Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T21:06:55.132Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T21:06:55.136Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T21:06:55.137Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T21:06:55.138Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T21:06:55.144Z] | tools.list | START | Standard tool listing
+[2025-10-28T21:06:55.144Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T21:06:55.153Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T21:06:55.154Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T21:18:30.352Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T21:18:30.356Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T21:18:30.357Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T21:18:30.358Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T21:18:31.891Z] | tools.list | START | Standard tool listing
+[2025-10-28T21:18:31.892Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T21:18:32.433Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T21:18:32.434Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-28T21:40:09.128Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-28T21:40:09.147Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-28T21:40:09.147Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-28T21:40:09.149Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-28T21:40:10.233Z] | tools.list | START | Standard tool listing
+[2025-10-28T21:40:10.234Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-28T21:40:11.007Z] | resources.list | START | Enumerating exposed resources
+[2025-10-28T21:40:11.008Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T00:20:27.345Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T00:20:27.349Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T00:20:27.349Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T00:20:27.350Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T00:20:29.061Z] | tools.list | START | Standard tool listing
+[2025-10-29T00:20:29.061Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T00:20:30.013Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T00:20:30.014Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T01:14:24.168Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T01:14:24.171Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T01:14:24.172Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T01:14:24.173Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T01:14:25.601Z] | tools.list | START | Standard tool listing
+[2025-10-29T01:14:25.601Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T01:14:26.303Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T01:14:26.304Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T01:18:35.107Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T01:18:35.111Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T01:18:35.111Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T01:18:35.112Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T01:18:36.403Z] | tools.list | START | Standard tool listing
+[2025-10-29T01:18:36.404Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T01:18:36.903Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T01:18:36.903Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T01:32:50.085Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T01:32:50.088Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T01:32:50.089Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T01:32:50.089Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T01:32:51.298Z] | tools.list | START | Standard tool listing
+[2025-10-29T01:32:51.299Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T01:32:52.276Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T01:32:52.277Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T10:54:37.307Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T10:54:37.307Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T10:54:37.341Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T10:54:37.342Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T10:54:38.207Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T10:54:38.210Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T10:54:38.212Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T10:54:38.212Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T10:54:38.224Z] | tools.list | START | Standard tool listing
+[2025-10-29T10:54:38.226Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T10:54:38.228Z] | tools.list | START | Standard tool listing
+[2025-10-29T10:54:38.230Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T10:54:38.235Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T10:54:38.235Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T10:54:38.237Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T10:54:38.237Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T11:59:23.838Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T11:59:23.842Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T11:59:23.843Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T11:59:23.844Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T11:59:24.137Z] | tools.list | START | Standard tool listing
+[2025-10-29T11:59:24.138Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T11:59:24.393Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T11:59:24.396Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T12:09:09.119Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T12:09:09.123Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T12:09:09.123Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T12:09:09.124Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T12:09:09.149Z] | tools.list | START | Standard tool listing
+[2025-10-29T12:09:09.149Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T12:09:09.217Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T12:09:09.218Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T12:22:04.290Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T12:22:04.295Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T12:22:04.296Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T12:22:04.297Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T12:22:04.365Z] | tools.list | START | Standard tool listing
+[2025-10-29T12:22:04.366Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T12:22:04.436Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T12:22:04.437Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T12:58:00.648Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T12:58:00.652Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T12:58:00.653Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T12:58:00.653Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T12:58:00.694Z] | tools.list | START | Standard tool listing
+[2025-10-29T12:58:00.695Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T12:58:00.833Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T12:58:00.834Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T13:22:46.304Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T13:22:46.308Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T13:22:46.309Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T13:22:46.309Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T13:22:47.930Z] | tools.list | START | Standard tool listing
+[2025-10-29T13:22:47.931Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T13:22:48.590Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T13:22:48.591Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T13:37:27.364Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T13:37:27.368Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T13:37:27.368Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T13:37:27.369Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T13:37:28.662Z] | tools.list | START | Standard tool listing
+[2025-10-29T13:37:28.663Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T13:37:29.171Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T13:37:29.172Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T13:58:27.401Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T13:58:27.405Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T13:58:27.405Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T13:58:27.407Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T13:58:28.872Z] | tools.list | START | Standard tool listing
+[2025-10-29T13:58:28.873Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T13:58:29.391Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T13:58:29.392Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T14:04:11.998Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T14:04:12.001Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T14:04:12.002Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T14:04:12.002Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T14:04:12.060Z] | tools.list | START | Standard tool listing
+[2025-10-29T14:04:12.061Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T14:04:12.073Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T14:04:12.074Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T14:34:49.664Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T14:34:49.667Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T14:34:49.668Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T14:34:49.669Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T14:34:50.788Z] | tools.list | START | Standard tool listing
+[2025-10-29T14:34:50.789Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T14:34:51.693Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T14:34:51.693Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T14:39:14.806Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T14:39:14.809Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T14:39:14.810Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T14:39:14.811Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T14:39:15.922Z] | tools.list | START | Standard tool listing
+[2025-10-29T14:39:15.923Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T14:39:16.607Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T14:39:16.608Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T14:47:07.653Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T14:47:07.657Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T14:47:07.657Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T14:47:07.658Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T14:47:09.245Z] | tools.list | START | Standard tool listing
+[2025-10-29T14:47:09.246Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T14:47:09.927Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T14:47:09.928Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T14:53:53.211Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T14:53:53.215Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T14:53:53.216Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T14:53:53.217Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T14:53:54.807Z] | tools.list | START | Standard tool listing
+[2025-10-29T14:53:54.808Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T14:53:55.370Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T14:53:55.371Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T14:55:01.614Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T14:55:01.625Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T14:55:01.627Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T14:55:01.629Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T14:55:01.638Z] | tools.list | START | Standard tool listing
+[2025-10-29T14:55:01.639Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T14:55:01.650Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T14:55:01.650Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T15:02:17.905Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T15:02:17.909Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T15:02:17.909Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T15:02:17.910Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T15:02:19.019Z] | tools.list | START | Standard tool listing
+[2025-10-29T15:02:19.019Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T15:02:19.927Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T15:02:19.929Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T15:05:45.387Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T15:05:45.391Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T15:05:45.391Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T15:05:45.392Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T15:05:46.721Z] | tools.list | START | Standard tool listing
+[2025-10-29T15:05:46.721Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T15:05:47.191Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T15:05:47.192Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T15:21:21.035Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T15:21:21.038Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T15:21:21.039Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T15:21:21.040Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T15:21:21.400Z] | tools.list | START | Standard tool listing
+[2025-10-29T15:21:21.401Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T15:21:21.647Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T15:21:21.648Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T15:31:42.003Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T15:31:42.007Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T15:31:42.008Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T15:31:42.009Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T15:31:43.450Z] | tools.list | START | Standard tool listing
+[2025-10-29T15:31:43.451Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T15:31:43.911Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T15:31:43.913Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T15:33:22.887Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T15:33:22.891Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T15:33:22.892Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T15:33:22.893Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T15:33:24.142Z] | tools.list | START | Standard tool listing
+[2025-10-29T15:33:24.143Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T15:33:24.718Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T15:33:24.719Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T15:45:31.646Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T15:45:31.649Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T15:45:31.650Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T15:45:31.651Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T15:45:32.990Z] | tools.list | START | Standard tool listing
+[2025-10-29T15:45:32.991Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T15:45:33.561Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T15:45:33.562Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T15:54:01.101Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T15:54:01.106Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T15:54:01.106Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T15:54:01.107Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T15:54:01.152Z] | tools.list | START | Standard tool listing
+[2025-10-29T15:54:01.153Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T15:54:01.189Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T15:54:01.190Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T16:24:39.183Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T16:24:39.187Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T16:24:39.188Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T16:24:39.189Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T16:24:39.231Z] | tools.list | START | Standard tool listing
+[2025-10-29T16:24:39.232Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T16:24:39.321Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T16:24:39.321Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T17:13:34.725Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T17:13:34.729Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T17:13:34.730Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T17:13:34.731Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T17:13:34.751Z] | tools.list | START | Standard tool listing
+[2025-10-29T17:13:34.752Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T17:13:34.767Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T17:13:34.768Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T17:31:38.375Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T17:31:38.379Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T17:31:38.380Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T17:31:38.381Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T17:31:38.501Z] | tools.list | START | Standard tool listing
+[2025-10-29T17:31:38.502Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T17:31:38.579Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T17:31:38.580Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T17:48:08.322Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T17:48:08.326Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T17:48:08.327Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T17:48:08.328Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T17:48:08.406Z] | tools.list | START | Standard tool listing
+[2025-10-29T17:48:08.407Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T17:48:08.462Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T17:48:08.462Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T18:53:46.266Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T18:53:46.270Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T18:53:46.270Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T18:53:46.271Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T18:53:48.089Z] | tools.list | START | Standard tool listing
+[2025-10-29T18:53:48.089Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T18:53:48.841Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T18:53:48.844Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-29T19:49:47.159Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-29T19:49:47.163Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-29T19:49:47.164Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-29T19:49:47.165Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-29T19:49:48.963Z] | tools.list | START | Standard tool listing
+[2025-10-29T19:49:48.965Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-29T19:49:49.487Z] | resources.list | START | Enumerating exposed resources
+[2025-10-29T19:49:49.488Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-30T02:41:40.638Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-30T02:41:40.662Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-30T02:41:40.663Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-30T02:41:40.664Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-30T02:41:42.080Z] | tools.list | START | Standard tool listing
+[2025-10-30T02:41:42.081Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-30T02:41:42.647Z] | resources.list | START | Enumerating exposed resources
+[2025-10-30T02:41:42.649Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-30T14:01:14.840Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-30T14:01:14.843Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-30T14:01:14.844Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-30T14:01:14.845Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-30T14:01:16.101Z] | tools.list | START | Standard tool listing
+[2025-10-30T14:01:16.102Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-30T14:01:16.994Z] | resources.list | START | Enumerating exposed resources
+[2025-10-30T14:01:16.995Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-30T14:41:26.357Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-30T14:41:26.367Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-30T14:41:26.368Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-30T14:41:26.369Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-30T14:41:26.378Z] | tools.list | START | Standard tool listing
+[2025-10-30T14:41:26.379Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-30T14:41:26.382Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-30T14:41:26.385Z] | resources.list | START | Enumerating exposed resources
+[2025-10-30T14:41:26.386Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-30T14:41:26.390Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-30T14:41:26.391Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-30T14:41:26.392Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-30T14:41:26.416Z] | tools.list | START | Standard tool listing
+[2025-10-30T14:41:26.417Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-30T14:41:26.426Z] | resources.list | START | Enumerating exposed resources
+[2025-10-30T14:41:26.427Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-30T16:23:12.788Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-30T16:23:12.809Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-30T16:23:12.809Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-30T16:23:12.810Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-30T16:23:13.216Z] | tools.list | START | Standard tool listing
+[2025-10-30T16:23:13.217Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-30T16:23:13.237Z] | resources.list | START | Enumerating exposed resources
+[2025-10-30T16:23:13.237Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-30T16:43:36.558Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-30T16:43:36.561Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-30T16:43:36.561Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-30T16:43:36.562Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-30T16:43:36.566Z] | tools.list | START | Standard tool listing
+[2025-10-30T16:43:36.567Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-30T16:43:36.814Z] | resources.list | START | Enumerating exposed resources
+[2025-10-30T16:43:36.815Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-30T17:30:16.261Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-30T17:30:16.264Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-30T17:30:16.264Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-30T17:30:16.265Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-30T17:30:16.270Z] | tools.list | START | Standard tool listing
+[2025-10-30T17:30:16.270Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-30T17:30:16.274Z] | resources.list | START | Enumerating exposed resources
+[2025-10-30T17:30:16.274Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-30T17:52:07.365Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-30T17:52:07.368Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-30T17:52:07.369Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-30T17:52:07.369Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-30T17:52:07.803Z] | tools.list | START | Standard tool listing
+[2025-10-30T17:52:07.804Z] | tools.list | SUCCESS | Returned 29 tools | mode="stdio"
+[2025-10-30T17:52:07.830Z] | resources.list | START | Enumerating exposed resources
+[2025-10-30T17:52:07.830Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-31T02:17:11.999Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-31T02:17:12.021Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-31T02:17:12.022Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-31T02:17:12.023Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-31T02:17:13.499Z] | tools.list | START | Standard tool listing
+[2025-10-31T02:17:13.499Z] | tools.list | SUCCESS | Returned 30 tools | mode="stdio"
+[2025-10-31T02:17:14.660Z] | resources.list | START | Enumerating exposed resources
+[2025-10-31T02:17:14.661Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-31T11:32:38.845Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-31T11:32:38.999Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-31T11:32:39.000Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-31T11:32:39.001Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-31T11:32:40.358Z] | tools.list | START | Standard tool listing
+[2025-10-31T11:32:40.359Z] | tools.list | SUCCESS | Returned 30 tools | mode="stdio"
+[2025-10-31T11:32:40.420Z] | resources.list | START | Enumerating exposed resources
+[2025-10-31T11:32:40.422Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-31T11:34:52.601Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-31T11:34:52.607Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-31T11:34:52.607Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-31T11:34:52.608Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-31T11:34:52.648Z] | tools.list | START | Standard tool listing
+[2025-10-31T11:34:52.649Z] | tools.list | SUCCESS | Returned 30 tools | mode="stdio"
+[2025-10-31T11:34:52.673Z] | resources.list | START | Enumerating exposed resources
+[2025-10-31T11:34:52.674Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-31T13:10:38.270Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-31T13:10:38.274Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-31T13:10:38.275Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-31T13:10:38.276Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-31T13:10:39.682Z] | tools.list | START | Standard tool listing
+[2025-10-31T13:10:39.682Z] | tools.list | SUCCESS | Returned 30 tools | mode="stdio"
+[2025-10-31T13:10:40.257Z] | resources.list | START | Enumerating exposed resources
+[2025-10-31T13:10:40.258Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-31T14:24:13.098Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-31T14:24:13.098Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-31T14:24:13.102Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-31T14:24:13.102Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-31T14:24:13.103Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-31T14:24:13.104Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-31T14:24:13.103Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-31T14:24:13.104Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-31T14:24:13.109Z] | tools.list | START | Standard tool listing
+[2025-10-31T14:24:13.110Z] | tools.list | SUCCESS | Returned 30 tools | mode="stdio"
+[2025-10-31T14:24:13.111Z] | tools.list | START | Standard tool listing
+[2025-10-31T14:24:13.112Z] | tools.list | SUCCESS | Returned 30 tools | mode="stdio"
+[2025-10-31T14:24:13.126Z] | resources.list | START | Enumerating exposed resources
+[2025-10-31T14:24:13.127Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-31T14:24:13.129Z] | resources.list | START | Enumerating exposed resources
+[2025-10-31T14:24:13.129Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-31T14:53:31.401Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-31T14:53:31.407Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-31T14:53:31.410Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-31T14:53:31.411Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-31T14:53:31.447Z] | tools.list | START | Standard tool listing
+[2025-10-31T14:53:31.448Z] | tools.list | SUCCESS | Returned 30 tools | mode="stdio"
+[2025-10-31T14:53:31.509Z] | resources.list | START | Enumerating exposed resources
+[2025-10-31T14:53:31.509Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-31T14:56:06.499Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-31T14:56:06.504Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-31T14:56:06.505Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-31T14:56:06.505Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-31T14:56:06.525Z] | tools.list | START | Standard tool listing
+[2025-10-31T14:56:06.525Z] | tools.list | SUCCESS | Returned 30 tools | mode="stdio"
+[2025-10-31T14:56:06.601Z] | resources.list | START | Enumerating exposed resources
+[2025-10-31T14:56:06.602Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-31T17:25:47.786Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-31T17:25:47.787Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-10-31T17:25:47.815Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-31T17:25:47.816Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-10-31T17:25:47.816Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-31T17:25:47.817Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-10-31T17:25:47.818Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-31T17:25:47.818Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-10-31T17:25:48.266Z] | tools.list | START | Standard tool listing
+[2025-10-31T17:25:48.267Z] | tools.list | SUCCESS | Returned 30 tools | mode="stdio"
+[2025-10-31T17:25:48.268Z] | tools.list | START | Standard tool listing
+[2025-10-31T17:25:48.269Z] | tools.list | SUCCESS | Returned 30 tools | mode="stdio"
+[2025-10-31T17:25:49.701Z] | resources.list | START | Enumerating exposed resources
+[2025-10-31T17:25:49.701Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-10-31T17:25:49.706Z] | resources.list | START | Enumerating exposed resources
+[2025-10-31T17:25:49.707Z] | resources.list | SUCCESS | Returned 11 resources

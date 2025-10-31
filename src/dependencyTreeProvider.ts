@@ -386,26 +386,54 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
   private parseIncludes(content: string): string[] {
     const includes: string[] = [];
 
-    // Regex patterns for different include formats
-    const patterns = [
-      // #Include <LibName>
-      /#Include\s+<([^>]+)>/gi,
-      // #Include "quoted/path.ahk"
-      /#Include\s+"([^"]+)"/gi,
-      // #Include path.ahk (unquoted)
-      /#Include\s+([^\s;]+\.ahk)/gi,
-      // #Include %A_ScriptDir%\file.ahk or similar
-      /#Include\s+%A_\w+%[\\/]([^\s;]+)/gi
-    ];
-
-    for (const pattern of patterns) {
-      let match;
-      while ((match = pattern.exec(content)) !== null) {
-        includes.push(match[1].trim());
+    const lines = content.split('\n');
+    for (const rawLine of lines) {
+      const include = this.extractIncludePath(rawLine);
+      if (include) {
+        includes.push(include);
       }
     }
 
     return [...new Set(includes)]; // Remove duplicates
+  }
+
+  /**
+   * Extract the include path from a single #Include directive line
+   */
+  private extractIncludePath(line: string): string | null {
+    const trimmed = line.trim();
+    if (!trimmed.toLowerCase().startsWith('#include')) {
+      return null;
+    }
+
+    // Remove inline comments
+    const withoutComments = trimmed.split(';')[0].trim();
+    const pathPart = withoutComments.replace(/^#include/i, '').trim();
+    if (!pathPart) {
+      return null;
+    }
+
+    if (pathPart.startsWith('<') && pathPart.includes('>')) {
+      const end = pathPart.indexOf('>') + 1;
+      return pathPart.substring(0, end);
+    }
+
+    if (pathPart.startsWith('"')) {
+      const endQuote = pathPart.indexOf('"', 1);
+      if (endQuote > 0) {
+        return pathPart.substring(1, endQuote).trim();
+      }
+      return pathPart.substring(1).trim();
+    }
+
+    return pathPart.split(/\s+/)[0];
+  }
+
+  /**
+   * Normalize path separators to forward slashes
+   */
+  private normalizePathSeparators(filePath: string): string {
+    return filePath.replace(/\\/g, '/');
   }
 
   /**
@@ -414,7 +442,7 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
    */
   private async resolveInclude(includePath: string, sourceFile: string): Promise<string | null> {
     // Normalize path separators to forward slashes for cross-platform compatibility
-    const normalizedInclude = includePath.replace(/\\/g, '/');
+    const normalizedInclude = this.normalizePathSeparators(includePath);
     const sourceDir = path.dirname(sourceFile);
 
     const candidates: string[] = [];

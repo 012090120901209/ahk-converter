@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as crypto from 'crypto';
 
 export interface TelemetryEvent {
-  type: 'conversion' | 'error' | 'performance' | 'usage' | 'profile';
+  type: 'conversion' | 'error' | 'performance' | 'usage' | 'profile' | 'library_attribution';
   timestamp: number;
   sessionId: string;
   data: any;
@@ -54,6 +54,18 @@ export interface ProfileTelemetryData {
   profileType: 'predefined' | 'custom';
   profileName: string;
   rulesCount: number;
+}
+
+export interface LibraryAttributionTelemetryData {
+  libraryName: string;
+  success: boolean;
+  cacheHit: boolean;
+  fieldsDiscovered: string[];
+  sources: string[];
+  githubApiCalls: number;
+  processingTime: number;
+  errorType?: string;
+  errorMessage?: string;
 }
 
 export class TelemetryManager {
@@ -150,11 +162,13 @@ export class TelemetryManager {
         error: events.filter(e => e.type === 'error').length,
         performance: events.filter(e => e.type === 'performance').length,
         usage: events.filter(e => e.type === 'usage').length,
-        profile: events.filter(e => e.type === 'profile').length
+        profile: events.filter(e => e.type === 'profile').length,
+        library_attribution: events.filter(e => e.type === 'library_attribution').length
       },
       conversionStats: this.aggregateConversionEvents(events.filter(e => e.type === 'conversion')),
       errorStats: this.aggregateErrorEvents(events.filter(e => e.type === 'error')),
-      performanceStats: this.aggregatePerformanceEvents(events.filter(e => e.type === 'performance'))
+      performanceStats: this.aggregatePerformanceEvents(events.filter(e => e.type === 'performance')),
+      libraryAttributionStats: this.aggregateLibraryAttributionEvents(events.filter(e => e.type === 'library_attribution'))
     };
 
     return aggregated;
@@ -203,6 +217,56 @@ export class TelemetryManager {
       avgMemoryUsage,
       totalLinesProcessed,
       operationsCount: events.length
+    };
+  }
+
+  private aggregateLibraryAttributionEvents(events: TelemetryEvent[]): any {
+    if (events.length === 0) return {};
+
+    const total = events.length;
+    const successful = events.filter(e => e.data.success).length;
+    const cacheHits = events.filter(e => e.data.cacheHit).length;
+    const avgProcessingTime = events.reduce((sum, e) => sum + e.data.processingTime, 0) / total;
+    const totalGithubApiCalls = events.reduce((sum, e) => sum + e.data.githubApiCalls, 0);
+
+    // Count fields discovered
+    const fieldsDiscoveredCount: { [key: string]: number } = {};
+    events.forEach(e => {
+      if (e.data.fieldsDiscovered) {
+        e.data.fieldsDiscovered.forEach((field: string) => {
+          fieldsDiscoveredCount[field] = (fieldsDiscoveredCount[field] || 0) + 1;
+        });
+      }
+    });
+
+    // Count error types
+    const errorTypes: { [key: string]: number } = {};
+    events.filter(e => !e.data.success && e.data.errorType).forEach(e => {
+      errorTypes[e.data.errorType] = (errorTypes[e.data.errorType] || 0) + 1;
+    });
+
+    // Count sources used
+    const sourcesUsed: { [key: string]: number } = {};
+    events.forEach(e => {
+      if (e.data.sources) {
+        e.data.sources.forEach((source: string) => {
+          sourcesUsed[source] = (sourcesUsed[source] || 0) + 1;
+        });
+      }
+    });
+
+    return {
+      total,
+      successful,
+      successRate: (successful / total) * 100,
+      cacheHits,
+      cacheHitRate: (cacheHits / total) * 100,
+      avgProcessingTime,
+      totalGithubApiCalls,
+      avgGithubApiCallsPerRequest: totalGithubApiCalls / total,
+      fieldsDiscovered: fieldsDiscoveredCount,
+      errorTypes,
+      sourcesUsed
     };
   }
 
@@ -326,6 +390,17 @@ export class TelemetryManager {
     });
   }
 
+  recordLibraryAttribution(data: LibraryAttributionTelemetryData): void {
+    if (!this.isEnabled) return;
+
+    this.addEvent({
+      type: 'library_attribution',
+      timestamp: Date.now(),
+      sessionId: this.sessionId,
+      data
+    });
+  }
+
   private addEvent(event: TelemetryEvent): void {
     this.events.push(event);
 
@@ -371,6 +446,19 @@ export class TelemetryManager {
       return this.aggregatePerformanceEvents(recentEvents);
     } catch (error) {
       console.error('Failed to get performance stats:', error);
+      return null;
+    }
+  }
+
+  async getLibraryAttributionStats(days: number = 7): Promise<any> {
+    try {
+      const events = await this.loadEvents();
+      const cutoffTime = Date.now() - (days * 24 * 60 * 60 * 1000);
+      const recentEvents = events.filter(e => e.timestamp > cutoffTime && e.type === 'library_attribution');
+
+      return this.aggregateLibraryAttributionEvents(recentEvents);
+    } catch (error) {
+      console.error('Failed to get library attribution stats:', error);
       return null;
     }
   }

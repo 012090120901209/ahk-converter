@@ -7,6 +7,9 @@
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
+        "--disable-extension=ms-edgedevtools.vscode-edge-devtools",
+        "--disable-extension=artalatarta.unofficial-material-icon-theme",
+        "--disable-extension=vsls-contrib.gistfs",
         "C:\\Users\\uphol\\Documents\\Design\\Coding\\ahk-converter\\ahk-converter.code-workspace"
       ],
       "outFiles": [
@@ -20,12 +23,28 @@
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
+        "--disable-extension=ms-edgedevtools.vscode-edge-devtools",
+        "--disable-extension=artalatarta.unofficial-material-icon-theme",
+        "--disable-extension=vsls-contrib.gistfs",
         "C:\\Users\\uphol\\Documents\\Design\\Coding\\ahk-converter\\ahk-converter.code-workspace"
       ],
       "outFiles": [
         "${workspaceFolder}/dist/**/*.js"
       ],
       "preLaunchTask": "npm: watch"
+    },
+    {
+      "name": "Extension Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/dist/test/suite/index",
+        "--disable-extensions"
+      ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "preLaunchTask": "npm: compile"
     }
   ]
 }

@@ -4,18 +4,23 @@
     "module": "commonjs",
     "lib": ["ES2020"],
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "strict": true,
     "sourceMap": true,
     "types": ["node", "vscode", "mocha"]
   },
+  "include": [
+    "src/**/*",
+    "test/**/*"
+  ],
   "exclude": [
     "node_modules",
     ".vscode-test",
     "microsoft vscode-extension-samples main tree-view-sample",
     "test-deps",
     "scripts",
-    "vendor"
+    "vendor",
+    "test/fixtures/**/*.ahk"
   ]
 }
 

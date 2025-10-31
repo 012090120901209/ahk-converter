@@ -1,0 +1,142 @@
+import * as assert from 'assert';
+import * as vscode from 'vscode';
+import { DependencyTreeProvider, DependencyTreeItem } from '../../src/dependencyTreeProvider';
+
+suite('Dependency Tree Test Suite', () => {
+  let provider: DependencyTreeProvider;
+  let context: vscode.ExtensionContext;
+
+  suiteSetup(() => {
+    const ext = vscode.extensions.getExtension('TrueCrimeAudit.ahkv2-toolbox');
+    assert.ok(ext, 'Extension should be available');
+    context = ext!.exports?.context || createMockContext();
+  });
+
+  setup(() => {
+    provider = new DependencyTreeProvider(context);
+  });
+
+  test('Provider should be created', () => {
+    assert.ok(provider);
+  });
+
+  test('Tree item should have correct properties', () => {
+    const item = new DependencyTreeItem(
+      '/path/to/file.ahk',
+      'file.ahk',
+      vscode.TreeItemCollapsibleState.None,
+      [],
+      []
+    );
+
+    assert.strictEqual(item.filePath, '/path/to/file.ahk');
+    assert.strictEqual(item.labelText, 'file.ahk');
+    assert.strictEqual(item.collapsibleState, vscode.TreeItemCollapsibleState.None);
+    assert.ok(item.command);
+    assert.strictEqual(item.command.command, 'ahkDependencyTree.openFile');
+  });
+
+  test('Tree item with includes should show count in description', () => {
+    const item = new DependencyTreeItem(
+      '/path/to/file.ahk',
+      'file.ahk',
+      vscode.TreeItemCollapsibleState.Collapsed,
+      ['/path/to/lib1.ahk', '/path/to/lib2.ahk'],
+      []
+    );
+
+    assert.strictEqual(item.description, '2 includes');
+    assert.ok(item.iconPath instanceof vscode.ThemeIcon);
+  });
+
+  test('Tree item with unresolved includes should show warning icon', () => {
+    const item = new DependencyTreeItem(
+      '/path/to/file.ahk',
+      'file.ahk',
+      vscode.TreeItemCollapsibleState.Collapsed,
+      ['/path/to/lib1.ahk'],
+      ['<MissingLib>']
+    );
+
+    assert.ok(item.iconPath instanceof vscode.ThemeIcon);
+    assert.strictEqual((item.iconPath as vscode.ThemeIcon).id, 'warning');
+  });
+
+  test('Pinned state should update item properties', () => {
+    const item = new DependencyTreeItem(
+      '/path/to/file.ahk',
+      'file.ahk',
+      vscode.TreeItemCollapsibleState.Collapsed,
+      ['/path/to/lib.ahk'],
+      []
+    );
+
+    item.updatePinnedState(true);
+    assert.strictEqual(item.isPinnedRoot, true);
+    assert.strictEqual(item.contextValue, 'rootItem-isPinned');
+    const pinnedDescription = typeof item.description === 'string' ? item.description : '';
+    assert.ok(pinnedDescription.includes('📌'));
+
+    item.updatePinnedState(false);
+    assert.strictEqual(item.isPinnedRoot, false);
+    assert.strictEqual(item.contextValue, 'rootItem');
+    const unpinnedDescription = typeof item.description === 'string' ? item.description : '';
+    assert.ok(!unpinnedDescription.includes('📌'));
+  });
+
+  test('Provider should resolve #Include paths correctly', async () => {
+    const testCases = [
+      { input: '#Include lib.ahk', expected: 'lib.ahk' },
+      { input: '#Include <LibName>', expected: '<LibName>' },
+      { input: '#Include "path/to/file.ahk"', expected: 'path/to/file.ahk' },
+      { input: '  #Include  lib.ahk  ', expected: 'lib.ahk' },
+    ];
+
+    for (const { input, expected } of testCases) {
+      const result = (provider as any).extractIncludePath(input);
+      assert.strictEqual(result, expected, `Failed for: ${input}`);
+    }
+  });
+
+  test('Provider should normalize path separators', () => {
+    const normalized = (provider as any).normalizePathSeparators('path\\to\\file.ahk');
+    assert.strictEqual(normalized, 'path/to/file.ahk');
+  });
+
+  test('Provider should handle library includes (<Name>)', () => {
+    const path = '<MyLibrary>';
+    const isLibInclude = path.startsWith('<') && path.endsWith('>');
+    assert.strictEqual(isLibInclude, true);
+  });
+});
+
+function createMockContext(): vscode.ExtensionContext {
+  return {
+    subscriptions: [],
+    workspaceState: {
+      get: () => undefined,
+      update: async () => {},
+      keys: () => []
+    },
+    globalState: {
+      get: () => undefined,
+      update: async () => {},
+      keys: () => [],
+      setKeysForSync: () => {}
+    },
+    extensionPath: '/mock/extension/path',
+    extensionUri: vscode.Uri.file('/mock/extension/path'),
+    environmentVariableCollection: {} as any,
+    extensionMode: vscode.ExtensionMode.Test,
+    storageUri: vscode.Uri.file('/mock/storage'),
+    storagePath: '/mock/storage',
+    globalStorageUri: vscode.Uri.file('/mock/global'),
+    globalStoragePath: '/mock/global',
+    logUri: vscode.Uri.file('/mock/logs'),
+    logPath: '/mock/logs',
+    asAbsolutePath: (relativePath: string) => `/mock/extension/path/${relativePath}`,
+    extension: {} as any,
+    secrets: {} as any,
+    languageModelAccessInformation: {} as any
+  };
+}

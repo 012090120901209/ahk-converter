@@ -85,11 +85,13 @@ class TelemetryManager {
                 error: events.filter(e => e.type === 'error').length,
                 performance: events.filter(e => e.type === 'performance').length,
                 usage: events.filter(e => e.type === 'usage').length,
-                profile: events.filter(e => e.type === 'profile').length
+                profile: events.filter(e => e.type === 'profile').length,
+                library_attribution: events.filter(e => e.type === 'library_attribution').length
             },
             conversionStats: this.aggregateConversionEvents(events.filter(e => e.type === 'conversion')),
             errorStats: this.aggregateErrorEvents(events.filter(e => e.type === 'error')),
-            performanceStats: this.aggregatePerformanceEvents(events.filter(e => e.type === 'performance'))
+            performanceStats: this.aggregatePerformanceEvents(events.filter(e => e.type === 'performance')),
+            libraryAttributionStats: this.aggregateLibraryAttributionEvents(events.filter(e => e.type === 'library_attribution'))
         };
         return aggregated;
     }
@@ -131,6 +133,51 @@ class TelemetryManager {
             avgMemoryUsage,
             totalLinesProcessed,
             operationsCount: events.length
+        };
+    }
+    aggregateLibraryAttributionEvents(events) {
+        if (events.length === 0)
+            return {};
+        const total = events.length;
+        const successful = events.filter(e => e.data.success).length;
+        const cacheHits = events.filter(e => e.data.cacheHit).length;
+        const avgProcessingTime = events.reduce((sum, e) => sum + e.data.processingTime, 0) / total;
+        const totalGithubApiCalls = events.reduce((sum, e) => sum + e.data.githubApiCalls, 0);
+        // Count fields discovered
+        const fieldsDiscoveredCount = {};
+        events.forEach(e => {
+            if (e.data.fieldsDiscovered) {
+                e.data.fieldsDiscovered.forEach((field) => {
+                    fieldsDiscoveredCount[field] = (fieldsDiscoveredCount[field] || 0) + 1;
+                });
+            }
+        });
+        // Count error types
+        const errorTypes = {};
+        events.filter(e => !e.data.success && e.data.errorType).forEach(e => {
+            errorTypes[e.data.errorType] = (errorTypes[e.data.errorType] || 0) + 1;
+        });
+        // Count sources used
+        const sourcesUsed = {};
+        events.forEach(e => {
+            if (e.data.sources) {
+                e.data.sources.forEach((source) => {
+                    sourcesUsed[source] = (sourcesUsed[source] || 0) + 1;
+                });
+            }
+        });
+        return {
+            total,
+            successful,
+            successRate: (successful / total) * 100,
+            cacheHits,
+            cacheHitRate: (cacheHits / total) * 100,
+            avgProcessingTime,
+            totalGithubApiCalls,
+            avgGithubApiCallsPerRequest: totalGithubApiCalls / total,
+            fieldsDiscovered: fieldsDiscoveredCount,
+            errorTypes,
+            sourcesUsed
         };
     }
     countProfilesUsed(events) {
@@ -240,6 +287,16 @@ class TelemetryManager {
             data
         });
     }
+    recordLibraryAttribution(data) {
+        if (!this.isEnabled)
+            return;
+        this.addEvent({
+            type: 'library_attribution',
+            timestamp: Date.now(),
+            sessionId: this.sessionId,
+            data
+        });
+    }
     addEvent(event) {
         this.events.push(event);
         // Flush if we have too many events in memory
@@ -281,6 +338,18 @@ class TelemetryManager {
         }
         catch (error) {
             console.error('Failed to get performance stats:', error);
+            return null;
+        }
+    }
+    async getLibraryAttributionStats(days = 7) {
+        try {
+            const events = await this.loadEvents();
+            const cutoffTime = Date.now() - (days * 24 * 60 * 60 * 1000);
+            const recentEvents = events.filter(e => e.timestamp > cutoffTime && e.type === 'library_attribution');
+            return this.aggregateLibraryAttributionEvents(recentEvents);
+        }
+        catch (error) {
+            console.error('Failed to get library attribution stats:', error);
             return null;
         }
     }

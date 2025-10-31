@@ -1,9 +1,8 @@
 <div align="center"><kbd></kbd><kbd>🧩 VS Code Extension</kbd> <kbd>🔁 AHK v1 → v2</kbd> <kbd>📂 Open Source</kbd><kbd></kbd></div>
-<h1 align="center">AHKv2 Toolbox <sup><sup><kbd>v0.4.2</kbd></sup></sup></h1>
+<h1 align="center">AHKv2 Toolbox <sup><sup><kbd>v0.4.3</kbd></sup></sup></h1>
 
 <div align="center">
     <strong>Comprehensive AutoHotkey v2 development toolbox with v1→v2 conversion, function metadata, and productivity tools inside VS Code</strong>
-  <img src="src/AHK_Code.svg" alt="AHKv2 Toolbox icon">
 </div>
 <div align="center">
   <p>
@@ -60,6 +59,123 @@
 - **Customizable diff view options**
 - **Batch output directory management**
 - **Auto-save options** for converted files
+- **Auto-Add #Include** - Automatically insert #Include statements when installing packages:
+  - Smart placement based on directive anchors (#SingleInstance, #Requires)
+  - Intelligent duplicate detection (case-insensitive, path-agnostic)
+  - Preserves file formatting (EOL style, spacing, alignment)
+  - Optional header auto-insertion (#Requires, #SingleInstance)
+  - Configurable include path templates (Lib/, vendor/, custom)
+  - See [Auto-Add #Include Guide](docs/AUTO_INCLUDE_FEATURE.md) for details
+- **Library Attribution** - Automatically discover and fill in missing library metadata:
+  - Searches GitHub for library information based on filename
+  - Extracts metadata from file headers, README files, and repository info
+  - Never overwrites existing metadata fields
+  - Supports GitHub Personal Access Token for higher rate limits
+  - See [Library Attribution Guide](docs/library-attribution.md) for details
+
+### AI-Powered Chat Assistance
+
+**GitHub Copilot Chat Integration** - Get intelligent AHK v2 coding help right in VS Code:
+
+**Requirements:**
+- VS Code 1.90 or later
+- GitHub Copilot extension installed and active
+
+**Using the Chat Assistant:**
+Type `@ahk` in the GitHub Copilot Chat view to activate the AHK v2 assistant. It provides expert guidance on AutoHotkey v2 development with deep knowledge of v2 syntax rules and v1-to-v2 migration patterns.
+
+**Available Commands:**
+
+- **`@ahk /convert`** - Convert AHK v1 code snippet to v2 syntax
+  - Identifies v1 patterns and provides accurate v2 equivalents
+  - Explains WHY each conversion is needed
+  - Example: `@ahk /convert MsgBox, Hello World`
+
+- **`@ahk /explain`** - Explain AHK v2 syntax or concepts
+  - Clear, educational explanations with examples
+  - References official v2 documentation
+  - Example: `@ahk /explain What are property descriptors?`
+
+- **`@ahk /fix`** - Analyze and fix AHK v2 code issues
+  - Identifies syntax errors, logic issues, and anti-patterns
+  - Provides corrected code with explanations
+  - **Automatically reads from VS Code's Problems panel**
+  - Includes context from active editor
+  - Example: `@ahk /fix Why doesn't this GUI show?`
+
+- **`@ahk /optimize`** - Suggest performance optimizations
+  - Recommends modern v2 idioms and best practices
+  - Explains benefits of each optimization
+  - Example: `@ahk /optimize How can I make this loop faster?`
+
+- **`@ahk /example`** - Generate practical code examples
+  - Provides working, ready-to-use code snippets
+  - Includes clear comments
+  - Example: `@ahk /example Show me how to create a GUI with tabs`
+
+**General Queries:**
+You can also ask questions without slash commands:
+- `@ahk How do I parse JSON in v2?`
+- `@ahk What's the difference between ComObject and ComObjActive?`
+- `@ahk Why is my script not working?`
+
+**Context-Aware Assistance:**
+The chat assistant automatically provides context from:
+- Your currently active AHK file
+- File name and language version
+
+**Built-in Custom Instructions:**
+This extension includes specialized custom instructions for GitHub Copilot that automatically apply to all `.ahk` and `.ahk2` files. These instructions ensure AI-generated code follows AutoHotkey v2 best practices:
+- Enforces v2 syntax rules (`:=` for assignment, `ComObject()` vs `ComObjCreate()`, etc.)
+- Prevents common v1-to-v2 migration mistakes
+- Promotes proper error handling, GUI patterns, and code style
+- Located in `.github/instructions/autohotkey-v2.instructions.md`
+- Automatically activates when editing AHK files (requires VS Code 1.90+ with Copilot)
+- Selected code or entire file (for smaller files)
+- **VS Code Problems panel** (errors, warnings, and info diagnostics)
+
+**Problems Panel Integration:**
+When you use `/fix` or ask about errors, the assistant automatically reads diagnostics from VS Code's Problems panel:
+- ❌ **Errors**: Syntax errors, undefined variables, invalid function calls
+- ⚠️ **Warnings**: Deprecated syntax, potential issues, code smells
+- ℹ️ **Info**: Suggestions, style recommendations
+
+**Output Window Integration:**
+The assistant can also read **runtime errors** from the VS Code Output window:
+- 🔴 **Runtime Errors**: Errors that occur when running your AHK script
+- **Automatic Parsing**: Detects error messages, file paths, and line numbers
+- **Recent History**: Remembers errors from the last 5 minutes
+- **File Filtering**: Only shows errors relevant to your current file
+
+**Example Runtime Error Detection:**
+```
+C:\Users\...\Object_Literal_Error.ahk (7) : ==> Missing "propertyname:" in object literal.
+```
+The assistant automatically parses this to identify:
+- File: `Object_Literal_Error.ahk`
+- Line: `7`
+- Error: `Missing "propertyname:" in object literal`
+
+**How to Use:**
+1. Run your AHK script and see the error in Output window
+2. Copy the error output from the Output panel
+3. Run command: `AHK: Add Output to Chat Monitor` (or Ctrl+Shift+P)
+4. Type `@ahk /fix` in Copilot Chat
+5. The assistant sees both static diagnostics AND runtime errors!
+
+This means you can simply type:
+- `@ahk /fix` - Automatically sees all problems and runtime errors
+- `@ahk why is my script broken?` - Reads Problems panel and Output window
+- `@ahk what does this error mean?` - Provides context-specific explanations with full context
+
+**Key AHK v2 Rules the Assistant Knows:**
+- Use `:=` for ALL assignments (never `=`)
+- Arrays are 1-indexed (not 0-indexed)
+- All control flow uses expressions (no legacy command syntax)
+- String concatenation uses the `.` operator
+- Use `ComObject()` not `ComObjCreate()`
+- Classes use modern OOP syntax with `__New()` constructor
+- GUI uses object-based approach with `Gui()` constructor
 
 ## Installation
 
@@ -157,6 +273,48 @@ The extension includes a comprehensive profile management system for customizing
 
 **Note**: Predefined profiles (conservative, aggressive, custom) cannot be edited directly. The editor will offer to create an editable copy instead.
 
+### Package Manager & Auto-Add #Include
+
+The Dependency Manager provides a streamlined workflow for managing AHK libraries with automatic #Include insertion.
+
+**Installing a Package:**
+1. Open the **Dependency Manager** sidebar view
+2. Browse **Available Libraries** or **Installed Libraries**
+3. Click the install button (cloud download icon) on any package
+4. When installation completes, choose an action:
+   - **Add #Include** - Automatically insert the #Include line
+   - **Open** - Open the library file
+   - **Dismiss** - Close the notification
+
+**Auto-Add #Include Workflow:**
+1. Click "Add #Include" after installing a package
+2. If an .ahk file is active → Include is added immediately
+3. If no .ahk file is active → Select from workspace files
+4. The include line is inserted following smart rules:
+   - Placed after #SingleInstance or #Requires directives
+   - Appended to existing include block (never sorts)
+   - Creates new block if none exists (with proper spacing)
+   - Prevents duplicates (case-insensitive comparison)
+
+**Example Result:**
+```ahk
+#Requires AutoHotkey v2.1
+#SingleInstance Force
+
+#Include Lib/Arrays.ahk
+#Include Lib/JSON.ahk      ; ← Newly added
+
+; Your code here
+MsgBox("Libraries loaded!")
+```
+
+**Configuration:**
+- `ahkv2Toolbox.includeFormat` - Template for include paths (default: `Lib/{name}.ahk`)
+- `ahkv2Toolbox.autoInsertHeaders` - Auto-add directives if missing (default: `false`)
+- `ahkv2Toolbox.headerOrder` - Order of directives to insert
+
+See [Auto-Add #Include Guide](docs/AUTO_INCLUDE_FEATURE.md) for complete documentation.
+
 ### Error Handling
 
 When errors occur, you'll see:
@@ -202,6 +360,17 @@ When errors occur, you'll see:
   - `highlightChanges`: Highlight changes with color coding. (Default: true)
   - `ignoreWhitespace`: Ignore whitespace changes in diff. (Default: false)
   - `contextLines`: Number of context lines to show around changes. (Default: 3, range: 0-10)
+
+### Package Manager Settings
+
+- `ahkv2Toolbox.includeFormat`: Template for #Include paths. Use `{name}` for package name. (Default: `Lib/{name}.ahk`)
+  - Examples: `vendor/{name}.ahk`, `<{name}>`, `../libs/{name}.ahk`
+- `ahkv2Toolbox.autoInsertHeaders`: Automatically insert #Requires and #SingleInstance headers when installing packages. (Default: false)
+- `ahkv2Toolbox.headerOrder`: Order of header directives to insert. (Default: `["#Requires AutoHotkey v2.1", "#SingleInstance Force"]`)
+- `ahkv2Toolbox.defaultRequires`: Default AutoHotkey version for #Requires directive. (Default: `AutoHotkey v2.1`)
+- `ahkv2Toolbox.defaultSingleInstance`: Default #SingleInstance mode. (Default: `Force`)
+  - Options: `Force`, `Ignore`, `Prompt`, `Off`
+- `ahkv2Toolbox.libFolders`: Library search folders relative to workspace. (Default: `["Lib", "vendor"]`)
 
 ## Troubleshooting
 

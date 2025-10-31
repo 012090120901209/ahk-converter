@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AHKv2 Toolbox – Combined Mockup</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --panel-bg: #252526;
+      --panel-border: #3c3c3c;
+      --panel-header: #2d2d30;
+      --accent: #007acc;
+      --text: #d4d4d4;
+      --muted: #969696;
+      --button-bg: #2e2e2e;
+      --button-bg-hover: #2a2a2a;
+      --badge-bg: #4d4d4d;
+      --badge-success: #1a7f37;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1e1e1e;
+      color: var(--text);
+      margin: 0;
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+    }
+
+    .page-header {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+
+    .page-header h1 {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .page-header p {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 4px 0;
+    }
+
+    .layout {
+      display: grid;
+      gap: 24px;
+    }
+
+    @media (min-width: 760px) {
+      .layout {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+    }
+
+    .panel {
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      background: var(--panel-bg);
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .panel-header {
+      background: var(--panel-header);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .panel-header h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      flex: 1;
+    }
+
+    .sidebar-content,
+    .settings-content {
+      padding: 18px 0;
+    }
+
+    .menu-section {
+      padding: 0 24px;
+      margin-bottom: 18px;
+    }
+
+    .menu-section:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .section-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--panel-border);
+      margin: 16px 0;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .button-grid button,
+    .button-container button,
+    .button-group button,
+    .back-button {
+      background: var(--button-bg);
+      color: var(--text);
+      border: 1px solid var(--panel-border);
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .button-grid button:hover,
+    .button-container button:hover,
+    .button-group button:hover,
+    .back-button:hover {
+      background: var(--button-bg-hover);
+    }
+
+    .button-grid button:focus-visible,
+    .button-container button:focus-visible,
+    .button-group button:focus-visible,
+    .back-button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metadata-grid button {
+      width: 100%;
+    }
+
+    .metadata-field {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 12px;
+      border: 1px solid var(--panel-border);
+      border-radius: 4px;
+      background: var(--button-bg);
+      color: var(--text);
+      height: 32px;
+      font-size: 13px;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .metadata-field.success {
+      background: var(--badge-success);
+      border-color: transparent;
+      color: #ffffff;
+    }
+
+    .settings-section + .settings-section {
+      margin-top: 18px;
+    }
+
+    .form-field,
+    .checkbox-field {
+      margin-bottom: 14px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    .field-description {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      background: #1f1f1f;
+      color: var(--text);
+      border: 1px solid var(--panel-border);
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 12px;
+      height: 32px;
+      transition: border-color 0.15s ease, outline 0.15s ease;
+    }
+
+    input[type="text"]:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 0;
+      border-color: var(--accent);
+    }
+
+    .checkbox-field {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .checkbox-field input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .button-group button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .button-group button.primary:hover {
+      background: #0e84d9;
+      border-color: #0e84d9;
+    }
+
+    .visually-hidden {
+      border: 0 !important;
+      clip: rect(0 0 0 0) !important;
+      height: 1px !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      padding: 0 !important;
+      position: absolute !important;
+      width: 1px !important;
+      white-space: nowrap !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>AHKv2 Toolbox – Combined Mockups</h1>
+    <p>Sidebar and settings form presented side-by-side using VS Code-inspired styling.</p>
+    <p>Hover elements to inspect • Space = freeze • F = metrics • Ctrl+C = copy</p>
+  </div>
+
+  <div class="layout">
+    <!-- Sidebar mockup -->
+    <article class="panel" aria-label="AHKv2 Toolbox Sidebar Mockup">
+      <div class="panel-header">
+        <h2>AHKv2 Toolbox</h2>
+      </div>
+      <div class="sidebar-content">
+        <section class="menu-section" aria-labelledby="script-converter-heading">
+          <h3 class="section-header" id="script-converter-heading">Script Converter</h3>
+          <div class="button-grid">
+            <button aria-label="Script Converter – New Tab: Button">New Tab</button>
+            <button aria-label="Script Converter – Show Diff: Button">Show Diff</button>
+            <button aria-label="Script Converter – Replace: Button">Replace</button>
+            <button aria-label="Script Converter – Batch: Button">Batch</button>
+          </div>
+        </section>
+
+        <div class="divider" role="presentation"></div>
+
+        <section class="menu-section" aria-labelledby="metadata-heading">
+          <h3 class="section-header" id="metadata-heading">Metadata</h3>
+          <div class="metadata-grid">
+            <button aria-label="Metadata – Extract: Button">Extract</button>
+            <span
+              class="metadata-field"
+              role="status"
+              aria-live="polite"
+              aria-label="Metadata – Extract: Text Box (Current file Map.ahk)"
+            >Map.ahk</span>
+            <button aria-label="Metadata – Edit Active File: Button">Edit</button>
+            <span
+              class="metadata-field success"
+              role="status"
+              aria-live="polite"
+              aria-label="Metadata – Edit Active File: Text Box (Has metadata available)"
+            >Has metadata</span>
+          </div>
+        </section>
+
+        <div class="divider" role="presentation"></div>
+
+        <section class="menu-section" aria-labelledby="library-heading">
+          <h3 class="section-header" id="library-heading">Library Manager</h3>
+          <div class="button-container">
+            <button aria-label="Library Manager – View Dependencies: Button">View Dependencies</button>
+            <button aria-label="Library Manager – Install Package: Button">Install Package</button>
+            <button aria-label="Library Manager – Update Packages: Button">Update Packages</button>
+          </div>
+        </section>
+
+        <div class="divider" role="presentation"></div>
+
+        <section class="menu-section" aria-labelledby="update-heading">
+          <h3 class="section-header" id="update-heading">Update Header</h3>
+          <div class="button-container">
+            <button aria-label="Update Header – Update Script Header: Button">Update Script Header</button>
+            <button aria-label="Update Header – Generate JSDoc Header: Button">Generate JSDoc Header</button>
+          </div>
+        </section>
+
+        <div class="divider" role="presentation"></div>
+
+        <section class="menu-section" aria-labelledby="settings-heading">
+          <h3 class="section-header" id="settings-heading">Settings</h3>
+          <div class="button-grid">
+            <button aria-label="Settings – Open Toolbox Settings: Button">Toolbox</button>
+            <button aria-label="Settings – Open Extension Settings: Button">Extension</button>
+          </div>
+        </section>
+      </div>
+    </article>
+
+    <!-- Settings mockup -->
+    <article class="panel" aria-label="AHKv2 Toolbox Settings Mockup">
+      <div class="panel-header">
+        <button class="back-button" aria-label="Settings – Navigate Back to Toolbox: Button">
+          <span aria-hidden="true">←</span>
+          <span class="visually-hidden">Back</span>
+        </button>
+        <h2>Settings</h2>
+      </div>
+      <div class="settings-content">
+        <section class="menu-section" aria-labelledby="header-config-heading">
+          <h3 class="section-header" id="header-config-heading">Header Configuration</h3>
+
+          <div class="checkbox-field">
+            <input
+              type="checkbox"
+              id="auto-insert"
+              checked
+              aria-label="Header Configuration – Auto-insert headers when installing packages: Checkbox"
+            >
+            <label for="auto-insert">Auto-insert headers when installing packages</label>
+          </div>
+          <p class="field-description">Automatically adds #Requires and #Include directives to your script.</p>
+
+          <div class="form-field">
+            <label for="requires-version" class="field-label">Default Version</label>
+            <input
+              type="text"
+              id="requires-version"
+              value="AutoHotkey v2.1"
+              placeholder="e.g., AutoHotkey v2.1"
+              aria-label="Header Configuration – Default Version: Text Field"
+            >
+            <p class="field-description">Version string applied to #Requires directive.</p>
+          </div>
+
+          <div class="form-field">
+            <label for="single-instance" class="field-label">Single Instance Mode</label>
+            <select
+              id="single-instance"
+              aria-label="Header Configuration – Single Instance Mode: Dropdown"
+            >
+              <option value="Force" selected>Force</option>
+              <option value="Ignore">Ignore</option>
+              <option value="Prompt">Prompt</option>
+              <option value="Off">Off</option>
+            </select>
+            <p class="field-description">Default #SingleInstance mode for new scripts.</p>
+          </div>
+        </section>
+
+        <div class="divider" role="presentation"></div>
+
+        <section class="menu-section" aria-labelledby="library-folders-heading">
+          <h3 class="section-header" id="library-folders-heading">Library Folders</h3>
+
+          <div class="form-field">
+            <label for="include-format" class="field-label">Include Path Format</label>
+            <input
+              type="text"
+              id="include-format"
+              value="Lib/{name}.ahk"
+              placeholder="Lib/{name}.ahk"
+              aria-label="Library Folders – Include Path Format: Text Field"
+            >
+            <p class="field-description">Template for #Include paths. Use {name} as a placeholder.</p>
+          </div>
+
+          <div class="form-field">
+            <label for="lib-folders" class="field-label">Search Folders</label>
+            <input
+              type="text"
+              id="lib-folders"
+              value="Lib, vendor"
+              placeholder="Lib, vendor"
+              aria-label="Library Folders – Search Folders: Text Field"
+            >
+            <p class="field-description">Comma-separated list of library search folders.</p>
+          </div>
+        </section>
+
+        <div class="divider" role="presentation"></div>
+
+        <section class="menu-section" aria-labelledby="popular-libraries-heading">
+          <h3 class="section-header" id="popular-libraries-heading">Popular Libraries</h3>
+
+          <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 12px;">
+            <li>
+              <div style="font-weight: 600;">Socket</div>
+              <a
+                href="https://github.com/G33kDude/Socket.ahk"
+                class="library-link"
+                aria-label="Popular Libraries – Socket: Link to github.com/G33kDude/Socket.ahk"
+              >github.com/G33kDude/Socket.ahk</a>
+              <p class="field-description">TCP/UDP socket communication utilities.</p>
+            </li>
+            <li>
+              <div style="font-weight: 600;">WebView2</div>
+              <a
+                href="https://github.com/thqby/ahk2_lib"
+                class="library-link"
+                aria-label="Popular Libraries – WebView2: Link to github.com/thqby/ahk2_lib"
+              >github.com/thqby/ahk2_lib</a>
+              <p class="field-description">Microsoft Edge WebView2 control for AHK v2.</p>
+            </li>
+            <li>
+              <div style="font-weight: 600;">Gdip</div>
+              <a
+                href="https://github.com/mmikeww/AHK-v2-Gdip"
+                class="library-link"
+                aria-label="Popular Libraries – Gdip: Link to github.com/mmikeww/AHK-v2-Gdip"
+              >github.com/mmikeww/AHK-v2-Gdip</a>
+              <p class="field-description">GDI+ graphics helper functions.</p>
+            </li>
+          </ul>
+        </section>
+
+        <div class="divider" role="presentation"></div>
+
+        <section class="menu-section" aria-labelledby="actions-heading">
+          <h3 class="section-header visually-hidden" id="actions-heading">Settings Actions</h3>
+          <div class="button-group">
+            <button class="primary" aria-label="Settings – Save Settings: Button">Save Settings</button>
+            <button aria-label="Settings – Reset to Defaults: Button">Reset to Defaults</button>
+          </div>
+        </section>
+      </div>
+    </article>
+  </div>
+
+  <!-- Inspector overlay elements -->
+  <div id="inspector-overlay">
+    <div id="inspector-margin"></div>
+    <div id="inspector-border"></div>
+    <div id="inspector-padding"></div>
+    <div id="inspector-content"></div>
+  </div>
+
+  <div id="inspector-tooltip">
+    <div id="inspector-tooltip-content"></div>
+    <button id="inspector-tooltip-copy" aria-label="Inspector – Copy Element Details: Button">📋 Click or Ctrl+C to copy</button>
+  </div>
+
+  <div id="inspector-metrics">
+    <h4>Box Model</h4>
+    <div id="inspector-metrics-content"></div>
+  </div>
+
+  <style>
+    #inspector-overlay {
+      position: fixed;
+      pointer-events: none;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 9998;
+      display: none;
+    }
+
+    #inspector-overlay > div {
+      position: absolute;
+      border-radius: 2px;
+    }
+
+    #inspector-margin {
+      background: rgba(246, 178, 107, 0.35);
+      border: 1px solid rgba(246, 178, 107, 0.9);
+    }
+
+    #inspector-border {
+      background: rgba(255, 229, 153, 0.35);
+      border: 1px solid rgba(255, 229, 153, 0.9);
+    }
+
+    #inspector-padding {
+      background: rgba(147, 196, 125, 0.35);
+      border: 1px solid rgba(147, 196, 125, 0.9);
+    }
+
+    #inspector-content {
+      background: rgba(135, 206, 250, 0.35);
+      border: 1px solid rgba(135, 206, 250, 0.95);
+    }
+
+    #inspector-tooltip {
+      position: fixed;
+      background: #1f1f1f;
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 6px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+      font-size: 12px;
+      z-index: 9999;
+      max-width: 340px;
+      display: none;
+    }
+
+    #inspector-tooltip-copy {
+      margin-top: 8px;
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--panel-border);
+      border-radius: 4px;
+      padding: 4px 8px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.15s ease;
+    }
+
+    #inspector-tooltip-copy:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    #inspector-metrics {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 240px;
+      background: #1f1f1f;
+      border: 1px solid var(--panel-border);
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 12px;
+      color: var(--text);
+      display: none;
+      z-index: 9999;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    #inspector-metrics h4 {
+      margin: 0 0 8px 0;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    #inspector-metrics-content {
+      display: grid;
+      gap: 6px;
+    }
+
+    #inspector-metrics .metric-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+    }
+
+    #inspector-metrics .metric-label {
+      color: var(--muted);
+    }
+
+    #inspector-metrics .metric-value {
+      color: #4fc1ff;
+      font-weight: 600;
+    }
+  </style>
+
+  <script>
+    (function() {
+      const overlay = document.getElementById('inspector-overlay');
+      const marginBox = document.getElementById('inspector-margin');
+      const borderBox = document.getElementById('inspector-border');
+      const paddingBox = document.getElementById('inspector-padding');
+      const contentBox = document.getElementById('inspector-content');
+      const tooltip = document.getElementById('inspector-tooltip');
+      const tooltipContent = document.getElementById('inspector-tooltip-content');
+      const tooltipCopy = document.getElementById('inspector-tooltip-copy');
+      const metrics = document.getElementById('inspector-metrics');
+      const metricsContent = document.getElementById('inspector-metrics-content');
+
+      let currentElement = null;
+      let frozen = false;
+      let metricsVisible = false;
+      let lastUpdate = 0;
+      let rafId = null;
+      let cachedData = null;
+
+      function throttle(fn, wait) {
+        return function(...args) {
+          const now = Date.now();
+          if (now - lastUpdate >= wait) {
+            lastUpdate = now;
+            fn.apply(this, args);
+          } else {
+            clearTimeout(fn._timer);
+            fn._timer = setTimeout(() => {
+              lastUpdate = Date.now();
+              fn.apply(this, args);
+            }, wait - (now - lastUpdate));
+          }
+        };
+      }
+
+      function getOverlayRect(element) {
+        const rect = element.getBoundingClientRect();
+        const styles = window.getComputedStyle(element);
+
+        const margin = {
+          top: parseFloat(styles.marginTop) || 0,
+          right: parseFloat(styles.marginRight) || 0,
+          bottom: parseFloat(styles.marginBottom) || 0,
+          left: parseFloat(styles.marginLeft) || 0
+        };
+
+        const border = {
+          top: parseFloat(styles.borderTopWidth) || 0,
+          right: parseFloat(styles.borderRightWidth) || 0,
+          bottom: parseFloat(styles.borderBottomWidth) || 0,
+          left: parseFloat(styles.borderLeftWidth) || 0
+        };
+
+        const padding = {
+          top: parseFloat(styles.paddingTop) || 0,
+          right: parseFloat(styles.paddingRight) || 0,
+          bottom: parseFloat(styles.paddingBottom) || 0,
+          left: parseFloat(styles.paddingLeft) || 0
+        };
+
+        return { rect, margin, border, padding };
+      }
+
+      function positionOverlay(element) {
+        if (!element) return overlay.style.display = 'none';
+
+        const { rect, margin, border, padding } = getOverlayRect(element);
+
+        overlay.style.display = 'block';
+
+        // Margin box
+        marginBox.style.top = `${rect.top - margin.top}px`;
+        marginBox.style.left = `${rect.left - margin.left}px`;
+        marginBox.style.width = `${rect.width + margin.left + margin.right}px`;
+        marginBox.style.height = `${rect.height + margin.top + margin.bottom}px`;
+
+        // Border box
+        borderBox.style.top = `${rect.top}px`;
+        borderBox.style.left = `${rect.left}px`;
+        borderBox.style.width = `${rect.width}px`;
+        borderBox.style.height = `${rect.height}px`;
+
+        // Padding box
+        paddingBox.style.top = `${rect.top + border.top}px`;
+        paddingBox.style.left = `${rect.left + border.left}px`;
+        paddingBox.style.width = `${rect.width - border.left - border.right}px`;
+        paddingBox.style.height = `${rect.height - border.top - border.bottom}px`;
+
+        // Content box
+        contentBox.style.top = `${rect.top + border.top + padding.top}px`;
+        contentBox.style.left = `${rect.left + border.left + padding.left}px`;
+        contentBox.style.width = `${rect.width - border.left - border.right - padding.left - padding.right}px`;
+        contentBox.style.height = `${rect.height - border.top - border.bottom - padding.top - padding.bottom}px`;
+      }
+
+      function updateTooltip(element, clientX, clientY) {
+        if (!element) {
+          tooltip.style.display = 'none';
+          return;
+        }
+
+        const rect = element.getBoundingClientRect();
+        const name = element.tagName.toLowerCase();
+        const id = element.id ? `#${element.id}` : '';
+        const classes = element.classList.length ? `.${[...element.classList].join('.')}` : '';
+        const dimensions = `${Math.round(rect.width)} × ${Math.round(rect.height)}`;
+
+        let ariaLabel = element.getAttribute('aria-label') || '';
+        if (!ariaLabel && element instanceof HTMLButtonElement) {
+          ariaLabel = element.textContent.trim();
+        }
+
+        tooltipContent.innerHTML = `
+          <strong>${name}${id}${classes}</strong><br>
+          Size: ${dimensions}<br>
+          ${ariaLabel ? `Label: ${ariaLabel}<br>` : ''}
+          Display: ${window.getComputedStyle(element).display}
+        `;
+
+        const tooltipRect = tooltip.getBoundingClientRect();
+        let top = clientY + 18;
+        let left = clientX + 18;
+
+        if (left + tooltipRect.width > window.innerWidth - 16) {
+          left = window.innerWidth - tooltipRect.width - 16;
+        }
+        if (top + tooltipRect.height > window.innerHeight - 16) {
+          top = clientY - tooltipRect.height - 18;
+        }
+        tooltip.style.top = `${Math.max(16, top)}px`;
+        tooltip.style.left = `${Math.max(16, left)}px`;
+        tooltip.style.display = 'block';
+      }
+
+      function updateMetrics(element) {
+        if (!metricsVisible || !element) {
+          metrics.style.display = metricsVisible ? 'block' : 'none';
+          metricsContent.innerHTML = '';
+          return;
+        }
+
+        const styles = getComputedStyle(element);
+        metricsContent.innerHTML = `
+          <div class="metric-row"><span class="metric-label">Margin</span><span class="metric-value">${styles.margin}</span></div>
+          <div class="metric-row"><span class="metric-label">Border</span><span class="metric-value">${styles.borderWidth}</span></div>
+          <div class="metric-row"><span class="metric-label">Padding</span><span class="metric-value">${styles.padding}</span></div>
+          <div class="metric-row"><span class="metric-label">Display</span><span class="metric-value">${styles.display}</span></div>
+        `;
+        metrics.style.display = 'block';
+      }
+
+      function updateOverlay(element) {
+        currentElement = element;
+        positionOverlay(element);
+      }
+
+      function getTooltipText(data) {
+        if (!data) return '';
+        const { element } = data;
+        const rect = element.getBoundingClientRect();
+        const styles = getComputedStyle(element);
+        let text = `${element.tagName.toLowerCase()}`;
+        if (element.id) text += `#${element.id}`;
+        if (element.classList.length) text += `.${Array.from(element.classList).join('.')}`;
+        text += `\nSize: ${Math.round(rect.width)} x ${Math.round(rect.height)}`;
+        text += `\nDisplay: ${styles.display}`;
+        if (element.getAttribute('aria-label')) {
+          text += `\nARIA Label: ${element.getAttribute('aria-label')}`;
+        }
+        text += `\nMargin: ${styles.margin}`;
+        text += `\nBorder: ${styles.borderWidth}`;
+        text += `\nPadding: ${styles.padding}`;
+        text += `\nColor: ${styles.color}`;
+        text += `\nBackground: ${styles.backgroundColor}`;
+        text += `\nFont: ${styles.fontSize}`;
+        return text;
+      }
+
+      function copyToClipboard() {
+        const text = getTooltipText(cachedData);
+        if (!text) return;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(showCopySuccess).catch(() => fallbackCopy(text));
+        } else {
+          fallbackCopy(text);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.top = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+          document.execCommand('copy') ? showCopySuccess() : showCopyFail();
+        } catch {
+          showCopyFail();
+        }
+        document.body.removeChild(textarea);
+      }
+
+      function showCopySuccess() {
+        tooltipCopy.textContent = '✓ Copied!';
+        tooltip.style.borderColor = '#00ff00';
+        setTimeout(() => {
+          tooltipCopy.textContent = '📋 Click or Ctrl+C to copy';
+          tooltip.style.borderColor = varAccent;
+        }, 1000);
+      }
+
+      function showCopyFail() {
+        tooltipCopy.textContent = '✗ Failed – Try Ctrl+C manually';
+        setTimeout(() => {
+          tooltipCopy.textContent = '📋 Click or Ctrl+C to copy';
+        }, 2000);
+      }
+
+      const varAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent') || '#007acc';
+
+      const handleMouseMove = throttle((event) => {
+        if (frozen) return;
+
+        if (rafId) cancelAnimationFrame(rafId);
+
+        rafId = requestAnimationFrame(() => {
+          let target = event.target;
+          if (!target || target === overlay || overlay.contains(target) ||
+            target === tooltip || tooltip.contains(target) ||
+            target === metrics || metrics.contains(target)) {
+            return;
+          }
+
+          cachedData = { element: target };
+          updateOverlay(target);
+          updateTooltip(target, event.clientX, event.clientY);
+          updateMetrics(target);
+        });
+      }, 36);
+
+      document.addEventListener('mousemove', handleMouseMove, true);
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === ' ' && !event.target.matches('input, textarea')) {
+          event.preventDefault();
+          frozen = !frozen;
+          if (!frozen) {
+            overlay.style.display = 'none';
+            tooltip.style.display = 'none';
+            if (!metricsVisible) metrics.style.display = 'none';
+          }
+        } else if (event.key === 'Escape') {
+          frozen = false;
+          metricsVisible = false;
+          overlay.style.display = 'none';
+          tooltip.style.display = 'none';
+          metrics.style.display = 'none';
+        } else if (event.key.toLowerCase() === 'f') {
+          metricsVisible = !metricsVisible;
+          updateMetrics(metricsVisible ? currentElement : null);
+        } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'c' && cachedData) {
+          event.preventDefault();
+          copyToClipboard();
+        }
+      });
+
+      tooltip.addEventListener('click', (event) => {
+        event.stopPropagation();
+        copyToClipboard();
+      });
+
+      tooltipCopy.addEventListener('click', (event) => {
+        event.stopPropagation();
+        copyToClipboard();
+      });
+    })();
+  </script>
+</body>
+</html>
+
