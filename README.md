@@ -86,6 +86,33 @@ Type `@ahk` in the GitHub Copilot Chat view to activate the AHK v2 assistant. It
 
 **Available Commands:**
 
+**Code Analysis & Navigation:**
+- **`@ahk /codemap`** - Display code structure overview
+  - Shows classes, functions, methods, variables, hotkeys
+  - ASCII tree visualization
+  - Symbol counts and statistics
+
+- **`@ahk /dependencies`** - Show #Include dependency tree
+  - Visualizes all includes and their relationships
+  - Detects unresolved includes
+  - Reports dependency depth and statistics
+
+- **`@ahk /workspace`** - Combined code map and dependency overview
+  - Complete workspace context in one command
+  - Ideal for starting new conversations
+
+- **`@ahk /symbols`** - Quick symbol navigation
+  - Symbol counts by type (classes, functions, methods, etc.)
+  - Tree structure visualization
+  - Navigation tips
+
+- **`@ahk /syntax`** - Validate AHK v2 syntax
+  - Detects v1 contamination patterns
+  - Integrates VS Code diagnostics
+  - Line-by-line issue reporting
+  - Success confirmation for clean code
+
+**Code Development:**
 - **`@ahk /convert`** - Convert AHK v1 code snippet to v2 syntax
   - Identifies v1 patterns and provides accurate v2 equivalents
   - Explains WHY each conversion is needed
@@ -113,6 +140,25 @@ Type `@ahk` in the GitHub Copilot Chat view to activate the AHK v2 assistant. It
   - Includes clear comments
   - Example: `@ahk /example Show me how to create a GUI with tabs`
 
+**Code Quality:**
+- **`@ahk /refactor`** - Suggest refactoring improvements
+  - Identifies code duplication
+  - Suggests function extraction
+  - Recommends simplification and modern v2 idioms
+  - Works on active file or provided snippet
+
+- **`@ahk /best-practices`** - Review against AHK v2 best practices
+  - Checks naming conventions
+  - Validates error handling
+  - Reviews resource management
+  - Provides constructive feedback with examples
+
+- **`@ahk /test`** - Generate test cases for functions
+  - Analyzes function signatures
+  - Creates positive and negative tests
+  - Identifies edge cases
+  - Includes function metadata context
+
 **General Queries:**
 You can also ask questions without slash commands:
 - `@ahk How do I parse JSON in v2?`
@@ -123,6 +169,10 @@ You can also ask questions without slash commands:
 The chat assistant automatically provides context from:
 - Your currently active AHK file
 - File name and language version
+- **Function signatures and parameters** from your code
+- **Documentation strings** for functions
+- **#Include dependencies** in your files
+- Workspace structure and symbols
 
 **Built-in Custom Instructions:**
 This extension includes specialized custom instructions for GitHub Copilot that automatically apply to all `.ahk` and `.ahk2` files. These instructions ensure AI-generated code follows AutoHotkey v2 best practices:

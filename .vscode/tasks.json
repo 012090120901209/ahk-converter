@@ -2,6 +2,21 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "npm: compile",
+      "type": "shell",
+      "command": "wsl",
+      "args": ["bash", "-c", "cd '${workspaceFolder}' && HUSKY=0 npm run compile"],
+      "problemMatcher": "$tsc",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
       "label": "Discover Tests",
       "type": "shell",
       "command": "npm",

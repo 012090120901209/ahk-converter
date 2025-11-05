@@ -1,0 +1,12 @@
+[
+    {
+        "label": "Show Python version [edit me]",
+        "command": "python --version",
+        "group": "Workspace"
+    },
+    {
+        "label": "Show Node.js version [edit me]",
+        "command": "node --version",
+        "group": "Workspace"
+    }
+]

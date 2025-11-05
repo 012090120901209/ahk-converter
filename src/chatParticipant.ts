@@ -3,6 +3,8 @@ import * as path from 'path';
 import { FunctionMetadataHandler } from './functionMetadataHandler';
 import { FunctionAnalyzer } from './functionAnalyzer';
 import { ConversionProfileManager } from './conversionProfiles';
+import { FunctionTreeProvider, CodeMapSnapshot } from './functionTreeProvider';
+import { DependencyTreeProvider, DependencyMapSnapshot } from './dependencyTreeProvider';
 import { getOutputChannelMonitor, RuntimeError } from './utils/outputChannelMonitor';
 import { LibraryAttributionParticipant } from './libraryAttributionParticipant';
 
@@ -15,6 +17,8 @@ export class AHKChatParticipant {
   private metadataHandler: FunctionMetadataHandler | undefined;
   private functionAnalyzer: FunctionAnalyzer | undefined;
   private conversionProfileManager: ConversionProfileManager | undefined;
+  private codeMapProvider: FunctionTreeProvider | undefined;
+  private dependencyTreeProvider: DependencyTreeProvider | undefined;
 
   // Base system prompt for AHK v2 assistant
   private readonly BASE_PROMPT = `You are an expert AutoHotkey v2 coding assistant. You help developers write, debug, and optimize AHK v2 scripts.
@@ -40,14 +44,18 @@ Provide clear, concise code with v2 syntax. Keep responses focused and practical
   /**
    * Set references to extension services for context-aware assistance
    */
-  public setServices(
-    metadataHandler?: FunctionMetadataHandler,
-    functionAnalyzer?: FunctionAnalyzer,
-    conversionProfileManager?: ConversionProfileManager
-  ) {
-    this.metadataHandler = metadataHandler;
-    this.functionAnalyzer = functionAnalyzer;
-    this.conversionProfileManager = conversionProfileManager;
+  public setServices(services: {
+    metadataHandler?: FunctionMetadataHandler;
+    functionAnalyzer?: FunctionAnalyzer;
+    conversionProfileManager?: ConversionProfileManager;
+    codeMapProvider?: FunctionTreeProvider;
+    dependencyTreeProvider?: DependencyTreeProvider;
+  } = {}): void {
+    this.metadataHandler = services.metadataHandler;
+    this.functionAnalyzer = services.functionAnalyzer;
+    this.conversionProfileManager = services.conversionProfileManager;
+    this.codeMapProvider = services.codeMapProvider;
+    this.dependencyTreeProvider = services.dependencyTreeProvider;
   }
 
   /**
@@ -93,6 +101,78 @@ Provide clear, concise code with v2 syntax. Keep responses focused and practical
     let enhancedPrompt = '';
 
     switch (command) {
+      case 'codemap':
+        await this.respondWithCodeMap(stream, token);
+        return;
+
+      case 'dependencies':
+        await this.respondWithDependencies(stream, token);
+        return;
+
+      case 'workspace':
+        await this.respondWithWorkspaceOverview(stream, token);
+        return;
+
+      case 'syntax':
+        await this.respondWithSyntaxCheck(stream, token);
+        return;
+
+      case 'symbols':
+        await this.respondWithSymbols(stream, token);
+        return;
+
+      case 'refactor':
+        systemPrompt += '\n\nYou are analyzing code for refactoring opportunities. Suggest improvements like extracting functions, simplifying logic, removing duplication, and using modern v2 idioms. Provide specific, actionable suggestions.';
+        enhancedPrompt = `Analyze this code for refactoring opportunities:\n\n${userPrompt}`;
+
+        // Add active file context if prompt is short
+        if (userPrompt.length < 50) {
+          const activeCode = this.getActiveEditorCode();
+          if (activeCode) {
+            enhancedPrompt = `Analyze this code for refactoring opportunities:\n\n\`\`\`ahk\n${activeCode}\n\`\`\``;
+          }
+        }
+        break;
+
+      case 'best-practices':
+        systemPrompt += '\n\nYou are reviewing code against AHK v2 best practices. Check naming conventions, error handling, resource management, code organization, and maintainability. Provide constructive feedback with examples.';
+        enhancedPrompt = `Review this code against AHK v2 best practices:\n\n${userPrompt}`;
+
+        // Add active file context if prompt is short
+        if (userPrompt.length < 50) {
+          const activeCode = this.getActiveEditorCode();
+          if (activeCode) {
+            enhancedPrompt = `Review this code against AHK v2 best practices:\n\n\`\`\`ahk\n${activeCode}\n\`\`\``;
+          }
+        }
+
+        // Add diagnostics context
+        const diagnosticsContext = this.getDiagnostics();
+        if (diagnosticsContext) {
+          enhancedPrompt += `\n\n${diagnosticsContext}`;
+        }
+        break;
+
+      case 'test':
+        systemPrompt += '\n\nYou are generating test cases for AHK v2 code. Analyze function signatures, identify edge cases, and create practical test scenarios. Include both positive and negative test cases.';
+        enhancedPrompt = `Generate test cases for this code:\n\n${userPrompt}`;
+
+        // Add function metadata context if available
+        if (this.metadataHandler) {
+          const editor = vscode.window.activeTextEditor;
+          if (editor) {
+            const metadata = this.metadataHandler.getFunctionMetadata(editor.document.uri);
+            if (metadata && Array.isArray(metadata) && metadata.length > 0) {
+              enhancedPrompt += `\n\nFunctions to test:\n`;
+              metadata.forEach(func => {
+                const params = func.parameters.map((p: { name: string }) => p.name).join(', ');
+                enhancedPrompt += `- ${func.name}(${params})\n`;
+              });
+            }
+          }
+        }
+        break;
+
       case 'convert':
         systemPrompt += '\n\nYou are specifically helping convert AutoHotkey v1 code to v2. Focus on identifying v1 patterns and providing accurate v2 equivalents.';
         enhancedPrompt = `Convert this AHK v1 code to v2:\n\n${userPrompt}`;
@@ -140,6 +220,269 @@ Provide clear, concise code with v2 syntax. Keep responses focused and practical
     }
 
     await this.sendToLanguageModel(systemPrompt, enhancedPrompt, stream, token);
+  }
+
+  private async respondWithCodeMap(stream: vscode.ChatResponseStream, token: vscode.CancellationToken): Promise<void> {
+    if (!this.codeMapProvider) {
+      stream.markdown('ℹ️ Code Map view is not available in this workspace.');
+      return;
+    }
+
+    const snapshot = await this.codeMapProvider.captureSnapshot();
+    if (token.isCancellationRequested) {
+      return;
+    }
+
+    if (!snapshot) {
+      stream.markdown('⚠️ Open an `.ahk` file to generate a code map summary.');
+      return;
+    }
+
+    stream.markdown(this.formatCodeMapSnapshot(snapshot));
+  }
+
+  private async respondWithDependencies(stream: vscode.ChatResponseStream, token: vscode.CancellationToken): Promise<void> {
+    if (!this.dependencyTreeProvider) {
+      stream.markdown('ℹ️ Dependency Map view is not available in this workspace.');
+      return;
+    }
+
+    const snapshot = await this.dependencyTreeProvider.captureSnapshot();
+    if (token.isCancellationRequested) {
+      return;
+    }
+
+    if (!snapshot) {
+      stream.markdown('⚠️ Open an `.ahk` file to analyze its `#Include` dependencies.');
+      return;
+    }
+
+    stream.markdown(this.formatDependencySnapshot(snapshot));
+  }
+
+  private async respondWithWorkspaceOverview(stream: vscode.ChatResponseStream, token: vscode.CancellationToken): Promise<void> {
+    const sections: string[] = [];
+
+    if (this.codeMapProvider) {
+      const snapshot = await this.codeMapProvider.captureSnapshot();
+      if (token.isCancellationRequested) {
+        return;
+      }
+      if (snapshot) {
+        sections.push(this.formatCodeMapSnapshot(snapshot));
+      } else {
+        sections.push('### Code Map Snapshot\n⚠️ Open an `.ahk` file to generate a code map summary.');
+      }
+    } else {
+      sections.push('### Code Map Snapshot\nℹ️ Code Map view is not available in this workspace.');
+    }
+
+    if (this.dependencyTreeProvider) {
+      const snapshot = await this.dependencyTreeProvider.captureSnapshot();
+      if (token.isCancellationRequested) {
+        return;
+      }
+      if (snapshot) {
+        sections.push(this.formatDependencySnapshot(snapshot));
+      } else {
+        sections.push('### Dependency Map Snapshot\n⚠️ Open an `.ahk` file to analyze its `#Include` dependencies.');
+      }
+    } else {
+      sections.push('### Dependency Map Snapshot\nℹ️ Dependency Map view is not available in this workspace.');
+    }
+
+    stream.markdown(sections.join('\n\n'));
+  }
+
+  private formatCodeMapSnapshot(snapshot: CodeMapSnapshot): string {
+    const ascii = snapshot.asciiTree ? snapshot.asciiTree : '(no symbols found)';
+    const summary = snapshot.summary;
+    return [
+      '### Code Map Snapshot',
+      `**File:** \`${snapshot.fileName}\``,
+      `Generated: ${this.formatTimestamp(snapshot.generatedAt)}`,
+      '',
+      '```text',
+      ascii,
+      '```',
+      '',
+      '**Summary**',
+      `- Classes: ${summary.classes}`,
+      `- Functions: ${summary.functions}`,
+      `- Methods: ${summary.methods}`,
+      `- Variables: ${summary.variables}`,
+      `- Parameters: ${summary.parameters}`,
+      `- Hotkeys: ${summary.hotkeys}`,
+      `- Header Directives: ${summary.headerDirectives}`,
+      `- Includes: ${summary.includes}`,
+      `- #HotIf Directives: ${summary.hotIfs}`
+    ].join('\n');
+  }
+
+  private formatDependencySnapshot(snapshot: DependencyMapSnapshot): string {
+    const ascii = snapshot.asciiTree ? snapshot.asciiTree : '(no includes found)';
+    const summary = snapshot.summary;
+    const unresolvedList = summary.unresolvedCount > 0
+      ? summary.unresolvedIncludes.map(item => `  - ${item}`).join('\n')
+      : '  - None';
+
+    return [
+      '### Dependency Map Snapshot',
+      `**Root:** \`${snapshot.rootFileName}\`${summary.isPinnedRoot ? ' (pinned)' : ''}`,
+      `Generated: ${this.formatTimestamp(snapshot.generatedAt)}`,
+      '',
+      '```text',
+      ascii,
+      '```',
+      '',
+      '**Summary**',
+      `- Unique dependency files: ${summary.uniqueResolvedFiles}`,
+      `- Total resolved \`#Include\` links: ${summary.totalResolvedIncludes}`,
+      `- Maximum include depth: ${summary.maxDepth}`,
+      `- Unresolved includes (${summary.unresolvedCount}):`,
+      unresolvedList
+    ].join('\n');
+  }
+
+  private formatTimestamp(value: string): string {
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? value : date.toLocaleString();
+  }
+
+  /**
+   * Perform syntax validation on the active file
+   */
+  private async respondWithSyntaxCheck(stream: vscode.ChatResponseStream, token: vscode.CancellationToken): Promise<void> {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || !editor.document.fileName.endsWith('.ahk')) {
+      stream.markdown('⚠️ Open an `.ahk` file to perform syntax validation.');
+      return;
+    }
+
+    const doc = editor.document;
+    const text = doc.getText();
+
+    stream.markdown('### Syntax Validation\n\n');
+    stream.markdown(`**File:** \`${doc.fileName.split(/[\\/]/).pop()}\`\n\n`);
+
+    // Check for common v1 contamination patterns
+    const v1Patterns = [
+      { pattern: /=\s+(?!==)/g, issue: 'Assignment using `=` instead of `:=`', severity: 'error' },
+      { pattern: /ComObjCreate\(/gi, issue: 'Use `ComObject()` instead of `ComObjCreate()`', severity: 'warning' },
+      { pattern: /%([A-Za-z_]\w*)%/g, issue: 'v1-style variable deref `%var%` - use `var` directly', severity: 'warning' },
+      { pattern: /^\s*IfWinActive\s/gm, issue: 'Legacy command syntax - use `if WinActive()`', severity: 'warning' },
+      { pattern: /^\s*MsgBox\s*,/gm, issue: 'Legacy MsgBox syntax - use `MsgBox("text")`', severity: 'warning' },
+      { pattern: /StringSplit\s*,/gi, issue: 'Use `StrSplit()` function instead of StringSplit command', severity: 'warning' }
+    ];
+
+    let issuesFound = 0;
+    const issuesByLine = new Map<number, string[]>();
+
+    // Scan for v1 patterns
+    v1Patterns.forEach(({ pattern, issue, severity }) => {
+      let match;
+      while ((match = pattern.exec(text)) !== null) {
+        const position = doc.positionAt(match.index);
+        const line = position.line + 1;
+
+        if (!issuesByLine.has(line)) {
+          issuesByLine.set(line, []);
+        }
+        issuesByLine.get(line)!.push(`${severity === 'error' ? '❌' : '⚠️'} ${issue}`);
+        issuesFound++;
+      }
+    });
+
+    // Get VS Code diagnostics
+    const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+    const errors = diagnostics.filter(d => d.severity === vscode.DiagnosticSeverity.Error);
+    const warnings = diagnostics.filter(d => d.severity === vscode.DiagnosticSeverity.Warning);
+
+    // Display results
+    if (issuesFound === 0 && errors.length === 0 && warnings.length === 0) {
+      stream.markdown('✅ **No syntax issues found!**\n\n');
+      stream.markdown('Your code appears to use proper AHK v2 syntax.\n');
+      return;
+    }
+
+    stream.markdown(`**Issues Found:** ${issuesFound + errors.length + warnings.length}\n\n`);
+
+    // Show v1 contamination issues
+    if (issuesFound > 0) {
+      stream.markdown('#### v1 Syntax Contamination\n\n');
+      const sortedLines = Array.from(issuesByLine.entries()).sort((a, b) => a[0] - b[0]);
+      sortedLines.forEach(([line, issues]) => {
+        stream.markdown(`**Line ${line}:**\n`);
+        issues.forEach(issue => stream.markdown(`- ${issue}\n`));
+        stream.markdown('\n');
+      });
+    }
+
+    // Show VS Code diagnostics
+    if (errors.length > 0) {
+      stream.markdown('#### Errors\n\n');
+      errors.slice(0, 5).forEach((diag, idx) => {
+        stream.markdown(`${idx + 1}. **Line ${diag.range.start.line + 1}:** ${diag.message}\n`);
+      });
+      if (errors.length > 5) {
+        stream.markdown(`... and ${errors.length - 5} more\n`);
+      }
+      stream.markdown('\n');
+    }
+
+    if (warnings.length > 0) {
+      stream.markdown('#### Warnings\n\n');
+      warnings.slice(0, 5).forEach((diag, idx) => {
+        stream.markdown(`${idx + 1}. **Line ${diag.range.start.line + 1}:** ${diag.message}\n`);
+      });
+      if (warnings.length > 5) {
+        stream.markdown(`... and ${warnings.length - 5} more\n`);
+      }
+    }
+  }
+
+  /**
+   * Show symbols from code map with navigation
+   */
+  private async respondWithSymbols(stream: vscode.ChatResponseStream, token: vscode.CancellationToken): Promise<void> {
+    if (!this.codeMapProvider) {
+      stream.markdown('ℹ️ Code Map view is not available in this workspace.');
+      return;
+    }
+
+    const snapshot = await this.codeMapProvider.captureSnapshot();
+    if (token.isCancellationRequested) {
+      return;
+    }
+
+    if (!snapshot) {
+      stream.markdown('⚠️ Open an `.ahk` file to view symbols.');
+      return;
+    }
+
+    const summary = snapshot.summary;
+
+    stream.markdown('### Symbol Overview\n\n');
+    stream.markdown(`**File:** \`${snapshot.fileName}\`\n\n`);
+
+    // Show symbol counts
+    stream.markdown('**Symbol Counts:**\n');
+    if (summary.classes > 0) stream.markdown(`- 🏛️ Classes: ${summary.classes}\n`);
+    if (summary.functions > 0) stream.markdown(`- 🔧 Functions: ${summary.functions}\n`);
+    if (summary.methods > 0) stream.markdown(`- ⚙️ Methods: ${summary.methods}\n`);
+    if (summary.variables > 0) stream.markdown(`- 📦 Variables: ${summary.variables}\n`);
+    if (summary.hotkeys > 0) stream.markdown(`- ⌨️ Hotkeys: ${summary.hotkeys}\n`);
+    if (summary.includes > 0) stream.markdown(`- 📁 Includes: ${summary.includes}\n`);
+    stream.markdown('\n');
+
+    // Show the tree structure
+    stream.markdown('**Symbol Tree:**\n\n');
+    stream.markdown('```text\n');
+    stream.markdown(snapshot.asciiTree || '(no symbols found)');
+    stream.markdown('\n```\n\n');
+
+    // Add helpful tip
+    stream.markdown('💡 **Tip:** Click on symbols in the Code Map view to navigate to their definitions.\n');
   }
 
   /**
@@ -334,8 +677,34 @@ Provide clear, concise code with v2 syntax. Keep responses focused and practical
     // Add language version
     context += `Language: AutoHotkey v2\n`;
 
-    // TODO: Add function metadata context if available
-    // TODO: Add dependency information if available
+    // Add function metadata context if available
+    if (this.metadataHandler) {
+      const metadata = this.metadataHandler.getFunctionMetadata(doc.uri);
+      if (metadata && Array.isArray(metadata) && metadata.length > 0) {
+        context += `\nFunctions in file (${metadata.length}):\n`;
+        metadata.slice(0, 5).forEach(func => {
+          const params = func.parameters.map((p: { name: string }) => p.name).join(', ');
+          context += `  - ${func.name}(${params})`;
+          if (func.documentation) {
+            context += ` - ${func.documentation}`;
+          }
+          context += '\n';
+        });
+        if (metadata.length > 5) {
+          context += `  ... and ${metadata.length - 5} more\n`;
+        }
+      }
+    }
+
+    // Add dependency information if available
+    if (this.dependencyTreeProvider) {
+      // Get include count from current file
+      const text = doc.getText();
+      const includeMatches = text.match(/#Include\s+/gi);
+      if (includeMatches && includeMatches.length > 0) {
+        context += `\nThis file has ${includeMatches.length} #Include directive(s)\n`;
+      }
+    }
 
     return context.length > 0 ? context : undefined;
   }
@@ -538,14 +907,20 @@ Provide clear, concise code with v2 syntax. Keep responses focused and practical
 /**
  * Register the AHK v2 chat participant
  */
+export interface ChatParticipantServices {
+  metadataHandler?: FunctionMetadataHandler;
+  functionAnalyzer?: FunctionAnalyzer;
+  conversionProfileManager?: ConversionProfileManager;
+  codeMapProvider?: FunctionTreeProvider;
+  dependencyTreeProvider?: DependencyTreeProvider;
+}
+
 export function registerAHKChatParticipant(
   context: vscode.ExtensionContext,
-  metadataHandler?: FunctionMetadataHandler,
-  functionAnalyzer?: FunctionAnalyzer,
-  conversionProfileManager?: ConversionProfileManager
+  services: ChatParticipantServices = {}
 ): vscode.Disposable {
   const participant = new AHKChatParticipant(context);
-  participant.setServices(metadataHandler, functionAnalyzer, conversionProfileManager);
+  participant.setServices(services);
 
   const chatParticipant = vscode.chat.createChatParticipant(
     'ahkv2-toolbox.ahk-assistant',

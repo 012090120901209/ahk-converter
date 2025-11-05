@@ -4,6 +4,59 @@ All notable changes to the AHK Converter VS Code extension will be documented in
 
 ## [0.4.3] - 2025-10-31
 
+### Enhanced Chat Participant Commands 🤖
+
+#### New Analysis Commands
+- **`/syntax`** - Comprehensive syntax validation
+  - Detects v1 contamination patterns (assignment with `=`, `%var%` syntax, etc.)
+  - Integrates VS Code diagnostics (errors, warnings)
+  - Line-by-line issue reporting with severity indicators
+  - Success confirmation for clean code
+
+- **`/symbols`** - Quick symbol navigation and overview
+  - Symbol counts by type (classes, functions, methods, variables, hotkeys)
+  - ASCII tree structure visualization
+  - Navigation tips for Code Map view
+
+- **`/codemap`** - Display complete code structure
+  - Shows all symbols with hierarchical organization
+  - Detailed statistics and counts
+  - Formatted for LLM consumption
+
+- **`/dependencies`** - Visualize #Include dependency tree
+  - Shows all includes and their relationships
+  - Detects unresolved includes
+  - Reports dependency depth and statistics
+
+- **`/workspace`** - Combined code map and dependency overview
+  - Complete workspace context in one command
+  - Ideal for starting conversations with full context
+
+#### New Code Quality Commands
+- **`/refactor`** - Suggest refactoring improvements
+  - Identifies code duplication
+  - Suggests function extraction
+  - Recommends simplification and modern v2 idioms
+  - Works on active file or provided snippet
+
+- **`/best-practices`** - Review against AHK v2 best practices
+  - Checks naming conventions
+  - Validates error handling patterns
+  - Reviews resource management
+  - Provides constructive feedback with examples
+  - Integrates VS Code diagnostics
+
+- **`/test`** - Generate comprehensive test cases
+  - Analyzes function signatures from metadata
+  - Creates positive and negative test scenarios
+  - Identifies edge cases
+  - Includes function parameter information
+
+#### Enhanced Context Awareness
+- **Automatic Function Metadata**: Chat assistant now includes function signatures and parameters
+- **Dependency Information**: Shows #Include count in context
+- **Smarter Responses**: LLM receives rich workspace context automatically
+
 ### Auto-Add #Include Feature ⭐
 
 #### Automatic Include Insertion
