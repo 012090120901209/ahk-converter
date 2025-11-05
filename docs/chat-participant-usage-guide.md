@@ -1,5 +1,7 @@
 # Chat Participant Usage Guide - Library Attribution
 
+> **Need workspace context in chat?** See [Workspace Summaries via Chat Commands](CHAT_WORKSPACE_SUMMARIES.md) for `/codemap`, `/dependencies`, and `/workspace` commands that stream Code Map and Dependency Map snapshots into Copilot Chat.
+
 ## Prerequisites
 
 - VS Code with GitHub Copilot Chat extension installed

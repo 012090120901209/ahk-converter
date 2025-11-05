@@ -2,6 +2,24 @@ import * as vscode from 'vscode';
 import { AHKLSPIntegration } from './lspIntegration';
 import { FunctionAnalyzer } from './functionAnalyzer';
 
+export interface CodeMapSnapshot {
+  fileName: string;
+  filePath: string;
+  generatedAt: string;
+  asciiTree: string;
+  summary: {
+    classes: number;
+    functions: number;
+    methods: number;
+    variables: number;
+    parameters: number;
+    hotkeys: number;
+    headerDirectives: number;
+    includes: number;
+    hotIfs: number;
+  };
+}
+
 export class FunctionTreeItem extends vscode.TreeItem {
   public childCount: number = 0;
   public isStatic: boolean = false;
@@ -1063,28 +1081,17 @@ export class FunctionTreeProvider implements
    * Export the code map as an ASCII tree in markdown format
    */
   async exportAsAsciiTree(): Promise<void> {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor || !editor.document.fileName.endsWith('.ahk')) {
+    const snapshot = await this.captureSnapshot();
+
+    if (!snapshot) {
       vscode.window.showErrorMessage('No active AHK file to export');
       return;
     }
 
-    // Get the tree structure
-    let items: FunctionTreeItem[];
-    if (this.useLSP && await this.lspIntegration.isLSPAvailable()) {
-      items = await this.getChildrenFromLSP(editor.document);
-    } else {
-      items = this.getChildrenFromRegex(editor.document);
-    }
+    const asciiTree = snapshot.asciiTree || '(no symbols found)';
+    const markdownContent = `# Code Map: ${snapshot.fileName}
 
-    // Generate ASCII tree
-    const asciiTree = await this.generateAsciiTree(items, editor.document);
-
-    // Create markdown content
-    const fileName = editor.document.fileName.split(/[\\/]/).pop() || 'Unknown';
-    const markdownContent = `# Code Map: ${fileName}
-
-Generated: ${new Date().toLocaleString()}
+Generated: ${new Date(snapshot.generatedAt).toLocaleString()}
 
 \`\`\`
 ${asciiTree}
@@ -1092,14 +1099,15 @@ ${asciiTree}
 
 ## Summary
 
-- **Total Classes**: ${items.filter(i => i.itemType === 'class').length}
-- **Total Functions**: ${items.filter(i => i.itemType === 'function').length}
-- **Total Methods**: ${items.filter(i => i.itemType === 'method').length}
-- **Total Variables**: ${items.filter(i => i.itemType === 'variable').length}
-- **Total Hotkeys**: ${items.filter(i => i.itemType === 'hotkey').length}
-- **Total Header Directives**: ${items.filter(i => i.itemType === 'directive-header').length}
-- **Total Includes**: ${items.filter(i => i.itemType === 'directive-include' || i.itemType === 'include').length}
-- **Total #HotIf Directives**: ${items.filter(i => i.itemType === 'directive-hotif').length}
+- **Classes**: ${snapshot.summary.classes}
+- **Functions**: ${snapshot.summary.functions}
+- **Methods**: ${snapshot.summary.methods}
+- **Variables**: ${snapshot.summary.variables}
+- **Parameters**: ${snapshot.summary.parameters}
+- **Hotkeys**: ${snapshot.summary.hotkeys}
+- **Header Directives**: ${snapshot.summary.headerDirectives}
+- **Includes**: ${snapshot.summary.includes}
+- **#HotIf Directives**: ${snapshot.summary.hotIfs}
 `;
 
     // Open in new document
@@ -1110,6 +1118,59 @@ ${asciiTree}
     await vscode.window.showTextDocument(doc, { preview: false });
 
     vscode.window.showInformationMessage('Code Map exported as ASCII tree');
+  }
+
+  public async captureSnapshot(): Promise<CodeMapSnapshot | null> {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || !editor.document.fileName.endsWith('.ahk')) {
+      return null;
+    }
+
+    let items: FunctionTreeItem[];
+    if (this.useLSP && await this.lspIntegration.isLSPAvailable()) {
+      items = await this.getChildrenFromLSP(editor.document);
+    } else {
+      items = this.getChildrenFromRegex(editor.document);
+    }
+
+    items = items.filter(child => this.shouldShowItemType(child.itemType));
+
+    const asciiTree = (await this.generateAsciiTree(items, editor.document)).trimEnd();
+    const stats = this.buildSnapshotStats(asciiTree);
+    const filePath = editor.document.fileName;
+    const fileName = filePath.split(/[\\/]/).pop() || 'Unknown';
+
+    return {
+      fileName,
+      filePath,
+      generatedAt: new Date().toISOString(),
+      asciiTree,
+      summary: stats
+    };
+  }
+
+  private buildSnapshotStats(asciiTree: string): CodeMapSnapshot['summary'] {
+    const count = (token: string) => this.countToken(asciiTree, token);
+    return {
+      classes: count('[C]'),
+      functions: count('[F]'),
+      methods: count('[M]'),
+      variables: count('[V]'),
+      parameters: count('[P]'),
+      hotkeys: count('[⌨]'),
+      headerDirectives: count('[#H]'),
+      includes: count('[#I]'),
+      hotIfs: count('[#?]')
+    };
+  }
+
+  private countToken(source: string, token: string): number {
+    if (!source) {
+      return 0;
+    }
+    const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const matches = source.match(new RegExp(escaped, 'g'));
+    return matches ? matches.length : 0;
   }
 
   /**

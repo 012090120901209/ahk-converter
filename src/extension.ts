@@ -30,8 +30,8 @@ type RunResult = { stdout: string; stderr: string; code: number };
 // Enhanced error types for better error handling with user-friendly messages
 class AHKConverterError extends Error {
   constructor(
-    message: string, 
-    public readonly code: string, 
+    message: string,
+    public readonly code: string,
     public readonly details?: any,
     public readonly userMessage?: string,
     public readonly learnMoreUrl?: string,
@@ -108,7 +108,7 @@ class NotificationManager {
 
   async showNotification(options: NotificationOptions): Promise<string | undefined> {
     const { type, message, details, actions = [], learnMoreUrl, showOutputChannel = false } = options;
-    
+
     // Log to output channel
     this.outputChannel.appendLine(`[${type.toUpperCase()}] ${message}`);
     if (details) {
@@ -125,7 +125,7 @@ class NotificationManager {
     }
 
     let result: string | undefined;
-    
+
     switch (type) {
       case 'error':
         result = await vscode.window.showErrorMessage(message, ...notificationActions);
@@ -369,12 +369,12 @@ function validateAHKFile(content: string, filePath?: string): { isValid: boolean
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      
+
       // Skip comments and empty lines
       if (line.startsWith(';') || line === '') continue;
 
       // Check for AHK v1 specific patterns
-      if (/#NoEnv/i.test(line) || 
+      if (/#NoEnv/i.test(line) ||
           /MsgBox,\s*/.test(line) ||
           /If\s+/i.test(line) ||
           /%\w+%/.test(line) ||
@@ -387,7 +387,7 @@ function validateAHKFile(content: string, filePath?: string): { isValid: boolean
       if (line.includes('MsgBox,') && !line.includes('MsgBox(')) {
         warnings.push(`Line ${i + 1}: Old MsgBox syntax detected - should be converted to function call`);
       }
-      
+
       if (line.includes('If ') && !line.includes('If (')) {
         warnings.push(`Line ${i + 1}: Legacy If statement detected - may need conversion`);
       }
@@ -428,7 +428,7 @@ function validateConversionResult(originalContent: string, convertedContent: str
     const lines = convertedContent.split('\n');
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      
+
       // Skip comments and empty lines
       if (line.startsWith(';') || line === '') continue;
 
@@ -494,11 +494,11 @@ async function convertText(ctx: vscode.ExtensionContext, srcText: string): Promi
     return await vscode.window.withProgress(progressOpts, async () => {
       const args = ['/ErrorStdOut', converter, inPath];
       const { code, stderr } = await spawnRun(ahkExe, args, tmpDir);
-      
+
       if (code !== 0) {
         throw new ConversionError(`Converter failed with code ${code}${stderr ? ': ' + stderr : ''}`, { code, stderr });
       }
-      
+
       // Wait for output file to appear; the converter writes alongside input
       try {
         // Read as Buffer first to detect actual encoding from BOM
@@ -547,7 +547,7 @@ async function convertText(ctx: vscode.ExtensionContext, srcText: string): Promi
         }
 
         stats.conversionTime = Date.now() - startTime;
-        
+
         // Clean up temp directory
         try {
           await fs.promises.rm(tmpDir, { recursive: true, force: true });
@@ -582,22 +582,22 @@ async function showEnhancedDiff(outText: string, left: vscode.TextDocument, opti
       ignoreWhitespace: false,
       contextLines: 3
     };
-    
+
     const diffOptions = { ...defaultOptions, ...options };
-    
+
     const rightUri = vscode.Uri.parse('untitled:Converted.ahk');
     const rightDoc = await vscode.workspace.openTextDocument(rightUri);
     await vscode.window.showTextDocument(rightDoc, { preview: true });
     const edit = new vscode.WorkspaceEdit();
     edit.insert(rightUri, new vscode.Position(0, 0), outText);
     await vscode.workspace.applyEdit(edit);
-    
+
     const title = 'AHK v1 ↔ v2 Conversion Preview';
     await vscode.commands.executeCommand('vscode.diff', left.uri, rightUri, title);
-    
+
     lastDiffLeftUri = left.uri;
     lastDiffRightUri = rightUri;
-    
+
     // Show diff options notification
     const notificationManager = getNotificationManager();
     await notificationManager.showNotification({
@@ -656,7 +656,7 @@ function showConversionStats(stats: ConversionStats) {
 // Enhanced error handling with user-friendly messages
 async function handleError(error: any, context: string): Promise<void> {
   const notificationManager = getNotificationManager();
-  
+
   if (error instanceof ValidationError) {
     await notificationManager.showNotification({
       type: 'error',
@@ -707,7 +707,7 @@ async function handleError(error: any, context: string): Promise<void> {
 async function convertMultipleFiles(ctx: vscode.ExtensionContext, uris: vscode.Uri[]): Promise<BatchConversionResult[]> {
   const results: BatchConversionResult[] = [];
   const notificationManager = getNotificationManager();
-  
+
   const progressOptions = {
     location: vscode.ProgressLocation.Notification,
     title: 'Converting multiple AHK files...',
@@ -722,7 +722,7 @@ async function convertMultipleFiles(ctx: vscode.ExtensionContext, uris: vscode.U
 
       const uri = uris[i];
       const fileName = path.basename(uri.fsPath);
-      
+
       progress.report({
         increment: (100 / uris.length),
         message: `Converting ${fileName} (${i + 1}/${uris.length})`
@@ -731,7 +731,7 @@ async function convertMultipleFiles(ctx: vscode.ExtensionContext, uris: vscode.U
       try {
         const content = await fs.promises.readFile(uri.fsPath, 'utf8');
         const { result, stats } = await convertText(ctx, content);
-        
+
         results.push({
           file: fileName,
           success: true,
@@ -751,7 +751,7 @@ async function convertMultipleFiles(ctx: vscode.ExtensionContext, uris: vscode.U
   // Show batch conversion summary
   const successful = results.filter(r => r.success).length;
   const failed = results.length - successful;
-  
+
   await notificationManager.showNotification({
     type: failed > 0 ? 'warning' : 'info',
     message: `Batch conversion completed: ${successful} successful, ${failed} failed`,
@@ -773,16 +773,16 @@ async function saveBatchResults(results: BatchConversionResult[], outputDirector
       openLabel: 'Select output directory',
       title: 'Choose where to save converted files'
     });
-    
+
     if (!uri || uri.length === 0) {
       return;
     }
-    
+
     outputDirectory = uri[0].fsPath;
   }
 
   const successfulResults = results.filter(r => r.success && r.result);
-  
+
   for (const result of successfulResults) {
     const outputPath = path.join(outputDirectory, result.file.replace('.ahk', '_v2.ahk'));
     await fs.promises.writeFile(outputPath, result.result!, 'utf8');
@@ -913,21 +913,126 @@ export async function activate(ctx: vscode.ExtensionContext) {
     }),
     vscode.commands.registerCommand('ahkv2Toolbox.installLSP', async () => {
       await lspIntegration.showLSPNotInstalledWarning();
+    }),
+    vscode.commands.registerCommand('ahkv2Toolbox.testChatParticipant', async () => {
+      // Test command for chat participant functionality
+      const testInstructions = [
+        '# AHK Chat Participant Test Guide',
+        '',
+        '## Quick Tests',
+        '',
+        '### 1. Basic Chat Test',
+        'Open the chat panel and try:',
+        '```',
+        '@ahk Hello! Can you help me with AutoHotkey?',
+        '```',
+        '',
+        '### 2. Test Commands',
+        '',
+        '**Convert Command:**',
+        '```',
+        '@ahk /convert MsgBox % "Hello"',
+        '```',
+        '',
+        '**Explain Command:**',
+        '```',
+        '@ahk /explain What is the difference between := and = in v2?',
+        '```',
+        '',
+        '**Fix Command:**',
+        '```',
+        '@ahk /fix My GUI is not showing up',
+        '```',
+        '',
+        '**Optimize Command:**',
+        '```',
+        '@ahk /optimize Loop, 1000 { result .= A_Index }',
+        '```',
+        '',
+        '**Example Command:**',
+        '```',
+        '@ahk /example Create a simple GUI with a button',
+        '```',
+        '',
+        '**Attribution Command (requires Lib file open):**',
+        '```',
+        '@ahk /attribute',
+        '```',
+        '',
+        '## Expected Behavior',
+        '',
+        '✅ Chat participant should respond with AHK v2-specific guidance',
+        '✅ Commands should be recognized and handled appropriately',
+        '✅ Responses should use modern v2 syntax (`:=`, not `=`)',
+        '✅ Error context should be included when relevant',
+        '',
+        '## Verification Checklist',
+        '',
+        '- [ ] Chat participant appears in chat panel (@ahk)',
+        '- [ ] Base queries work without slash commands',
+        '- [ ] Each slash command works correctly',
+        '- [ ] Error handling shows helpful messages',
+        '- [ ] Responses include v2 best practices',
+        '- [ ] Attribution command discovers metadata',
+        '',
+        '## Troubleshooting',
+        '',
+        'If chat participant doesn\'t appear:',
+        '1. Check GitHub Copilot Chat is installed and active',
+        '2. Reload VS Code window (Ctrl+Shift+P → Developer: Reload Window)',
+        '3. Check extension is activated (should activate when opening .ahk files)',
+        '4. Check Output panel for errors (View → Output → AHKv2 Toolbox)',
+        '',
+        '## Testing Attribution',
+        '',
+        '1. Create or open a file in the Lib folder (e.g., Lib/TestLib.ahk)',
+        '2. Open chat: `@ahk /attribute`',
+        '3. Should discover metadata from GitHub',
+        '4. Check for proper markdown formatting',
+        '',
+        '## Next Steps',
+        '',
+        'After testing, check:',
+        '- Extension Output for any errors',
+        '- Developer Console (Help → Toggle Developer Tools)',
+        '- Test results against expected behavior above'
+      ].join('\n');
+
+      // Show test instructions in a new document
+      const doc = await vscode.workspace.openTextDocument({
+        content: testInstructions,
+        language: 'markdown'
+      });
+      await vscode.window.showTextDocument(doc, { preview: false });
+
+      // Show info message with quick action
+      const action = await vscode.window.showInformationMessage(
+        'Chat Participant Test Guide opened. Open the chat panel to start testing.',
+        'Open Chat Panel',
+        'Dismiss'
+      );
+
+      if (action === 'Open Chat Panel') {
+        // Open the chat panel
+        await vscode.commands.executeCommand('workbench.action.chat.open');
+      }
     })
   );
 
   // Initialize Dependency Tree Provider
+  let dependencyTreeProvider: DependencyTreeProvider | undefined;
   try {
-    const dependencyTreeProvider = new DependencyTreeProvider(ctx);
+    dependencyTreeProvider = new DependencyTreeProvider(ctx);
+    const provider = dependencyTreeProvider;
     const dependencyTreeView = vscode.window.createTreeView('ahkDependencyTree', {
-      treeDataProvider: dependencyTreeProvider,
+      treeDataProvider: provider,
       showCollapseAll: true
     });
 
     ctx.subscriptions.push(
       dependencyTreeView,
       vscode.commands.registerCommand('ahkDependencyTree.refresh', () => {
-        dependencyTreeProvider.refresh();
+        provider.refresh();
       }),
       vscode.commands.registerCommand('ahkDependencyTree.openFile', async (filePath: string) => {
         try {
@@ -939,10 +1044,10 @@ export async function activate(ctx: vscode.ExtensionContext) {
         }
       }),
       vscode.commands.registerCommand('ahkDependencyTree.pin', () => {
-        dependencyTreeProvider.pinCurrentFile();
+        provider.pinCurrentFile();
       }),
       vscode.commands.registerCommand('ahkDependencyTree.unpin', () => {
-        dependencyTreeProvider.clearPin();
+        provider.clearPin();
       })
     );
   } catch (error) {
@@ -1047,10 +1152,10 @@ export async function activate(ctx: vscode.ExtensionContext) {
   try {
     const chatParticipant = registerAHKChatParticipant(
       ctx,
-      // TODO: pass actual instances when available
-      undefined, // metadataHandler
-      undefined, // functionAnalyzer
-      undefined  // conversionProfileManager
+      {
+        codeMapProvider,
+        dependencyTreeProvider
+      }
     );
     ctx.subscriptions.push(chatParticipant);
     console.log('AHK v2 Chat Participant registered');
@@ -1193,13 +1298,13 @@ export async function activate(ctx: vscode.ExtensionContext) {
         }
 
         const metadata = FunctionAnalyzer.extractFunctionMetadata(editor.document);
-        
+
         // Create a markdown view for the metadata
         const metadataContent = metadata.map(func => {
           return `## Function: ${func.name}
 
 ` +
-            `- **Parameters**: ${func.parameters.map(p => 
+            `- **Parameters**: ${func.parameters.map(p =>
               `${p.isByRef ? '&' : ''}${p.name}${p.hasDefault ? ` = ${p.defaultValue}` : ''}
             `).join(', ')}
 ` +
@@ -1226,14 +1331,14 @@ export async function activate(ctx: vscode.ExtensionContext) {
   );
   output = vscode.window.createOutputChannel('AHKv2 Toolbox');
   notificationManager = NotificationManager.getInstance();
-  
+
   // Register test command
   registerTestCommand(ctx);
   // Initialize advanced features
   profileManager = ConversionProfileManager.getInstance(ctx);
   telemetryManager = getTelemetryManager(ctx);
   debuggerIntegration = DebuggerIntegration.getInstance(ctx);
-  
+
   const doConvert = async (mode: 'new' | 'replace' | 'diff') => {
     try {
       if (!(await ensureWindowsIfStrict())) return;
@@ -1249,7 +1354,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
       }
 
       const { result: outText, stats } = await convertText(ctx, ed.document.getText());
-      
+
       showConversionStats(stats);
 
       if (mode === 'replace') {
@@ -1339,7 +1444,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
         }
 
         const results = await convertMultipleFiles(ctx, uris);
-        
+
         // Ask if user wants to save results
         const saveChoice = await vscode.window.showInformationMessage(
           'Do you want to save the converted files?',
@@ -1369,7 +1474,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
         const profiles = profileManager.getAllProfiles();
         const profileNames = profiles.map(p => p.name);
 
-        
+
         const selected = await vscode.window.showQuickPick(
           profileNames,
           {
@@ -1377,11 +1482,11 @@ export async function activate(ctx: vscode.ExtensionContext) {
             title: 'AHK Conversion Profiles'
           }
         );
-        
+
         if (selected) {
           const config = vscode.workspace.getConfiguration('ahkConverter');
           await config.update('selectedProfile', selected, vscode.ConfigurationTarget.Workspace);
-          
+
           await getNotificationManager().showNotification({
             type: 'info',
             message: `Selected profile: ${selected}`,
@@ -1401,7 +1506,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
             title: 'Manage Conversion Profiles'
           }
         );
-        
+
         switch (action) {
           case 'Create New Profile':
             await showCreateProfileDialog();
@@ -1440,7 +1545,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
         const config = vscode.workspace.getConfiguration('ahkConverter');
         const selectedProfile = config.get<string>('selectedProfile', 'normal');
         const profile = profileManager.getProfile(selectedProfile);
-        
+
         if (!profile) {
           await getNotificationManager().showNotification({
             type: 'error',
@@ -1463,7 +1568,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
         } as any);
 
         const { result: outText, stats } = await convertWithProfile(ctx, ed.document.getText(), profile);
-        
+
         stats.processingTime = Date.now() - startTime;
         telemetryManager.recordConversion({
           ...stats,
@@ -1492,7 +1597,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
         const stats = await telemetryManager.getConversionStats(7);
         const errorStats = await telemetryManager.getErrorStats(7);
         const perfStats = await telemetryManager.getPerformanceStats(7);
-        
+
         const message = `
 Conversion Statistics (7 days):
 - Total conversions: ${stats?.total || 0}
@@ -1507,10 +1612,10 @@ Performance Statistics (7 days):
 - Average duration: ${perfStats?.avgDuration || 0}ms
 - Average memory usage: ${perfStats?.avgMemoryUsage || 0}MB
         `;
-        
-        const doc = await vscode.workspace.openTextDocument({ 
-          language: 'markdown', 
-          content: message 
+
+        const doc = await vscode.workspace.openTextDocument({
+          language: 'markdown',
+          content: message
         });
         await vscode.window.showTextDocument(doc, { preview: false });
       } catch (error) {
@@ -1524,7 +1629,7 @@ Performance Statistics (7 days):
           'Clear Data',
           'Cancel'
         );
-        
+
         if (confirm === 'Clear Data') {
           await telemetryManager.clearData();
           await getNotificationManager().showNotification({
@@ -1543,7 +1648,7 @@ Performance Statistics (7 days):
           filters: { 'JSON Files': ['json'] },
           saveLabel: 'Export Telemetry Data'
         });
-        
+
         if (uri) {
           const success = await telemetryManager.exportData(uri.fsPath);
           if (success) {
@@ -1579,9 +1684,9 @@ Performance Statistics (7 days):
 
         const originalCode = ed.document.getText();
         const { result: convertedCode } = await convertText(ctx, originalCode);
-        
+
         const debugData = await debuggerIntegration.assistWithConversion(originalCode, convertedCode);
-        
+
         // Show debug assistance
         const assistance = await debuggerIntegration.getDebuggingAssistance(convertedCode);
         const assistanceMessage = `
@@ -1593,7 +1698,7 @@ Debugging Assistance:
 Issues Found: ${debugData.debugData.issues.length}
 Suggestions: ${debugData.debugData.suggestions.length}
         `;
-        
+
         await getNotificationManager().showNotification({
           type: 'info',
           message: 'Debugging assistance generated',
@@ -1786,7 +1891,7 @@ async function showCreateProfileDialog(): Promise<void> {
     placeHolder: 'My Custom Profile',
     validateInput: (value) => value && value.trim().length > 0 ? null : 'Profile name is required'
   });
-  
+
   if (name) {
     const baseProfile = await vscode.window.showQuickPick(
       ['conservative', 'aggressive', 'custom'],
@@ -1795,7 +1900,7 @@ async function showCreateProfileDialog(): Promise<void> {
         title: 'Base Profile'
       }
     );
-    
+
     if (baseProfile) {
       const profile = profileManager.createCustomProfile(name, baseProfile);
       await getNotificationManager().showNotification({
@@ -2643,7 +2748,7 @@ async function showImportProfileDialog(): Promise<void> {
     filters: { 'JSON Files': ['json'] },
     openLabel: 'Import Profile'
   });
-  
+
   if (uri && uri.length > 0) {
     const profile = profileManager.importProfile(uri[0].fsPath);
     if (profile) {
@@ -2663,7 +2768,7 @@ async function showImportProfileDialog(): Promise<void> {
 async function showExportProfileDialog(): Promise<void> {
   const profiles = profileManager.getAllProfiles();
   const profileNames = profiles.map(p => p.name);
-  
+
   const selected = await vscode.window.showQuickPick(
     profileNames,
     {
@@ -2671,14 +2776,14 @@ async function showExportProfileDialog(): Promise<void> {
       title: 'Export Profile'
     }
   );
-  
+
   if (selected) {
     const uri = await vscode.window.showSaveDialog({
       defaultUri: vscode.Uri.file(`${selected}-profile.json`),
       filters: { 'JSON Files': ['json'] },
       saveLabel: 'Export Profile'
     });
-    
+
     if (uri) {
       const success = profileManager.exportProfile(selected, uri.fsPath);
       if (success) {
@@ -2699,18 +2804,18 @@ async function showExportProfileDialog(): Promise<void> {
 // Enhanced conversion with profile support
 async function convertWithProfile(ctx: vscode.ExtensionContext, content: string, profile: ConversionProfile): Promise<{ result: string; stats: any }> {
   const startTime = Date.now();
-  
+
   // Use performance optimizer for large files
   const optimizer = new PerformanceOptimizer(profile.performance, profile);
   const shouldUseOptimizer = content.split('\n').length > 1000;
-  
+
   if (shouldUseOptimizer) {
     const progressOptions = {
       location: vscode.ProgressLocation.Window,
       title: 'Converting with performance optimization...',
       cancellable: true
     };
-    
+
     const result = await vscode.window.withProgress(progressOptions, async (progress, token) => {
       return await optimizer.processLargeFile(content, progress, token);
     });

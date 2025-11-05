@@ -2,6 +2,28 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 
+export interface DependencyMapSnapshot {
+  rootFilePath: string;
+  rootFileName: string;
+  generatedAt: string;
+  asciiTree: string;
+  summary: {
+    uniqueResolvedFiles: number;
+    totalResolvedIncludes: number;
+    unresolvedCount: number;
+    unresolvedIncludes: string[];
+    maxDepth: number;
+    isPinnedRoot: boolean;
+  };
+}
+
+type DependencySnapshotStats = {
+  uniqueFiles: Set<string>;
+  unresolved: Set<string>;
+  totalResolvedEdges: number;
+  maxDepth: number;
+};
+
 /**
  * Represents a node in the dependency tree
  */
@@ -157,6 +179,39 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
     this._onDidChangeTreeData.fire();
   }
 
+  public async captureSnapshot(): Promise<DependencyMapSnapshot | null> {
+    const targetFile = await this.resolveSnapshotTargetFile();
+    if (!targetFile) {
+      return null;
+    }
+
+    const visited = new Set<string>([targetFile]);
+    const lines: string[] = [`[Root] ${this.formatResolvedPath(targetFile)}`];
+    const stats: DependencySnapshotStats = {
+      uniqueFiles: new Set<string>([targetFile]),
+      unresolved: new Set<string>(),
+      totalResolvedEdges: 0,
+      maxDepth: 0
+    };
+
+    await this.buildDependencyAscii(targetFile, '', visited, lines, stats, 0);
+
+    return {
+      rootFilePath: targetFile,
+      rootFileName: path.basename(targetFile),
+      generatedAt: new Date().toISOString(),
+      asciiTree: lines.join('\n'),
+      summary: {
+        uniqueResolvedFiles: Math.max(0, stats.uniqueFiles.size - 1),
+        totalResolvedIncludes: stats.totalResolvedEdges,
+        unresolvedCount: stats.unresolved.size,
+        unresolvedIncludes: Array.from(stats.unresolved).sort(),
+        maxDepth: stats.maxDepth,
+        isPinnedRoot: !!(this.pinnedFile && this.pinnedFile === targetFile)
+      }
+    };
+  }
+
   /**
    * Update the pin context based on whether the active file is the pinned file
    */
@@ -275,12 +330,18 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
     // Show the active/pinned file as root with its dependencies
     const fileName = path.basename(filePath);
 
+    // Auto-expand if 5 or fewer dependencies, collapse if more
+    const totalIncludes = depInfo.resolvedIncludes.length + depInfo.unresolvedIncludes.length;
+    const collapsibleState = totalIncludes === 0
+      ? vscode.TreeItemCollapsibleState.None
+      : totalIncludes <= 5
+        ? vscode.TreeItemCollapsibleState.Expanded
+        : vscode.TreeItemCollapsibleState.Collapsed;
+
     this.rootItem = new DependencyTreeItem(
       filePath,
       fileName,
-      depInfo.resolvedIncludes.length > 0
-        ? vscode.TreeItemCollapsibleState.Expanded
-        : vscode.TreeItemCollapsibleState.None,
+      collapsibleState,
       depInfo.resolvedIncludes,
       depInfo.unresolvedIncludes
     );
@@ -305,12 +366,18 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
         path.relative(this.workspaceRoot, includePath) :
         path.basename(includePath);
 
+      // Auto-expand if 5 or fewer dependencies, collapse if more
+      const childTotalIncludes = childDepInfo.resolvedIncludes.length + childDepInfo.unresolvedIncludes.length;
+      const childCollapsibleState = childTotalIncludes === 0
+        ? vscode.TreeItemCollapsibleState.None
+        : childTotalIncludes <= 5
+          ? vscode.TreeItemCollapsibleState.Expanded
+          : vscode.TreeItemCollapsibleState.Collapsed;
+
       items.push(new DependencyTreeItem(
         includePath,
         path.basename(includePath),
-        childDepInfo.resolvedIncludes.length > 0
-          ? vscode.TreeItemCollapsibleState.Expanded
-          : vscode.TreeItemCollapsibleState.None,
+        childCollapsibleState,
         childDepInfo.resolvedIncludes,
         childDepInfo.unresolvedIncludes
       ));
@@ -434,6 +501,87 @@ export class DependencyTreeProvider implements vscode.TreeDataProvider<Dependenc
    */
   private normalizePathSeparators(filePath: string): string {
     return filePath.replace(/\\/g, '/');
+  }
+
+  private async resolveSnapshotTargetFile(): Promise<string | null> {
+    if (this.pinnedFile) {
+      try {
+        await fs.access(this.pinnedFile);
+        return this.pinnedFile;
+      } catch {
+        this.pinnedFile = null;
+      }
+    }
+
+    const editor = vscode.window.activeTextEditor;
+    if (editor && editor.document.fileName.endsWith('.ahk')) {
+      return editor.document.fileName;
+    }
+
+    return null;
+  }
+
+  private formatResolvedPath(filePath: string): string {
+    if (this.workspaceRoot) {
+      const relative = path.relative(this.workspaceRoot, filePath);
+      if (relative && !relative.startsWith('..')) {
+        return this.normalizePathSeparators(relative) || path.basename(filePath);
+      }
+    }
+    return this.normalizePathSeparators(filePath);
+  }
+
+  private formattedUnresolvedPath(includePath: string): string {
+    return this.normalizePathSeparators(includePath);
+  }
+
+  private async buildDependencyAscii(
+    filePath: string,
+    prefix: string,
+    visited: Set<string>,
+    lines: string[],
+    stats: DependencySnapshotStats,
+    depth: number
+  ): Promise<void> {
+    const depInfo = await this.analyzeDependencies(filePath);
+    const entries = [
+      ...depInfo.resolvedIncludes.map(path => ({ type: 'resolved' as const, path })),
+      ...depInfo.unresolvedIncludes.map(path => ({ type: 'unresolved' as const, path }))
+    ];
+
+    if (entries.length === 0) {
+      return;
+    }
+
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const isLast = i === entries.length - 1;
+      const connector = isLast ? '└── ' : '├── ';
+      const childPrefix = isLast ? '    ' : '│   ';
+
+      if (entry.type === 'resolved') {
+        const displayPath = this.formatResolvedPath(entry.path);
+        const alreadySeen = visited.has(entry.path);
+
+        stats.totalResolvedEdges += 1;
+        stats.uniqueFiles.add(entry.path);
+        stats.maxDepth = Math.max(stats.maxDepth, depth + 1);
+
+        if (alreadySeen) {
+          lines.push(`${prefix}${connector}[Loop] ${displayPath}`);
+          continue;
+        }
+
+        lines.push(`${prefix}${connector}[Inc] ${displayPath}`);
+        visited.add(entry.path);
+        await this.buildDependencyAscii(entry.path, prefix + childPrefix, visited, lines, stats, depth + 1);
+        visited.delete(entry.path);
+      } else {
+        const displayPath = this.formattedUnresolvedPath(entry.path);
+        stats.unresolved.add(displayPath);
+        lines.push(`${prefix}${connector}[Missing] ${displayPath}`);
+      }
+    }
   }
 
   /**

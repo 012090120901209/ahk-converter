@@ -64,13 +64,6 @@ interface ToolboxSettingsMessage {
   };
 }
 
-interface ActiveFileInfo {
-  isAhkFile: boolean;
-  libraryName?: string;
-  hasMetadata?: boolean;
-  filePath?: string;
-}
-
 const enum WebviewMessageType {
   ExecuteCommand = 'executeCommand',
   EditActiveFileMetadata = 'editActiveFileMetadata',
@@ -78,9 +71,7 @@ const enum WebviewMessageType {
   ShowSettings = 'showSettings',
   ShowMain = 'showMain',
   SaveMetadata = 'saveMetadata',
-  SaveSettings = 'saveSettings',
-  GetActiveFileInfo = 'getActiveFileInfo',
-  ActiveFileInfo = 'activeFileInfo'
+  SaveSettings = 'saveSettings'
 }
 
 interface WebviewMessage {
@@ -90,7 +81,6 @@ interface WebviewMessage {
   filePath?: string;
   metadata?: JSDocMetadata;
   settings?: ToolboxSettingsMessage;
-  data?: ActiveFileInfo | null;
 }
 
 /**
@@ -153,19 +143,11 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
               await this.saveSettings(data.settings);
             }
             break;
-          case WebviewMessageType.GetActiveFileInfo:
-            await this.sendActiveFileInfo();
-            break;
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         vscode.window.showErrorMessage(`Webview action failed: ${errorMessage}`);
       }
-    });
-
-    // Listen for active editor changes
-    vscode.window.onDidChangeActiveTextEditor(() => {
-      this.sendActiveFileInfo();
     });
   }
 
@@ -250,53 +232,6 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
 
     this.currentView = 'main';
     this._view.webview.html = this.getMainViewHtml();
-  }
-
-  /**
-   * Send active file info to webview
-   */
-  private async sendActiveFileInfo() {
-    if (!this._view) {
-      return;
-    }
-
-    const activeEditor = vscode.window.activeTextEditor;
-
-    if (!activeEditor) {
-      this._view.webview.postMessage({
-        type: 'activeFileInfo',
-        data: null
-      });
-      return;
-    }
-
-    const filePath = activeEditor.document.uri.fsPath;
-    const isAhkFile = filePath.endsWith('.ahk') || filePath.endsWith('.ahk2');
-
-    if (!isAhkFile) {
-      this._view.webview.postMessage({
-        type: 'activeFileInfo',
-        data: null
-      });
-      return;
-    }
-
-    // Extract library name from file path
-    const fileName = path.basename(filePath, path.extname(filePath));
-
-    // Check if metadata exists
-    const metadata = await this.parseJSDoc(filePath);
-    const hasMetadata = Object.keys(metadata).length > 0;
-
-    this._view.webview.postMessage({
-      type: 'activeFileInfo',
-      data: {
-        isAhkFile: true,
-        libraryName: fileName,
-        hasMetadata: hasMetadata,
-        filePath: filePath
-      }
-    });
   }
 
   /**
@@ -852,47 +787,31 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     <vscode-divider></vscode-divider>
 
     <section class="menu-section">
-      <h3 class="section-header">Metadata</h3>
-      <div class="button-with-info">
-        <vscode-button appearance="secondary" id="extractMetadata" aria-label="Metadata - Extract: Button">
-          Extract
+      <h3 class="section-header">Library Manager</h3>
+      <div class="button-grid">
+        <vscode-button appearance="secondary" id="viewDependencies">
+          View
         </vscode-button>
-        <span
-          class="info-badge"
-          id="extractInfo"
-          role="status"
-          aria-live="polite"
-          aria-label="Metadata - Extract: Text Box"
-        ></span>
+        <vscode-button appearance="secondary" id="installPackage">
+          Install
+        </vscode-button>
+        <vscode-button appearance="secondary" id="updatePackages">
+          Update
+        </vscode-button>
+        <vscode-button appearance="secondary" id="editFileMetadata">
+          Edit Metadata
+        </vscode-button>
       </div>
     </section>
 
     <vscode-divider></vscode-divider>
 
     <section class="menu-section">
-      <h3 class="section-header">Library Manager</h3>
+      <h3 class="section-header">Tools</h3>
       <div class="button-container">
-        <vscode-button appearance="secondary" id="viewDependencies">
-          View Dependencies
+        <vscode-button appearance="secondary" id="extractMetadata">
+          Extract Function
         </vscode-button>
-        <vscode-button appearance="secondary" id="installPackage">
-          Install Package
-        </vscode-button>
-        <vscode-button appearance="secondary" id="updatePackages">
-          Update Packages
-        </vscode-button>
-      </div>
-      <div class="button-with-info" style="margin-top: 7px;">
-        <vscode-button appearance="secondary" id="editFileMetadata" aria-label="Library Manager - Edit Metadata: Button">
-          Edit Metadata
-        </vscode-button>
-        <span
-          class="info-badge"
-          id="editInfo"
-          role="status"
-          aria-live="polite"
-          aria-label="Library Manager - Edit Metadata: Text Box"
-        ></span>
       </div>
     </section>
 
@@ -953,66 +872,7 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       });
     });
 
-    // Request active file info on load
-    vscode.postMessage({ type: 'getActiveFileInfo' });
-
-    // Listen for messages from extension
-    window.addEventListener('message', event => {
-      const message = event.data;
-      if (message.type === 'activeFileInfo') {
-        updateFileInfo(message.data);
-      }
-    });
-
-    function updateFileInfo(fileInfo) {
-      const extractInfo = document.getElementById('extractInfo');
-      const editInfo = document.getElementById('editInfo');
-
-      // Helper function to truncate filename
-      function truncateFilename(filename, maxLength = 15) {
-        if (filename.length <= maxLength) {
-          return filename;
-        }
-        // Remove .ahk extension for truncation
-        const nameWithoutExt = filename.replace('.ahk', '');
-        const truncated = nameWithoutExt.substring(0, maxLength - 3) + '...';
-        return truncated;
-      }
-
-      if (fileInfo && fileInfo.isAhkFile) {
-        // Show library name with .ahk extension (truncated)
-        if (fileInfo.libraryName) {
-          const fullName = fileInfo.libraryName + '.ahk';
-          const displayName = truncateFilename(fullName);
-
-          extractInfo.textContent = displayName;
-          extractInfo.style.display = 'flex';
-          extractInfo.title = fullName; // Tooltip shows full name
-
-          // Show same name in Edit badge with metadata status indicator
-          if (fileInfo.hasMetadata) {
-            editInfo.textContent = displayName;
-            editInfo.classList.add('has-metadata');
-          } else {
-            editInfo.textContent = displayName;
-            editInfo.classList.remove('has-metadata');
-          }
-          editInfo.style.display = 'flex';
-          editInfo.title = fullName; // Tooltip shows full name
-        } else {
-          extractInfo.textContent = '';
-          extractInfo.style.display = 'flex';
-          editInfo.textContent = '';
-          editInfo.style.display = 'flex';
-        }
-      } else {
-        // Keep both badges visible but empty to maintain button width
-        extractInfo.textContent = '';
-        extractInfo.style.display = 'flex';
-        editInfo.textContent = '';
-        editInfo.style.display = 'flex';
-      }
-    }
+    // No need for active file info updates anymore since we removed the info badges
   </script>
 </body>
 </html>`;

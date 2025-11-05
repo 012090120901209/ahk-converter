@@ -48,3 +48,4 @@ class MethodDemo {
         MsgBox(status)
     }
 }
+

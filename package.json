@@ -27,7 +27,7 @@
         {
           "id": "ahkv2-toolbox",
           "title": "AHKv2 Toolbox",
-          "icon": "src/AHK_Icon.png"
+          "icon": "src/AHK_Code.svg"
         }
       ]
     },
@@ -103,7 +103,7 @@
       },
       {
         "command": "ahkPackageManager.installPackage",
-        "title": "Install Package",
+        "title": "Install",
         "category": "AHKv2 Toolbox",
         "icon": "$(cloud-download)"
       },
@@ -115,7 +115,7 @@
       },
       {
         "command": "ahkPackageManager.updatePackage",
-        "title": "Update Package",
+        "title": "Update",
         "category": "AHKv2 Toolbox",
         "icon": "$(sync)"
       },
@@ -275,6 +275,12 @@
         "title": "Generate JSDoc Header",
         "category": "Dependency Manager",
         "icon": "$(sparkle)"
+      },
+      {
+        "command": "ahkv2Toolbox.testChatParticipant",
+        "title": "Test Chat Participant",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(comment-discussion)"
       }
     ],
     "menus": {
@@ -303,7 +309,7 @@
         {
           "when": "resourceLangId == ahk",
           "command": "ahk.convertV1toV2.batch",
-          "group": "1_modification@1"
+          "group": "1modification@1"
         }
       ],
       "view/title": [
@@ -645,6 +651,69 @@
         "key": "ctrl+shift+d",
         "mac": "cmd+shift+d",
         "when": "editorTextFocus && resourceLangId == ahk"
+      }
+    ],
+    "chatParticipants": [
+      {
+        "id": "ahkv2-toolbox.ahk-assistant",
+        "name": "ahk",
+        "fullName": "AHK v2 Assistant",
+        "description": "AutoHotkey v2 development assistant with code conversion, debugging, and best practices",
+        "isSticky": false,
+        "commands": [
+          {
+            "name": "convert",
+            "description": "Convert AHK v1 code snippet to v2 syntax"
+          },
+          {
+            "name": "explain",
+            "description": "Explain AHK v2 syntax or concept"
+          },
+          {
+            "name": "fix",
+            "description": "Analyze and fix AHK v2 code issues"
+          },
+          {
+            "name": "optimize",
+            "description": "Suggest performance optimizations"
+          },
+          {
+            "name": "example",
+            "description": "Generate example code for a specific feature"
+          },
+          {
+            "name": "codemap",
+            "description": "Summarize the active file's code map for chat"
+          },
+          {
+            "name": "dependencies",
+            "description": "Summarize #Include dependencies for the active file"
+          },
+          {
+            "name": "workspace",
+            "description": "Combine code map and dependency summaries"
+          },
+          {
+            "name": "syntax",
+            "description": "Validate AHK v2 syntax and detect v1 contamination"
+          },
+          {
+            "name": "symbols",
+            "description": "Show all symbols (functions, classes, variables) in the active file"
+          },
+          {
+            "name": "refactor",
+            "description": "Analyze code for refactoring opportunities and suggest improvements"
+          },
+          {
+            "name": "best-practices",
+            "description": "Review code against AHK v2 best practices and conventions"
+          },
+          {
+            "name": "test",
+            "description": "Generate test cases for functions with edge case coverage"
+          }
+        ]
       }
     ],
     "colors": [

@@ -58,10 +58,14 @@ export class CategoryItem extends vscode.TreeItem {
     public readonly itemCount: number = 0,
     public readonly categoryType: 'installed' | 'available' | 'updates'
   ) {
-    super(
-      categoryName,
-      vscode.TreeItemCollapsibleState.Expanded
-    );
+    // Auto-expand if 5 or fewer items, collapse if more
+    const collapsibleState = itemCount === 0
+      ? vscode.TreeItemCollapsibleState.None
+      : itemCount <= 5
+        ? vscode.TreeItemCollapsibleState.Expanded
+        : vscode.TreeItemCollapsibleState.Collapsed;
+
+    super(categoryName, collapsibleState);
 
     // Add count to description
     if (itemCount > 0) {
