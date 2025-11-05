@@ -2160,3 +2160,11 @@
 [2025-11-04T22:14:16.405Z] | tools.list | SUCCESS | Returned 30 tools | mode="stdio"
 [2025-11-04T22:14:16.798Z] | resources.list | START | Enumerating exposed resources
 [2025-11-04T22:14:16.799Z] | resources.list | SUCCESS | Returned 11 resources
+[2025-11-05T01:53:06.326Z] | server.initialize | START | Loading AutoHotkey documentation
+[2025-11-05T01:53:06.332Z] | server.initialize | SUCCESS | Documentation cache ready
+[2025-11-05T01:53:06.333Z] | server.start | START | Launching stdio transport (Claude Desktop)
+[2025-11-05T01:53:06.334Z] | server.start | SUCCESS | Stdio transport ready (Claude Desktop)
+[2025-11-05T01:53:07.145Z] | tools.list | START | Standard tool listing
+[2025-11-05T01:53:07.147Z] | tools.list | SUCCESS | Returned 30 tools | mode="stdio"
+[2025-11-05T01:53:07.179Z] | resources.list | START | Enumerating exposed resources
+[2025-11-05T01:53:07.180Z] | resources.list | SUCCESS | Returned 11 resources
