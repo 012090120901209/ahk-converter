@@ -29,7 +29,8 @@ export class PackageItem extends vscode.TreeItem {
     
     // For available packages from search, show stars in description
     if (packageType === 'available' && metadata?.stars !== undefined) {
-      this.description = `⭐ ${metadata.stars} • ${version}`;
+      // Use text representation for better cross-platform compatibility
+      this.description = `${metadata.stars}★ • ${version}`;
     } else {
       this.description = version;
     }
@@ -43,7 +44,7 @@ export class PackageItem extends vscode.TreeItem {
       tooltipText += `\nCategory: ${metadata.category}`;
     }
     if (metadata?.stars !== undefined) {
-      tooltipText += `\n⭐ Stars: ${metadata.stars}`;
+      tooltipText += `\n★ Stars: ${metadata.stars}`;
     }
     if (metadata?.repositoryUrl) {
       tooltipText += `\nRepository: ${metadata.repositoryUrl}`;

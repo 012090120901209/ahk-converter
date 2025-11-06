@@ -203,14 +203,17 @@ export class PackageSearchService {
 
   /**
    * Convert GitHub search result to PackageSearchResult
+   * Note: Version is set to 1.0.0 as fetching from releases would require
+   * additional API calls per package, which could quickly exhaust rate limits
    */
   private convertGitHubResult(result: GitHubSearchResult): PackageSearchResult | null {
     try {
       const repo = result.repository;
       const [owner, repoName] = repo.full_name.split('/');
 
-      // Try to determine version from tags or default to 1.0.0
-      const version = '1.0.0'; // TODO: Fetch from GitHub releases
+      // Default version - fetching from GitHub releases would require
+      // one API call per result which could exhaust rate limits
+      const version = '1.0.0';
 
       // Determine category from repository topics/description
       const category = this.inferCategory(repo.description || '');
@@ -224,7 +227,7 @@ export class PackageSearchService {
         downloadUrl = result.html_url;
         rawUrl = `https://raw.githubusercontent.com/${repo.full_name}/main/${result.path}`;
       } else {
-        // Repository search result - assume main file is in root
+        // Repository search result - assume main file is in root or check common locations
         downloadUrl = `${repo.html_url}/blob/main/${repoName}.ahk`;
         rawUrl = `https://raw.githubusercontent.com/${repo.full_name}/main/${repoName}.ahk`;
       }
@@ -240,7 +243,7 @@ export class PackageSearchService {
         category,
         downloadUrl,
         rawUrl,
-        readmeUrl: `${repo.html_url}#readme`
+        readmeUrl: `${repo.html_url}#readme` // GitHub always shows README section if it exists
       };
     } catch (error) {
       console.error('Failed to convert GitHub result:', error);
