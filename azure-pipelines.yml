@@ -1,0 +1,23 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest  # use windows-latest if you need Windows-only steps
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '20.x'
+  displayName: Use Node.js 20
+
+- script: npm ci
+  displayName: Install deps
+
+- script: npm run compile
+  displayName: Build
+
+# Publish to VS Code Marketplace
+- script: npx vsce publish --skip-duplicate
+  displayName: Publish extension
+  env:
+    VSCE_PAT: $(VSCE_PAT)
