@@ -14,14 +14,43 @@ export class PackageItem extends vscode.TreeItem {
     public readonly packagePath: string,
     public readonly packageType: 'installed' | 'available' | 'updates',
     public readonly description?: string,
+    public readonly metadata?: {
+      author?: string;
+      stars?: number;
+      category?: string;
+      repositoryUrl?: string;
+    },
     public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None
   ) {
     super(packageName, collapsibleState);
 
     // Set the label with version
     this.label = packageName;
-    this.description = version;
-    this.tooltip = `${packageName} v${version}\n${description || 'No description available'}\nPath: ${packagePath}`;
+    
+    // For available packages from search, show stars in description
+    if (packageType === 'available' && metadata?.stars !== undefined) {
+      this.description = `⭐ ${metadata.stars} • ${version}`;
+    } else {
+      this.description = version;
+    }
+
+    // Enhanced tooltip with metadata
+    let tooltipText = `${packageName} v${version}\n${description || 'No description available'}`;
+    if (metadata?.author) {
+      tooltipText += `\nAuthor: ${metadata.author}`;
+    }
+    if (metadata?.category) {
+      tooltipText += `\nCategory: ${metadata.category}`;
+    }
+    if (metadata?.stars !== undefined) {
+      tooltipText += `\n⭐ Stars: ${metadata.stars}`;
+    }
+    if (metadata?.repositoryUrl) {
+      tooltipText += `\nRepository: ${metadata.repositoryUrl}`;
+    } else {
+      tooltipText += `\nPath: ${packagePath}`;
+    }
+    this.tooltip = tooltipText;
 
     // Set appropriate icon based on package type
     switch (packageType) {
@@ -44,6 +73,13 @@ export class PackageItem extends vscode.TreeItem {
       this.command = {
         command: 'ahkPackageManager.showPackageDetails',
         title: 'Show Package Details',
+        arguments: [this]
+      };
+    } else if (packageType === 'available' && metadata?.repositoryUrl) {
+      // For search results, clicking opens the repository
+      this.command = {
+        command: 'ahkPackageManager.openRepository',
+        title: 'Open Repository',
         arguments: [this]
       };
     }
@@ -101,6 +137,9 @@ interface PackageInfo {
   dependencies?: string[];
   path: string;
   lastModified?: Date;
+  stars?: number;
+  category?: string;
+  repositoryUrl?: string;
 }
 
 /**
@@ -191,7 +230,13 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
       pkg.version,
       pkg.path,
       categoryType,
-      pkg.description
+      pkg.description,
+      {
+        author: pkg.author,
+        stars: pkg.stars,
+        category: pkg.category,
+        repositoryUrl: pkg.repositoryUrl
+      }
     ));
   }
 
@@ -716,7 +761,10 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
               description: result.description,
               author: result.author,
               path: result.rawUrl || result.downloadUrl || result.repositoryUrl,
-              lastModified: result.lastUpdated
+              lastModified: result.lastUpdated,
+              stars: result.stars,
+              category: result.category,
+              repositoryUrl: result.repositoryUrl
             }));
 
             // Mark that we're showing search results
@@ -764,5 +812,17 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
     this.loadAvailablePackages();
     this._onDidChangeTreeData.fire();
     vscode.window.showInformationMessage('Search results cleared');
+  }
+
+  /**
+   * Open repository URL in browser
+   */
+  async openRepository(packageItem: PackageItem): Promise<void> {
+    const repoUrl = packageItem.metadata?.repositoryUrl;
+    if (repoUrl) {
+      vscode.env.openExternal(vscode.Uri.parse(repoUrl));
+    } else {
+      vscode.window.showWarningMessage(`No repository URL available for ${packageItem.packageName}`);
+    }
   }
 }

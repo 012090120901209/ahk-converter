@@ -1094,6 +1094,11 @@ export async function activate(ctx: vscode.ExtensionContext) {
       vscode.commands.registerCommand('ahkPackageManager.clearSearch', async () => {
         packageManagerProvider.clearSearch();
       }),
+      vscode.commands.registerCommand('ahkPackageManager.openRepository', async (packageItem) => {
+        if (packageItem) {
+          await packageManagerProvider.openRepository(packageItem);
+        }
+      }),
       vscode.commands.registerCommand('ahkPackageManager.editMetadata', async (packageItem) => {
         if (packageItem && packageItem.packagePath.endsWith('.ahk')) {
           await MetadataEditorProvider.show(ctx, packageItem.packagePath);
