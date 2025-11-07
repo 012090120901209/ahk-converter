@@ -757,6 +757,7 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "dev": "npm run watch",
+    "test": "tsc -p ./ && node ./test/runTest.js",
     "package": "vsce package",
     "publish": "vsce publish --skip-duplicate"
   },
