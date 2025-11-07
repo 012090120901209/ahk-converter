@@ -1,7 +1,7 @@
 {
   "name": "ahkv2-toolbox",
   "displayName": "AHKv2 Toolbox",
-  "icon": "src/AHK_Icon.png",
+  "icon": "media/converter.png",
   "description": "Comprehensive toolbox for AutoHotkey v2 development with v1→v2 script conversion, function metadata exploration, dependency visualization, and productivity tools.",
   "publisher": "TrueCrimeAudit",
   "version": "0.4.3",
@@ -27,7 +27,7 @@
         {
           "id": "ahkv2-toolbox",
           "title": "AHKv2 Toolbox",
-          "icon": "src/AHK_Code.svg"
+          "icon": "src/sidebar.svg"
         }
       ]
     },
@@ -764,9 +764,13 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.11.30",
+    "@types/sinon": "^17.0.3",
     "@types/vscode": "^1.84.0",
+    "@vscode/test-electron": "^2.3.9",
+    "glob": "^10.3.10",
     "husky": "^9.1.7",
     "mocha": "^11.7.4",
+    "sinon": "^17.0.1",
     "typescript": "^5.4.0",
     "vsce": "^2.15.0"
   },

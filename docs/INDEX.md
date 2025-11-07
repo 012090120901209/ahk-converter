@@ -41,6 +41,10 @@ Welcome to the comprehensive documentation for the AHKv2 Toolbox extension.
   - Tree building logic
 
 ### Developer Guides
+- [Code Review Workflows](CODE_REVIEW_WORKFLOWS.md) ⭐ **NEW**
+  - Comprehensive code analysis and review with Claude Code agents
+  - Multi-agent review strategies
+  - Best practices and common scenarios
 - [Publishing Guide](PUBLISHING.md)
   - Release process
   - Version management
@@ -124,9 +128,10 @@ Common commands:
 
 ## 📊 Documentation Statistics
 
-- **Total Documentation Files**: 21+
+- **Total Documentation Files**: 22+
 - **Latest Version**: 0.4.3
-- **Last Updated**: 2025-10-31
+- **Last Updated**: 2025-11-07
+- **New**: Code Review Workflows (Claude Code agent integration)
 - **New in 0.4.3**: 3 files (Auto-Add #Include Feature, Rules, Implementation Summary)
 
 ## 🤝 Contributing

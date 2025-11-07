@@ -271,8 +271,7 @@ docs/TROUBLESHOOTING.md
 docs/USER_GUIDE.md
 logs/mcp-debug.log
 media/AHK_Convert.png
-media/AHK_Convert_Mini.png
-media/AHK_Convert_mini.png
+media/ahk-convert-mini.png
 media/autohotkey.svg
 media/autohotkey2.svg
 node_modules/.bin/husky

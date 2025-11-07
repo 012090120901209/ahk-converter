@@ -7450,15 +7450,15 @@ YouTubeWatch videos
 VS Code on Github Follow us on X VS Code on LinkedIn VS Code on Bluesky Join the VS Code community on Reddit The VS Code Insiders Podcast VS Code on TikTok VS Code on YouTube
 Microsoft homepage
 Support Privacy Terms of Use License
- 
- 
+
+
  Update(package.json)
   ⎿  Updated package.json with 1 addition and 1 removal
        1    {
        2      "name": "ahkconverter",
        3 -    "displayName": "AHK Converter",
        3 +    "displayName": "AHK Converter Plus",
-       4      "icon": "media/AHK_Convert_mini.png",
+       4      "icon": "media/ahk-convert-mini.png",
        5      "description": "Convert AutoHotkey v1 scripts to v2 using the
            community converter and AutoHotkey v2.",
        6      "publisher": "TrueCrimeAudit",
@@ -7498,9 +7498,9 @@ Support Privacy Terms of Use License
  > Rename the extension to AHK V2 tools. Now create a sidebar menu item:
 
    [200~Sidebars
-   The Primary and Secondary Sidebars consists of one or more Views contributed by     
-   a View Container. Extensions can contribute Views to an existing View Container     
-   (for example, Explorer) or they can contribute an entirely new View Container.      
+   The Primary and Secondary Sidebars consists of one or more Views contributed by
+   a View Container. Extensions can contribute Views to an existing View Container
+   (for example, Explorer) or they can contribute an entirely new View Container.
 
    ✔️ Do
 
@@ -7508,7 +7508,7 @@ Support Privacy Terms of Use License
    Use clear, descriptive names for View Containers and their Views
    ❌ Don't
 
-   Use an excessive number of View Containers. A single View Container (such as a      
+   Use an excessive number of View Containers. A single View Container (such as a
    Sidebar with Views unique to that extension) is generally enough for most
    extensions.
    Use an excessive number of Views (3-5 is a comfortable max for most screen
@@ -7518,36 +7518,36 @@ Support Privacy Terms of Use License
    Example of two sidebars
 
    Primary Sidebar
-   Many extensions choose to contribute Views and/or View Containers to the Primary    
+   Many extensions choose to contribute Views and/or View Containers to the Primary
    Sidebar given the high visibility it gives content. Use good judgement when
-   adding content here—too much contributed UI can lead to a cluttered experience      
+   adding content here—too much contributed UI can lead to a cluttered experience
    that can confuse your users.
 
    Example of the primary sidebar
 
    Secondary Sidebar
-   As the name implies, the Secondary Sidebar is normally considered a auxiliary       
-   location for Views. While extensions cannot contribute Views directly to it by      
-   default, users can drag Views from the Primary Sidebar or the Panel to customize    
+   As the name implies, the Secondary Sidebar is normally considered a auxiliary
+   location for Views. While extensions cannot contribute Views directly to it by
+   default, users can drag Views from the Primary Sidebar or the Panel to customize
    their layout.
 
    Example of the secondary sidebar
 
    Sidebar Toolbars
-   By default, View Containers in the Sidebar with more than one View will feature     
-   a single ... icon button in the Sidebar Toolbar to show and hide each View. That    
+   By default, View Containers in the Sidebar with more than one View will feature
+   a single ... icon button in the Sidebar Toolbar to show and hide each View. That
    looks something like this:
 
    Sidebar with two views
 
-   However, if only one View is used, the Sidebar will automatically consolidate       
-   the UI to use the Sidebar Toolbar to render all of the actions specific to that     
-   View. In place of the ... button, the two actions associated with the 'Notes'       
+   However, if only one View is used, the Sidebar will automatically consolidate
+   the UI to use the Sidebar Toolbar to render all of the actions specific to that
+   View. In place of the ... button, the two actions associated with the 'Notes'
    View are rendered in its place:
 
    Sidebar with a single view and toolbar with actions
 
-   As with other toolbars, be careful to not add too many actions to reduce clutter    
+   As with other toolbars, be careful to not add too many actions to reduce clutter
    and confusion. If possible, use an existing product icon paired with a
    descriptive Command name.
 
@@ -7573,7 +7573,7 @@ Support Privacy Terms of Use License
    Search Docs
    Ctrl+Shift+P
    Download
-   Join a VS Code Dev Days event near you to learn about AI-assisted development in    
+   Join a VS Code Dev Days event near you to learn about AI-assisted development in
    VS Code.
 
    Dismiss this update
@@ -7597,11 +7597,11 @@ Support Privacy Terms of Use License
    Document Selector
    VS Code API
    VS Code API is a set of JavaScript APIs that you can invoke in your Visual
-   Studio Code extension. This page lists all VS Code APIs available to extension      
+   Studio Code extension. This page lists all VS Code APIs available to extension
    authors.
 
    API namespaces and classes
-   This listing is compiled from the vscode.d.ts file from the VS Code repository.     
+   This listing is compiled from the vscode.d.ts file from the VS Code repository.
 
    authentication
    Namespace for authentication.
@@ -7614,48 +7614,48 @@ Support Privacy Terms of Use License
    AuthenticationSessionAccountInformation[]>
 
    getSession(providerId: string, scopeListOrRequest: readonly string[] |
-   AuthenticationWwwAuthenticateRequest, options: AuthenticationGetSessionOptions &    
+   AuthenticationWwwAuthenticateRequest, options: AuthenticationGetSessionOptions &
    {createIfNone: true | AuthenticationGetSessionPresentationOptions}):
    Thenable<AuthenticationSession>
 
    getSession(providerId: string, scopeListOrRequest: readonly string[] |
-   AuthenticationWwwAuthenticateRequest, options: AuthenticationGetSessionOptions &    
+   AuthenticationWwwAuthenticateRequest, options: AuthenticationGetSessionOptions &
    {forceNewSession: true | AuthenticationGetSessionPresentationOptions}):
    Thenable<AuthenticationSession>
 
    getSession(providerId: string, scopeListOrRequest: readonly string[] |
    AuthenticationWwwAuthenticateRequest, options?:
-   AuthenticationGetSessionOptions): Thenable<AuthenticationSession | undefined>       
+   AuthenticationGetSessionOptions): Thenable<AuthenticationSession | undefined>
 
    registerAuthenticationProvider(id: string, label: string, provider:
-   AuthenticationProvider, options?: AuthenticationProviderOptions): Disposable        
+   AuthenticationProvider, options?: AuthenticationProviderOptions): Disposable
 
    chat
    Namespace for chat functionality. Users interact with chat participants by
-   sending messages to them in the chat view. Chat participants can respond with       
+   sending messages to them in the chat view. Chat participants can respond with
    markdown or other types of content via the ChatResponseStream.
 
    Functions
-   createChatParticipant(id: string, handler: ChatRequestHandler): ChatParticipant     
+   createChatParticipant(id: string, handler: ChatRequestHandler): ChatParticipant
 
    commands
-   Namespace for dealing with commands. In short, a command is a function with a       
+   Namespace for dealing with commands. In short, a command is a function with a
    unique identifier. The function is sometimes also called command handler.
 
    Commands can be added to the editor using the registerCommand and
-   registerTextEditorCommand functions. Commands can be executed manually or from a    
+   registerTextEditorCommand functions. Commands can be executed manually or from a
    UI gesture. Those are:
 
-   palette - Use the commands-section in package.json to make a command show in the    
+   palette - Use the commands-section in package.json to make a command show in the
    command palette.
-   keybinding - Use the keybindings-section in package.json to enable keybindings      
+   keybinding - Use the keybindings-section in package.json to enable keybindings
    for your extension.
-   Commands from other extensions and from the editor itself are accessible to an      
-   extension. However, when invoking an editor command not all argument types are      
+   Commands from other extensions and from the editor itself are accessible to an
+   extension. However, when invoking an editor command not all argument types are
    supported.
 
-   This is a sample that registers a command handler and adds an entry for that        
-   command to the palette. First register a command handler with the identifier        
+   This is a sample that registers a command handler and adds an entry for that
+   command to the palette. First register a command handler with the identifier
    extension.sayHello.
 
    JavaScript
@@ -7663,7 +7663,7 @@ Support Privacy Terms of Use License
    commands.registerCommand('extension.sayHello', () => {
      window.showInformationMessage('Hello World!');
    });
-   Second, bind the command identifier to a title under which it will show in the      
+   Second, bind the command identifier to a title under which it will show in the
    palette (package.json).
 
    JSON
@@ -7683,10 +7683,10 @@ Support Privacy Terms of Use License
 
    getCommands(filterInternal?: boolean): Thenable<string[]>
 
-   registerCommand(command: string, callback: (args: any[]) => any, thisArg?: any):    
+   registerCommand(command: string, callback: (args: any[]) => any, thisArg?: any):
    Disposable
 
-   registerTextEditorCommand(command: string, callback: (textEditor: TextEditor,       
+   registerTextEditorCommand(command: string, callback: (textEditor: TextEditor,
    edit: TextEditorEdit, args: any[]) => void, thisArg?: any): Disposable
 
    comments
@@ -7708,7 +7708,7 @@ Support Privacy Terms of Use License
    Events
    onDidChangeActiveDebugSession: Event<DebugSession | undefined>
 
-   onDidChangeActiveStackItem: Event<DebugThread | DebugStackFrame | undefined>        
+   onDidChangeActiveStackItem: Event<DebugThread | DebugStackFrame | undefined>
 
    onDidChangeBreakpoints: Event<BreakpointsChangeEvent>
 
@@ -7789,10 +7789,10 @@ Support Privacy Terms of Use License
    openExternal(target: Uri): Thenable<boolean>
 
    extensions
-   Namespace for dealing with installed extensions. Extensions are represented by      
+   Namespace for dealing with installed extensions. Extensions are represented by
    an Extension-interface which enables reflection on them.
 
-   Extension writers can provide APIs to other extensions by returning their API       
+   Extension writers can provide APIs to other extensions by returning their API
    public surface from the activate-call.
 
    JavaScript
@@ -7810,7 +7810,7 @@ Support Privacy Terms of Use License
      return api;
    }
    When depending on the API of another extension add an
-   extensionDependencies-entry to package.json, and use the getExtension-function      
+   extensionDependencies-entry to package.json, and use the getExtension-function
    and the exports-property, like below:
 
    JavaScript
@@ -7829,13 +7829,13 @@ Support Privacy Terms of Use License
    getExtension<T>(extensionId: string): Extension<T> | undefined
 
    l10n
-   Namespace for localization-related functionality in the extension API. To use       
-   this properly, you must have l10n defined in your extension manifest and have       
+   Namespace for localization-related functionality in the extension API. To use
+   this properly, you must have l10n defined in your extension manifest and have
    bundle.l10n..json files. For more information on how to generate
    bundle.l10n..json files, check out the vscode-l10n repo.
 
    Note: Built-in extensions (for example, Git, TypeScript Language Features,
-   GitHub Authentication) are excluded from the l10n property requirement. In other    
+   GitHub Authentication) are excluded from the l10n property requirement. In other
    words, they do not need to specify a l10n in the extension manifest because
    their translated strings come from Language Packs.
 
@@ -7857,15 +7857,15 @@ Support Privacy Terms of Use License
    IntelliSense, code actions, diagnostics etc.
 
    Many programming languages exist and there is huge variety in syntaxes,
-   semantics, and paradigms. Despite that, features like automatic word-completion,    
-   code navigation, or code checking have become popular across different tools        
+   semantics, and paradigms. Despite that, features like automatic word-completion,
+   code navigation, or code checking have become popular across different tools
    for different programming languages.
 
-   The editor provides an API that makes it simple to provide such common features     
-   by having all UI and actions already in place and by allowing you to participate    
-   by providing data only. For instance, to contribute a hover all you have to do      
+   The editor provides an API that makes it simple to provide such common features
+   by having all UI and actions already in place and by allowing you to participate
+   by providing data only. For instance, to contribute a hover all you have to do
    is provide a function that can be called with a TextDocument and a Position
-   returning hover info. The rest, like tracking the mouse, positioning the hover,     
+   returning hover info. The rest, like tracking the mouse, positioning the hover,
    keeping the hover stable etc. is taken care of by the editor.
 
    JavaScript
@@ -7875,13 +7875,13 @@ Support Privacy Terms of Use License
        return new Hover('I am a hover!');
      }
    });
-   Registration is done using a document selector which is either a language id,       
-   like javascript or a more complex filter like { language: 'typescript', scheme:     
-   'file' }. Matching a document against such a selector will result in a score        
-   that is used to determine if and how a provider shall be used. When scores are      
-   equal the provider that came last wins. For features that allow full arity, like    
+   Registration is done using a document selector which is either a language id,
+   like javascript or a more complex filter like { language: 'typescript', scheme:
+   'file' }. Matching a document against such a selector will result in a score
+   that is used to determine if and how a provider shall be used. When scores are
+   equal the provider that came last wins. For features that allow full arity, like
    hover, the score is only checked to be >0, for other features, like
-   IntelliSense the score is used for determining the order in which providers are     
+   IntelliSense the score is used for determining the order in which providers are
    asked to participate.
 
    Events
@@ -7928,7 +7928,7 @@ Support Privacy Terms of Use License
    DocumentDropEditProvider<DocumentDropEdit>, metadata?:
    DocumentDropEditProviderMetadata): Disposable
 
-   registerDocumentFormattingEditProvider(selector: DocumentSelector, provider:        
+   registerDocumentFormattingEditProvider(selector: DocumentSelector, provider:
    DocumentFormattingEditProvider): Disposable
 
    registerDocumentHighlightProvider(selector: DocumentSelector, provider:
@@ -7945,14 +7945,14 @@ Support Privacy Terms of Use License
    provider: DocumentRangeFormattingEditProvider): Disposable
 
    registerDocumentRangeSemanticTokensProvider(selector: DocumentSelector,
-   provider: DocumentRangeSemanticTokensProvider, legend: SemanticTokensLegend):       
+   provider: DocumentRangeSemanticTokensProvider, legend: SemanticTokensLegend):
    Disposable
 
-   registerDocumentSemanticTokensProvider(selector: DocumentSelector, provider:        
+   registerDocumentSemanticTokensProvider(selector: DocumentSelector, provider:
    DocumentSemanticTokensProvider, legend: SemanticTokensLegend): Disposable
 
    registerDocumentSymbolProvider(selector: DocumentSelector, provider:
-   DocumentSymbolProvider, metaData?: DocumentSymbolProviderMetadata): Disposable      
+   DocumentSymbolProvider, metaData?: DocumentSymbolProviderMetadata): Disposable
 
    registerEvaluatableExpressionProvider(selector: DocumentSelector, provider:
    EvaluatableExpressionProvider): Disposable
@@ -7985,7 +7985,7 @@ Support Privacy Terms of Use License
    registerReferenceProvider(selector: DocumentSelector, provider:
    ReferenceProvider): Disposable
 
-   registerRenameProvider(selector: DocumentSelector, provider: RenameProvider):       
+   registerRenameProvider(selector: DocumentSelector, provider: RenameProvider):
    Disposable
 
    registerSelectionRangeProvider(selector: DocumentSelector, provider:
@@ -8022,7 +8022,7 @@ Support Privacy Terms of Use License
    onDidChangeChatModels: Event<void>
 
    Functions
-   invokeTool(name: string, options: LanguageModelToolInvocationOptions<object>,       
+   invokeTool(name: string, options: LanguageModelToolInvocationOptions<object>,
    token?: CancellationToken): Thenable<LanguageModelToolResult>
 
    registerLanguageModelChatProvider(vendor: string, provider:
@@ -8039,12 +8039,12 @@ Support Privacy Terms of Use License
    notebooks
    Namespace for notebooks.
 
-   The notebooks functionality is composed of three loosely coupled components:        
+   The notebooks functionality is composed of three loosely coupled components:
 
    NotebookSerializer enable the editor to open, show, and save notebooks
-   NotebookController own the execution of notebooks, e.g they create output from      
+   NotebookController own the execution of notebooks, e.g they create output from
    code cells.
-   NotebookRenderer present notebook output in the editor. They run in a separate      
+   NotebookRenderer present notebook output in the editor. They run in a separate
    context.
    Functions
    createNotebookController(id: string, notebookType: string, label: string,
@@ -8063,7 +8063,7 @@ Support Privacy Terms of Use License
    inputBox: SourceControlInputBox
 
    Functions
-   createSourceControl(id: string, label: string, rootUri?: Uri): SourceControl        
+   createSourceControl(id: string, label: string, rootUri?: Uri): SourceControl
 
    tasks
    Namespace for tasks functionality.
@@ -8107,17 +8107,17 @@ Support Privacy Terms of Use License
    type: FileType
 
    FileSystem
-   The file system interface exposes the editor's built-in and contributed file        
+   The file system interface exposes the editor's built-in and contributed file
    system providers. It allows extensions to work
    A concrete QuickInput to let the user input a text value.
 
-   Note that in many cases the more convenient window.showInputBox is easier to        
+   Note that in many cases the more convenient window.showInputBox is easier to
    use. window.createInputBox should be used when window.showInputBox does not
    offer the required flexibility.
 
    Events
-   onDidAcc[Pasted text #4 +1312 lines]the extension to decide whether to accept       
+   onDidAcc[Pasted text #4 +1312 lines]the extension to decide whether to accept
    the user's input and if the [Pasted text #5 +2739 lines][Pasted text #6 +5
-   lines] 
+   lines]
 ───────────────────────────────────────────────────────────────────────────────────────
-  ⏵⏵ bypass permissions on (alt+m to cycle)                        ◯ IDE disconnected  
+  ⏵⏵ bypass permissions on (alt+m to cycle)                        ◯ IDE disconnected
