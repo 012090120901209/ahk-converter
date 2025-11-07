@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import { insertIncludeLine, previewIncludeInsertion } from './includeLineInserter';
+import { PackageSearchService, PackageSearchResult, SearchFilters } from './packageSearchService';
 
 /**
  * Represents a package or library item in the package manager
@@ -13,14 +14,44 @@ export class PackageItem extends vscode.TreeItem {
     public readonly packagePath: string,
     public readonly packageType: 'installed' | 'available' | 'updates',
     public readonly description?: string,
+    public readonly metadata?: {
+      author?: string;
+      stars?: number;
+      category?: string;
+      repositoryUrl?: string;
+    },
     public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None
   ) {
     super(packageName, collapsibleState);
 
     // Set the label with version
     this.label = packageName;
-    this.description = version;
-    this.tooltip = `${packageName} v${version}\n${description || 'No description available'}\nPath: ${packagePath}`;
+    
+    // For available packages from search, show stars in description
+    if (packageType === 'available' && metadata?.stars !== undefined) {
+      // Use text representation for better cross-platform compatibility
+      this.description = `${metadata.stars}★ • ${version}`;
+    } else {
+      this.description = version;
+    }
+
+    // Enhanced tooltip with metadata
+    let tooltipText = `${packageName} v${version}\n${description || 'No description available'}`;
+    if (metadata?.author) {
+      tooltipText += `\nAuthor: ${metadata.author}`;
+    }
+    if (metadata?.category) {
+      tooltipText += `\nCategory: ${metadata.category}`;
+    }
+    if (metadata?.stars !== undefined) {
+      tooltipText += `\n★ Stars: ${metadata.stars}`;
+    }
+    if (metadata?.repositoryUrl) {
+      tooltipText += `\nRepository: ${metadata.repositoryUrl}`;
+    } else {
+      tooltipText += `\nPath: ${packagePath}`;
+    }
+    this.tooltip = tooltipText;
 
     // Set appropriate icon based on package type
     switch (packageType) {
@@ -43,6 +74,13 @@ export class PackageItem extends vscode.TreeItem {
       this.command = {
         command: 'ahkPackageManager.showPackageDetails',
         title: 'Show Package Details',
+        arguments: [this]
+      };
+    } else if (packageType === 'available' && metadata?.repositoryUrl) {
+      // For search results, clicking opens the repository
+      this.command = {
+        command: 'ahkPackageManager.openRepository',
+        title: 'Open Repository',
         arguments: [this]
       };
     }
@@ -100,6 +138,9 @@ interface PackageInfo {
   dependencies?: string[];
   path: string;
   lastModified?: Date;
+  stars?: number;
+  category?: string;
+  repositoryUrl?: string;
 }
 
 /**
@@ -113,12 +154,18 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
   private installedPackages: PackageInfo[] = [];
   private availablePackages: PackageInfo[] = [];
   private packagesWithUpdates: PackageInfo[] = [];
+  private searchService: PackageSearchService;
+  private lastSearchQuery: string = '';
+  private isShowingSearchResults: boolean = false;
 
   constructor(private context: vscode.ExtensionContext) {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders && workspaceFolders.length > 0) {
       this.workspaceRoot = workspaceFolders[0].uri.fsPath;
     }
+
+    // Initialize search service
+    this.searchService = PackageSearchService.getInstance();
 
     // Initialize by scanning for packages
     this.scanForPackages();
@@ -184,7 +231,13 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
       pkg.version,
       pkg.path,
       categoryType,
-      pkg.description
+      pkg.description,
+      {
+        author: pkg.author,
+        stars: pkg.stars,
+        category: pkg.category,
+        repositoryUrl: pkg.repositoryUrl
+      }
     ));
   }
 
@@ -627,6 +680,150 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
     if (packageItem.packagePath.endsWith('.ahk')) {
       const doc = await vscode.workspace.openTextDocument(packageItem.packagePath);
       await vscode.window.showTextDocument(doc);
+    }
+  }
+
+  /**
+   * Search for packages from various sources
+   */
+  async searchPackages(): Promise<void> {
+    try {
+      // Show input box with search options
+      const searchQuery = await vscode.window.showInputBox({
+        prompt: 'Search for AHK v2 packages',
+        placeHolder: 'Enter package name, keyword, or leave empty for popular packages...',
+        value: this.lastSearchQuery
+      });
+
+      // User cancelled
+      if (searchQuery === undefined) {
+        return;
+      }
+
+      // Show progress indicator
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: 'Searching for packages...',
+          cancellable: false
+        },
+        async (progress) => {
+          try {
+            // Store the query for next time
+            this.lastSearchQuery = searchQuery;
+
+            // Optionally ask for filters
+            const sortOptions = await vscode.window.showQuickPick(
+              [
+                { label: 'Most Popular (Stars)', value: 'stars' },
+                { label: 'Recently Updated', value: 'updated' },
+                { label: 'Alphabetical', value: 'name' }
+              ],
+              {
+                placeHolder: 'Sort results by...',
+                ignoreFocusOut: true
+              }
+            );
+
+            const filters: SearchFilters = {
+              sortBy: (sortOptions?.value as 'stars' | 'updated' | 'name') || 'stars',
+              sortOrder: 'desc'
+            };
+
+            // Optionally filter by category
+            const categories = this.searchService.getCategories();
+            const categoryOption = await vscode.window.showQuickPick(
+              categories.map(cat => ({ label: cat, value: cat })),
+              {
+                placeHolder: 'Filter by category (optional)',
+                ignoreFocusOut: true
+              }
+            );
+
+            if (categoryOption && categoryOption.value !== 'All') {
+              filters.category = categoryOption.value;
+            }
+
+            progress.report({ increment: 30, message: 'Fetching results from GitHub...' });
+
+            // Perform the search
+            const results = await this.searchService.searchPackages(
+              searchQuery,
+              filters,
+              30 // Max results
+            );
+
+            progress.report({ increment: 60, message: 'Processing results...' });
+
+            // Convert search results to available packages
+            this.availablePackages = results.map(result => ({
+              name: result.name,
+              version: result.version,
+              description: result.description,
+              author: result.author,
+              path: result.rawUrl || result.downloadUrl || result.repositoryUrl,
+              lastModified: result.lastUpdated,
+              stars: result.stars,
+              category: result.category,
+              repositoryUrl: result.repositoryUrl
+            }));
+
+            // Mark that we're showing search results
+            this.isShowingSearchResults = true;
+
+            // Refresh the tree view
+            this._onDidChangeTreeData.fire();
+
+            // Show result count
+            vscode.window.showInformationMessage(
+              `Found ${results.length} package${results.length !== 1 ? 's' : ''} for "${searchQuery || 'popular packages'}"`
+            );
+
+            progress.report({ increment: 100, message: 'Complete!' });
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            vscode.window.showErrorMessage(`Search failed: ${errorMessage}`);
+            
+            // If rate limited, provide helpful message
+            if (errorMessage.includes('rate limit')) {
+              vscode.window.showWarningMessage(
+                'GitHub API rate limit exceeded. Consider adding a GitHub token in settings for higher limits.',
+                'Open Settings'
+              ).then(selection => {
+                if (selection === 'Open Settings') {
+                  vscode.commands.executeCommand('workbench.action.openSettings', 'ahkv2Toolbox.githubToken');
+                }
+              });
+            }
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Search packages error:', error);
+      vscode.window.showErrorMessage('Failed to search packages');
+    }
+  }
+
+  /**
+   * Clear search results and return to default view
+   */
+  clearSearch(): void {
+    this.isShowingSearchResults = false;
+    this.lastSearchQuery = '';
+    this.loadAvailablePackages();
+    this._onDidChangeTreeData.fire();
+    vscode.window.showInformationMessage('Search results cleared');
+  }
+
+  /**
+   * Open repository URL in browser
+   */
+  async openRepository(packageItem: PackageItem): Promise<void> {
+    const repoUrl = packageItem.metadata?.repositoryUrl;
+    if (repoUrl) {
+      vscode.env.openExternal(vscode.Uri.parse(repoUrl));
+    } else {
+      vscode.window.showWarningMessage(`No repository URL available for ${packageItem.packageName}`);
     }
   }
 }

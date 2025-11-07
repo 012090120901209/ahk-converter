@@ -132,6 +132,12 @@
         "icon": "$(search)"
       },
       {
+        "command": "ahkPackageManager.clearSearch",
+        "title": "Clear Search Results",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(clear-all)"
+      },
+      {
         "command": "ahk.compileAndReload",
         "title": "Compile and Reload Debugger",
         "category": "AHK Development"
@@ -372,6 +378,11 @@
           "command": "ahkPackageManager.searchPackages",
           "when": "view == ahkPackageManager",
           "group": "navigation@2"
+        },
+        {
+          "command": "ahkPackageManager.clearSearch",
+          "when": "view == ahkPackageManager",
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [

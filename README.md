@@ -80,6 +80,22 @@ Batch output directory management
 
 Auto-save options for converted files
 
+**Package Search & Discovery** ⭐ **NEW** - Find interesting AHK v2 scripts and libraries:
+
+Search GitHub for AHK v2 packages by name, keyword, or browse popular packages
+
+Filter by category (GUI, Networking, Parsing, System, Testing, etc.)
+
+Sort by popularity (stars), recent updates, or alphabetically
+
+View rich metadata: stars, author, category, description
+
+One-click installation with automatic `#Include` insertion
+
+Integrated with GitHub API with smart caching
+
+See [Package Search Guide](docs/PACKAGE_SEARCH_GUIDE.md) for details
+
 Auto-Add #Include - Automatically insert #Include statements when installing packages:
 
 Smart placement based on directive anchors (#SingleInstance, #Requires)

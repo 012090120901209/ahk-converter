@@ -1097,13 +1097,14 @@ export async function activate(ctx: vscode.ExtensionContext) {
         }
       }),
       vscode.commands.registerCommand('ahkPackageManager.searchPackages', async () => {
-        const searchTerm = await vscode.window.showInputBox({
-          prompt: 'Search for AHK packages',
-          placeHolder: 'Enter package name or keyword...'
-        });
-        if (searchTerm) {
-          vscode.window.showInformationMessage(`Searching for "${searchTerm}"...`);
-          // TODO: Implement actual search functionality
+        await packageManagerProvider.searchPackages();
+      }),
+      vscode.commands.registerCommand('ahkPackageManager.clearSearch', async () => {
+        packageManagerProvider.clearSearch();
+      }),
+      vscode.commands.registerCommand('ahkPackageManager.openRepository', async (packageItem) => {
+        if (packageItem) {
+          await packageManagerProvider.openRepository(packageItem);
         }
       }),
       vscode.commands.registerCommand('ahkPackageManager.editMetadata', async (packageItem) => {

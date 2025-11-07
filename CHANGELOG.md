@@ -2,6 +2,39 @@
 
 All notable changes to the AHK Converter VS Code extension will be documented in this file.
 
+## [Unreleased]
+
+### Added - Package Search Feature 🔍
+
+#### Search & Discovery
+- **Package Search** - Find interesting AHK v2 scripts from GitHub
+  - Search by package name, keyword, or browse popular packages
+  - Filter by category (GUI, Networking, Parsing, System, Testing, etc.)
+  - Sort by popularity (stars), recent updates, or alphabetically
+  - Rich metadata display with stars, author, category, description
+  - GitHub API integration with smart rate limit handling
+  - Result caching (5-minute TTL) for better performance
+  - One-click repository opening in browser
+  - Direct installation from search results
+
+#### New Commands
+- **Search Packages** - Search GitHub for AHK v2 packages
+- **Clear Search** - Reset view to default package list
+- **Open Repository** - Open package repository in browser
+
+#### UI Enhancements
+- Enhanced package items with star counts (⭐ 123)
+- Rich tooltips with author, category, and repository info
+- Search button in Dependency Manager view
+- Clear search button to reset results
+
+#### Implementation
+- New `PackageSearchService` class for search logic
+- Integration with existing `GitHubCodeSearchClient`
+- Automatic package categorization based on description
+- Enhanced `PackageItem` with metadata support
+- Comprehensive documentation in `docs/PACKAGE_SEARCH_GUIDE.md`
+
 ## [0.4.3] - 2025-10-31
 
 ### Enhanced Chat Participant Commands 🤖
