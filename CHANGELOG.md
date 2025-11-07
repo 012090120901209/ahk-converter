@@ -4,6 +4,57 @@ All notable changes to the AHK Converter VS Code extension will be documented in
 
 ## [Unreleased]
 
+### Added - Import Management System 📦
+
+#### Module & Import Support
+- **Comprehensive Import Management** - Full support for AHK v2 module system
+  - Module resolution following AHK v2 specification
+  - Support for `AhkImportPath` environment variable
+  - Detects `#Module` directives and module boundaries
+  - Resolves: `ModuleName`, `ModuleName\__Init.ahk`, `ModuleName.ahk`
+
+#### IntelliSense & Code Completion
+- **Smart Completions** for import statements
+  - Module name suggestions after `import` keyword
+  - Symbol completions inside `{...}` from module exports
+  - Dot notation completions for module member access
+  - Context-aware suggestions with documentation
+
+#### Diagnostics & Validation
+- **Real-time Import Validation**
+  - Module not found errors
+  - Symbol not exported errors
+  - Unused import detection (grayed out)
+  - Circular dependency warnings
+  - Symbol conflict detection
+  - Shadowing warnings for local vs imported symbols
+
+#### Code Actions & Quick Fixes
+- **Automated Import Management**
+  - Add missing imports for undefined symbols
+  - Remove unused imports
+  - Organize imports (sort + remove unused)
+  - Convert between import styles (named ↔ wildcard)
+  - Remove invalid symbols from imports
+
+#### Navigation & References
+- **Go to Definition** (F12) - Navigate to module or symbol
+- **Peek Definition** (Alt+F12) - Preview without leaving file
+- **Find All References** - Show all symbol usages
+- **Hover Information** - Rich documentation on modules and symbols
+
+#### New Commands
+- `AHK: Organize Imports` - Sort and remove unused imports
+- `AHK: Reindex Workspace` - Rebuild symbol index
+- `AHK: Show Module Exports` - Browse module exports
+- `AHK: Add Import` - Interactive import addition
+
+#### Documentation & Examples
+- Complete user guide in `docs/IMPORT_FEATURE.md`
+- Technical implementation summary
+- 4 working example modules (StringUtils, Logger, MathUtils)
+- Interactive demo showcasing all features
+
 ### Added - Package Search Feature 🔍
 
 #### Search & Discovery
