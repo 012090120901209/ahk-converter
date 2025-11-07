@@ -3,7 +3,7 @@
   "displayName": "AHKv2 Toolbox",
   "icon": "media/converter.png",
   "description": "Comprehensive toolbox for AutoHotkey v2 development with v1→v2 script conversion, function metadata exploration, dependency visualization, and productivity tools.",
-  "publisher": "TrueCrimeAudit",
+  "publisher": "TrueCrimeAudit0",
   "version": "0.4.3",
   "engines": {
     "vscode": "^1.84.0"
