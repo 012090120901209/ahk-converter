@@ -24,6 +24,7 @@ import { SettingsWebviewProvider } from './settingsWebviewProvider';
 import { MetadataEditorProvider } from './metadataEditorProvider';
 import { registerAHKChatParticipant } from './chatParticipant';
 import { registerLibraryAttributionParticipant } from './libraryAttributionParticipant';
+import { ImportManager } from './import';
 
 type RunResult = { stdout: string; stderr: string; code: number };
 
@@ -841,6 +842,13 @@ export async function activate(ctx: vscode.ExtensionContext) {
       }
     }
   }, 2000);
+
+  // Initialize Import Manager for AHK v2 module system
+  const importManager = ImportManager.getInstance();
+  await importManager.initialize(ctx);
+  ctx.subscriptions.push({
+    dispose: () => importManager.dispose()
+  });
 
   // Initialize Toolbox Sidebar Provider
   const toolboxProvider = new ToolboxSidebarProvider(ctx.extensionUri);
