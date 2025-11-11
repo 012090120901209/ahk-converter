@@ -3,7 +3,7 @@
 *Curated collection of high-quality OOP AutoHotkey v2 scripts*
 
 **Last Updated:** 2025-11-11
-**Total Examples:** 15
+**Total Examples:** 18 (11 external, 7 local)
 
 ## Purpose
 
@@ -172,7 +172,7 @@ This document showcases excellent AutoHotkey v2 scripts that demonstrate object-
 
 ---
 
-### [Example: Shape Inheritance System](./examples/imports/shapes/) (Local)
+### [Example: Shape Inheritance System](../examples/oop-patterns/shapes-inheritance.ahk) ⭐ Local
 
 **Author:** AHKv2 Toolbox Team
 
@@ -197,9 +197,9 @@ This document showcases excellent AutoHotkey v2 scripts that demonstrate object-
 - Meaningful method overrides
 - Consistent interface across types
 - Good use case for inheritance
-- Complete test suite
+- Complete demo with all concepts
 
-**Example Files:** examples/imports/shapes/
+**Example Files:** examples/oop-patterns/shapes-inheritance.ahk
 
 **Last Updated:** 2025-11
 
@@ -273,21 +273,69 @@ This document showcases excellent AutoHotkey v2 scripts that demonstrate object-
 
 ## Design Patterns
 
-### [Example: Factory Pattern](./examples/patterns/factory.ahk) (Planned)
+### [Factory Pattern Example](../examples/oop-patterns/factory-pattern.ahk) ⭐ Local
 
-**Description:** Demonstrates the Factory design pattern for object creation in AHK v2.
+**Author:** AHKv2 Toolbox Team
+
+**Description:** Complete Factory pattern implementation showing database connection creation.
 
 **OOP Features:**
-- Factory class with creation methods
-- Product class hierarchy
-- Encapsulated object creation
-- Configuration-based instantiation
+- Factory class with static creation methods
+- Product class hierarchy (DatabaseConnection base)
+- Multiple concrete implementations (MySQL, PostgreSQL, SQLite)
+- Configuration-driven instantiation
+- Validation and error handling
 
 **What You'll Learn:**
-- Factory pattern implementation
-- When factories are useful
+- Factory pattern implementation in AHK v2
+- When factories are more useful than direct instantiation
 - Object creation encapsulation
 - Configuration-driven design
+- How to add new types without changing client code
+
+**Best Practices Demonstrated:**
+- Static factory methods
+- Configuration validation before creation
+- Meaningful error messages
+- Switch-based type selection
+- Separate creation method per type
+
+**Example Files:** examples/oop-patterns/factory-pattern.ahk
+
+**Last Updated:** 2025-11
+
+---
+
+### [Singleton Pattern Example](../examples/oop-patterns/singleton-pattern.ahk) ⭐ Local
+
+**Author:** AHKv2 Toolbox Team
+
+**Description:** Demonstrates Singleton pattern for ensuring single-instance classes.
+
+**OOP Features:**
+- Singleton pattern with static instance management
+- Private constructor pattern (throws on direct instantiation)
+- Lazy initialization
+- Thread-safe instance creation
+- Multiple singleton examples (Config, Logger, AppState)
+
+**What You'll Learn:**
+- Singleton pattern in AHK v2
+- When one instance is sufficient
+- Global state management
+- Preventing duplicate instances
+- Thread-safe initialization
+
+**Best Practices Demonstrated:**
+- Static instance variable
+- GetInstance() factory method
+- Error on direct instantiation
+- Lazy initialization
+- Clear documentation of singleton nature
+
+**Example Files:** examples/oop-patterns/singleton-pattern.ahk
+
+**Last Updated:** 2025-11
 
 ---
 
