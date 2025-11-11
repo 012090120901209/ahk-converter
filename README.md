@@ -96,6 +96,20 @@ Integrated with GitHub API with smart caching
 
 See [Package Search Guide](docs/PACKAGE_SEARCH_GUIDE.md) for details
 
+**Best OOP Examples Collection** 📚 **NEW** - Learn from high-quality code:
+
+Curated collection of excellent object-oriented AHK v2 scripts
+
+Examples categorized by type (Complete Apps, Class Design, Inheritance, Patterns)
+
+Real-world code from popular repositories with explanations
+
+Learning points and best practices for each example
+
+Code snippets showing common OOP patterns in AHK v2
+
+See [Best OOP Examples](docs/BEST_OOP_EXAMPLES.md) for the full collection
+
 Auto-Add #Include - Automatically insert #Include statements when installing packages:
 
 Smart placement based on directive anchors (#SingleInstance, #Requires)
@@ -775,7 +789,9 @@ VS Code Team for the extension API and platform
 
 ## Support
 
-📖 Documentation
+📖 [Documentation](docs/)
+
+📚 [Best OOP Examples](docs/BEST_OOP_EXAMPLES.md) - Learn from high-quality object-oriented AHK v2 code
 
 🐛 Issue Tracker
 
@@ -784,4 +800,5 @@ VS Code Team for the extension API and platform
 📧 Email Support
 
 Enjoy converting your AHK scripts! 🚀
+
 
