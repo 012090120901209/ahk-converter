@@ -1,9 +1,9 @@
 {
-  "name": "ahkv2-toolbox",
-  "displayName": "AHKv2 Toolbox",
+  "name": "ahk-converter",
+  "displayName": "AHK Converter",
   "icon": "media/converter.png",
-  "description": "Comprehensive toolbox for AutoHotkey v2 development with v1→v2 script conversion, function metadata exploration, dependency visualization, and productivity tools.",
-  "publisher": "TrueCrimeAudit0",
+  "description": "Convert AutoHotkey v1 scripts to v2 using the community converter and AutoHotkey v2.",
+  "publisher": "TrueCrimeAudit",
   "version": "0.4.3",
   "engines": {
     "vscode": "^1.84.0"
@@ -752,7 +752,7 @@
   },
   "main": "./dist/src/extension.js",
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "echo Skipping husky install on publish",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
