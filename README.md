@@ -585,6 +585,45 @@ ahkv2Toolbox.headerOrder - Order of directives to insert
 
 See Auto-Add #Include Guide for complete documentation.
 
+### Learning from OOP Examples
+
+The extension includes curated examples of object-oriented programming in AHK v2:
+
+**View Curated Examples:**
+
+Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P)
+
+Run: `AHK: Find Best OOP Examples` to see the latest collection
+
+Browse [Best OOP Examples](docs/BEST_OOP_EXAMPLES.md) directly
+
+**Run Local Examples:**
+
+Navigate to `examples/oop-patterns/` in your workspace
+
+Three complete working examples included:
+
+- `shapes-inheritance.ahk` - Inheritance, polymorphism, abstract classes
+- `factory-pattern.ahk` - Factory pattern for object creation
+- `singleton-pattern.ahk` - Singleton pattern for single instances
+
+Run any example with AutoHotkey v2:
+```
+AutoHotkey64.exe examples/oop-patterns/shapes-inheritance.ahk
+```
+
+**What You'll Learn:**
+
+Class design and inheritance patterns
+
+Design patterns (Factory, Singleton, Observer)
+
+Best practices from high-quality GitHub repositories
+
+Real-world OOP examples with complete documentation
+
+See [examples/oop-patterns/README.md](examples/oop-patterns/README.md) for detailed guide
+
 ### Error Handling
 
 When errors occur, you’ll see:
