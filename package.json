@@ -287,6 +287,18 @@
         "title": "Test Chat Participant",
         "category": "AHKv2 Toolbox",
         "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "ahkv2Toolbox.findBestOOPExamples",
+        "title": "Find Best OOP Examples",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(search)"
+      },
+      {
+        "command": "ahkv2Toolbox.refreshOOPExamples",
+        "title": "Refresh OOP Examples",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(refresh)"
       }
     ],
     "menus": {

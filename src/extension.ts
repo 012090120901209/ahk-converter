@@ -1132,6 +1132,63 @@ export async function activate(ctx: vscode.ExtensionContext) {
     console.log('Package Manager not initialized:', error);
   }
 
+  // Register Examples Curator command
+  try {
+    const { ExamplesCurator } = await import('./examplesCurator');
+    ctx.subscriptions.push(
+      vscode.commands.registerCommand('ahkv2Toolbox.findBestOOPExamples', async () => {
+        const curator = ExamplesCurator.getInstance();
+        
+        await vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: 'Searching for best OOP AHK v2 examples...',
+            cancellable: false
+          },
+          async (progress) => {
+            try {
+              curator.showOutput();
+              progress.report({ message: 'Searching GitHub...' });
+              
+              const examples = await curator.findBestOOPExamples(20);
+              
+              progress.report({ message: 'Generating documentation...' });
+              const markdown = curator.generateDocumentation(examples);
+              
+              // Save to docs directory
+              const docsPath = path.join(ctx.extensionPath, 'docs', 'BEST_OOP_EXAMPLES.md');
+              fs.writeFileSync(docsPath, markdown, 'utf-8');
+              
+              // Open the document
+              const doc = await vscode.workspace.openTextDocument(docsPath);
+              await vscode.window.showTextDocument(doc);
+              
+              vscode.window.showInformationMessage(
+                `Found ${examples.length} high-quality OOP examples!`,
+                'View Examples'
+              ).then(selection => {
+                if (selection === 'View Examples') {
+                  vscode.commands.executeCommand('markdown.showPreview', doc.uri);
+                }
+              });
+            } catch (error) {
+              vscode.window.showErrorMessage(
+                `Failed to find examples: ${error instanceof Error ? error.message : 'Unknown error'}`
+              );
+            }
+          }
+        );
+      }),
+      vscode.commands.registerCommand('ahkv2Toolbox.refreshOOPExamples', async () => {
+        // Force refresh by clearing any cache and re-running the search
+        const curator = ExamplesCurator.getInstance();
+        await vscode.commands.executeCommand('ahkv2Toolbox.findBestOOPExamples');
+      })
+    );
+  } catch (error) {
+    console.log('Examples Curator not initialized:', error);
+  }
+
   // Initialize Settings Webview Provider
   try {
     const settingsProvider = new SettingsWebviewProvider(ctx.extensionUri);
