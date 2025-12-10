@@ -124,6 +124,14 @@ Configurable include path templates (Lib/, vendor/, custom)
 
 See Auto-Add #Include Guide for details
 
+User Library Indexing & Quick Include ⭐ **NEW**
+
+Automatically scans `%USERPROFILE%/AutoHotkey/**/Lib` (configurable) so scripts like `ArrayHelpers.ahk` and `StringHelpers.ahk` show up in import completions and diagnostics.
+
+Command Palette action **AHK: Include User Library** inserts a username-agnostic `#Include` (default uses `%A_AppData%/../../AutoHotkey/v2/Lib/{name}.ahk`) and can drop ready-to-edit stubs for the exports you pick.
+
+Fully configurable via `ahkv2Toolbox.userLibraryPaths` and `ahkv2Toolbox.userLibraryIncludeFormat`.
+
 Library Attribution - Automatically discover and fill in missing library metadata:
 
 Searches GitHub for library information based on filename
@@ -131,6 +139,8 @@ Searches GitHub for library information based on filename
 Extracts metadata from file headers, README files, and repository info
 
 Never overwrites existing metadata fields
+
+One-click quick fix leverages GitHub Copilot to insert a JSON metadata block that satisfies validation diagnostics
 
 Supports GitHub Personal Access Token for higher rate limits
 

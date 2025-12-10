@@ -193,9 +193,35 @@
         "category": "AHK Converter"
       },
       {
+        "command": "ahkv2Toolbox.openLibraryMetadataPage",
+        "title": "Open Library Metadata Page",
+        "category": "AHKv2 Toolbox"
+      },
+      {
+        "command": "ahkv2Toolbox.generateMetadataJsonComment",
+        "title": "Generate Library Metadata JSON",
+        "category": "AHKv2 Toolbox"
+      },
+      {
+        "command": "ahk.includeUserLibrary",
+        "title": "Include User Library",
+        "category": "AHK Development"
+      },
+      {
+        "command": "ahk.showModuleSearchPaths",
+        "title": "Show Module Search Paths",
+        "category": "AHK Development"
+      },
+      {
         "command": "ahkv2Toolbox.installLSP",
         "title": "Install AutoHotkey v2 LSP Extension",
         "category": "AHKv2 Toolbox"
+      },
+      {
+        "command": "ahkv2Toolbox.showImportsGuide",
+        "title": "Show Imports & Modules Guide",
+        "category": "AHKv2 Toolbox",
+        "icon": "$(book)"
       },
       {
         "command": "ahk.updateHeader",
@@ -299,6 +325,24 @@
         "title": "Refresh OOP Examples",
         "category": "AHKv2 Toolbox",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "ahk.smartSaveScript",
+        "title": "Smart Save Script",
+        "category": "AHK Development",
+        "icon": "$(save-as)"
+      },
+      {
+        "command": "ahk.configureExamplesFolder",
+        "title": "Configure Examples Folder",
+        "category": "AHK Development",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "ahk.previewScriptAnalysis",
+        "title": "Preview Script Analysis",
+        "category": "AHK Development",
+        "icon": "$(inspect)"
       }
     ],
     "menus": {
@@ -653,6 +697,48 @@
           "default": "Lib/{name}.ahk",
           "description": "Template for #Include paths. Use {name} for package name.",
           "scope": "window"
+        },
+        "ahkv2Toolbox.userLibraryPaths": {
+          "type": "array",
+          "default": [
+            "${home}/AutoHotkey/v2/Lib",
+            "${home}/AutoHotkey/Lib"
+          ],
+          "description": "Absolute paths to user-level AutoHotkey libraries that should be indexed for includes and imports.",
+          "scope": "window",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ahkv2Toolbox.userLibraryIncludeFormat": {
+          "type": "string",
+          "default": "%A_AppData%/../../AutoHotkey/v2/Lib/{name}.ahk",
+          "description": "Template used when inserting #Include lines for user libraries. Supports {name} and {filePath} placeholders.",
+          "scope": "window"
+        },
+        "ahkv2Toolbox.smartSave.examplesFolder": {
+          "type": "string",
+          "default": "Examples",
+          "description": "Default folder for Smart Save command. Relative to workspace root.",
+          "scope": "resource"
+        },
+        "ahkv2Toolbox.smartSave.autoCreateFolder": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically create the examples folder without prompting.",
+          "scope": "resource"
+        },
+        "ahkv2Toolbox.smartSave.includeTimestamp": {
+          "type": "boolean",
+          "default": false,
+          "description": "Append timestamp to generated filenames to avoid conflicts.",
+          "scope": "resource"
+        },
+        "ahkv2Toolbox.smartSave.addJSDoc": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically add JSDoc header with description when saving.",
+          "scope": "resource"
         },
         "ahkv2Toolbox.popularLibraries": {
           "type": "array",

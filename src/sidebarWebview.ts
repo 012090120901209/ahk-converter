@@ -5,9 +5,11 @@ export class AHKv2ToolboxWebview {
   private static instance: AHKv2ToolboxWebview;
   private _panel: vscode.WebviewPanel | undefined;
   private _context: vscode.ExtensionContext;
+  private readonly extensionId: string;
 
   private constructor(context: vscode.ExtensionContext) {
     this._context = context;
+    this.extensionId = context.extension.id;
   }
 
   public static getInstance(context: vscode.ExtensionContext): AHKv2ToolboxWebview {
@@ -45,6 +47,8 @@ export class AHKv2ToolboxWebview {
 
     this._panel.webview.html = this.getWebviewContent();
 
+    const extensionSettingsQuery = `@ext:${this.extensionId}`;
+
     // Handle messages from the webview
     this._panel.webview.onDidReceiveMessage(
       message => {
@@ -56,7 +60,7 @@ export class AHKv2ToolboxWebview {
             vscode.commands.executeCommand('ahk.extractFunctionMetadata');
             return;
           case 'openSettings':
-            vscode.commands.executeCommand('workbench.action.openSettings', '@ext:TrueCrimeAudit.ahkv2-toolbox');
+            vscode.commands.executeCommand('workbench.action.openSettings', extensionSettingsQuery);
             return;
           case 'libraryManager':
             vscode.window.showInformationMessage('Library Manager - Coming soon!');
@@ -65,7 +69,7 @@ export class AHKv2ToolboxWebview {
             vscode.commands.executeCommand('ahk.updateHeader');
             return;
           case 'settings':
-            vscode.commands.executeCommand('workbench.action.openSettings', '@ext:TrueCrimeAudit.ahkv2-toolbox');
+            vscode.commands.executeCommand('workbench.action.openSettings', extensionSettingsQuery);
             return;
           case 'quickFixes':
             vscode.window.showInformationMessage('Quick Fixes - Coming soon!');

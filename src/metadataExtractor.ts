@@ -14,6 +14,7 @@ export interface LibraryMetadata {
  * Utility for extracting and normalizing library metadata from various sources
  */
 export class MetadataExtractor {
+  public static readonly JSON_METADATA_MARKER = 'ahkv2-library-metadata';
   /**
    * Extract metadata from an AHK file header
    * Looks for JSDoc-style comments with @description, @author, etc.
@@ -21,15 +22,32 @@ export class MetadataExtractor {
   public static extractFromFileContent(content: string): LibraryMetadata {
     const metadata: LibraryMetadata = {};
 
-    // Match the standard header comment block
+    // Prefer structured JSON metadata block when present
+    const jsonMetadata = this.extractFromJsonBlock(content);
+    if (jsonMetadata) {
+      Object.assign(metadata, jsonMetadata);
+    }
+
+    // Fall back to legacy JSDoc metadata
+    const headerMetadata = this.extractFromJsDocBlock(content);
+    for (const [key, value] of Object.entries(headerMetadata)) {
+      if (value && !metadata[key as keyof LibraryMetadata]) {
+        metadata[key as keyof LibraryMetadata] = value;
+      }
+    }
+
+    return metadata;
+  }
+
+  private static extractFromJsDocBlock(content: string): Partial<LibraryMetadata> {
+    const metadata: Partial<LibraryMetadata> = {};
+
     const headerMatch = content.match(/\/\*+\s*([\s\S]*?)\*+\//);
     if (!headerMatch) {
       return metadata;
     }
 
     const headerContent = headerMatch[1];
-
-    // Extract each field
     const fields = {
       description: /@description\s+(.+?)$/im,
       file: /@file\s+(.+?)$/im,
@@ -47,6 +65,46 @@ export class MetadataExtractor {
     }
 
     return metadata;
+  }
+
+  private static extractFromJsonBlock(content: string): Partial<LibraryMetadata> | null {
+    const marker = MetadataExtractor.JSON_METADATA_MARKER;
+    const regex = new RegExp(`/\\*+\s*${marker}[\\s\\S]*?\\*+/`, 'i');
+    const match = content.match(regex);
+    if (!match || match.index === undefined) {
+      return null;
+    }
+
+    let block = match[0]
+      .replace(/^\/\*+/, '')
+      .replace(/\*+\/$/, '')
+      .trim();
+
+    if (block.toLowerCase().startsWith(marker.toLowerCase())) {
+      block = block.slice(marker.length).trim();
+    }
+
+    const jsonMatch = block.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(jsonMatch[0]);
+      const metadata: Partial<LibraryMetadata> = {};
+
+      for (const key of Object.keys(parsed) as (keyof LibraryMetadata)[]) {
+        const value = parsed[key];
+        if (typeof value === 'string' && value.trim() !== '') {
+          metadata[key] = value.trim();
+        }
+      }
+
+      return metadata;
+    } catch (error) {
+      console.warn('Failed to parse JSON metadata block:', error);
+      return null;
+    }
   }
 
   /**

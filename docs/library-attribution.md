@@ -45,6 +45,10 @@ The feature works with the standard JSDoc-style library header format:
 
 Right-click on a library file in the Explorer view and select **"Discover Library Metadata"** (if configured in menus).
 
+### Quick Fix via Copilot
+
+When the Problems panel reports `Missing library metadata fields`, use the lightbulb quick fix **Generate metadata JSON with Copilot**. The extension sends the current file to GitHub Copilot, receives a JSON object with the required fields, and inserts a block comment that starts with `/* ahkv2-library-metadata`. The diagnostic clears as soon as all fields (`description`, `file`, `author`, `link`, `date`, `version`) are present in that JSON block. You can rerun the quick fix at any time to refresh the metadata. Hovering the squiggle explains that the warning appears because the file lives inside a `Lib/` folder, links directly to the toolbox’s metadata page for that library, and offers a shortcut to the `ahkv2Toolbox.libraryAttribution.autoValidate` setting if you need to suppress the warning.
+
 ## Configuration
 
 ### Settings

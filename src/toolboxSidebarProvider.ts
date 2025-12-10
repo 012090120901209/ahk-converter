@@ -94,7 +94,10 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
   private currentView: 'main' | 'settings' | 'metadata' = 'main';
   private currentFilePath?: string;
 
-  constructor(private readonly _extensionUri: vscode.Uri) {}
+  constructor(
+    private readonly _extensionUri: vscode.Uri,
+    private readonly extensionId: string
+  ) {}
 
   public resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -550,6 +553,13 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       .button-grid vscode-button {
         width: 100%;
         height: 32px;
+        overflow: hidden;
+      }
+
+      .button-grid vscode-button::part(control) {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .button-stack {
@@ -591,6 +601,7 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this._extensionUri, 'node_modules', '@vscode', 'webview-ui-toolkit', 'dist', 'toolkit.js')
     );
     const cacheBuster = Date.now();
+    const extensionSettingsQuery = `@ext:${this.extensionId}`;
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -740,8 +751,9 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       padding: 6px 12px;
     }
 
-    vscode-button:hover::part(control) {
-      background: #2a2a2a;
+    vscode-button.hovered::part(control) {
+      background: #3a3a3a !important;
+      border-color: #505050 !important;
     }
 
     vscode-button:active::part(control) {
@@ -769,16 +781,16 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     <section class="menu-section">
       <h3 class="section-header">Script Converter</h3>
       <div class="button-grid">
-        <vscode-button appearance="secondary" id="convertNewTab">
+        <vscode-button appearance="secondary" id="convertNewTab" title="Convert v1 to v2 in new tab">
           New Tab
         </vscode-button>
-        <vscode-button appearance="secondary" id="convertDiff">
-          Show Diff
+        <vscode-button appearance="secondary" id="convertDiff" title="Show diff between v1 and v2">
+          Diff
         </vscode-button>
-        <vscode-button appearance="secondary" id="convertReplace">
+        <vscode-button appearance="secondary" id="convertReplace" title="Convert and replace current file">
           Replace
         </vscode-button>
-        <vscode-button appearance="secondary" id="convertBatch">
+        <vscode-button appearance="secondary" id="convertBatch" title="Batch convert multiple files">
           Batch
         </vscode-button>
       </div>
@@ -789,17 +801,17 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     <section class="menu-section">
       <h3 class="section-header">Library Manager</h3>
       <div class="button-grid">
-        <vscode-button appearance="secondary" id="viewDependencies">
+        <vscode-button appearance="secondary" id="viewDependencies" title="View installed libraries">
           View
         </vscode-button>
-        <vscode-button appearance="secondary" id="installPackage">
+        <vscode-button appearance="secondary" id="installPackage" title="Install a new library">
           Install
         </vscode-button>
-        <vscode-button appearance="secondary" id="updatePackages">
+        <vscode-button appearance="secondary" id="updatePackages" title="Check for library updates">
           Update
         </vscode-button>
-        <vscode-button appearance="secondary" id="editFileMetadata">
-          Edit Metadata
+        <vscode-button appearance="secondary" id="editFileMetadata" title="Edit library metadata">
+          Edit
         </vscode-button>
       </div>
     </section>
@@ -808,23 +820,18 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
 
     <section class="menu-section">
       <h3 class="section-header">Tools</h3>
-      <div class="button-container">
-        <vscode-button appearance="secondary" id="extractMetadata">
-          Extract Function
+      <div class="button-grid">
+        <vscode-button appearance="secondary" id="extractMetadata" title="Extract function metadata">
+          Extract
         </vscode-button>
-      </div>
-    </section>
-
-    <vscode-divider></vscode-divider>
-
-    <section class="menu-section">
-      <h3 class="section-header">Update Header</h3>
-      <div class="button-container">
-        <vscode-button appearance="secondary" id="updateHeader">
-          Update Script Header
+        <vscode-button appearance="secondary" id="showImportsGuide" title="Show imports & modules guide">
+          Imports
         </vscode-button>
-        <vscode-button appearance="secondary" id="generateJSDoc">
-          Generate JSDoc Header
+        <vscode-button appearance="secondary" id="updateHeader" title="Update script header directives">
+          Header
+        </vscode-button>
+        <vscode-button appearance="secondary" id="generateJSDoc" title="Generate JSDoc header">
+          JSDoc
         </vscode-button>
       </div>
     </section>
@@ -834,10 +841,10 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     <section class="menu-section">
       <h3 class="section-header">Settings</h3>
       <div class="button-grid">
-        <vscode-button appearance="secondary" id="toolboxSettings">
+        <vscode-button appearance="secondary" id="toolboxSettings" title="Open toolbox settings">
           Toolbox
         </vscode-button>
-        <vscode-button appearance="secondary" id="extensionSettings">
+        <vscode-button appearance="secondary" id="extensionSettings" title="Open extension settings">
           Extension
         </vscode-button>
       </div>
@@ -859,20 +866,47 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       'updatePackages': { type: 'executeCommand', command: 'ahkPackageManager.updatePackage' },
       'updateHeader': { type: 'executeCommand', command: 'ahk.updateHeader' },
       'generateJSDoc': { type: 'executeCommand', command: 'ahkPackageManager.generateJSDocHeader' },
+      'showImportsGuide': { type: 'executeCommand', command: 'ahkv2Toolbox.showImportsGuide' },
       'toolboxSettings': { type: 'showSettings' },
-      'extensionSettings': { type: 'executeCommand', command: 'workbench.action.openSettings', args: ['@ext:TrueCrimeAudit.ahkv2-toolbox'] }
+      'extensionSettings': { type: 'executeCommand', command: 'workbench.action.openSettings', args: ['${extensionSettingsQuery}'] }
     };
 
     document.querySelectorAll('vscode-button').forEach(button => {
-      button.addEventListener('click', () => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         const action = actionMap[button.id];
         if (action) {
           vscode.postMessage(action);
         }
+      }, { passive: true });
+
+      // Add hover effects by targeting shadow DOM control element
+      button.addEventListener('mouseenter', () => {
+        const control = button.shadowRoot?.querySelector('.control');
+        if (control) {
+          const isIcon = button.getAttribute('appearance') === 'icon';
+          const isPrimary = button.getAttribute('appearance') === 'primary';
+          if (isIcon) {
+            control.style.background = 'rgba(255, 255, 255, 0.15)';
+            control.style.borderRadius = '4px';
+          } else if (isPrimary) {
+            control.style.background = 'var(--vscode-button-hoverBackground)';
+          } else {
+            control.style.background = '#3a3a3a';
+            control.style.borderColor = '#505050';
+          }
+        }
+      });
+      button.addEventListener('mouseleave', () => {
+        const control = button.shadowRoot?.querySelector('.control');
+        if (control) {
+          control.style.background = '';
+          control.style.borderColor = '';
+          control.style.borderRadius = '';
+        }
       });
     });
-
-    // No need for active file info updates anymore since we removed the info badges
   </script>
 </body>
 </html>`;
@@ -932,9 +966,7 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       display: flex;
       align-items: center;
       gap: 4px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      flex-shrink: 0;
     }
 
     .header h2 {
@@ -954,6 +986,7 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
     }
 
     vscode-button[appearance="icon"]::part(control) {
@@ -961,10 +994,12 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       border: none;
       padding: 0;
       transition: background 0.1s ease;
+      cursor: pointer;
     }
 
-    vscode-button[appearance="icon"]:hover::part(control) {
-      background: rgba(255, 255, 255, 0.1);
+    vscode-button[appearance="icon"].hovered::part(control) {
+      background: rgba(255, 255, 255, 0.15) !important;
+      border-radius: 4px;
     }
 
     vscode-button[appearance="icon"]:active::part(control) {
@@ -1066,7 +1101,39 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       height: 16px;
       cursor: pointer;
       margin-top: 2px;
-      accent-color: var(--vscode-focusBorder);
+      accent-color: var(--vscode-button-background, #0e639c);
+      background-color: var(--vscode-checkbox-background, #3c3c3c);
+      border: 1px solid var(--vscode-checkbox-border, #6b6b6b);
+      border-radius: 3px;
+      appearance: none;
+      -webkit-appearance: none;
+      position: relative;
+    }
+
+    input[type="checkbox"]:checked {
+      background-color: var(--vscode-button-background, #0e639c);
+      border-color: var(--vscode-button-background, #0e639c);
+    }
+
+    input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 4px;
+      height: 8px;
+      border: solid var(--vscode-button-foreground, #ffffff);
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    input[type="checkbox"]:focus {
+      outline: 1px solid var(--vscode-focusBorder);
+      outline-offset: 1px;
+    }
+
+    input[type="checkbox"]:hover {
+      border-color: var(--vscode-focusBorder);
     }
 
     .checkbox-row label {
@@ -1116,8 +1183,9 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       height: 32px;
     }
 
-    vscode-button:hover::part(control) {
-      background: #2a2a2a;
+    vscode-button.hovered::part(control) {
+      background: #3a3a3a !important;
+      border-color: #505050 !important;
     }
 
     vscode-button:active::part(control) {
@@ -1160,10 +1228,30 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       margin-left: 0;
     }
 
-    /* Custom styling for back button */
+    /* Back button (icon style) */
     .back-btn {
-      --button-padding-horizontal: 8px;
-      --button-padding-vertical: 4px;
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      color: var(--vscode-foreground);
+      transition: background 0.15s ease;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .back-btn:active {
+      background: rgba(255, 255, 255, 0.05);
     }
 
     /* Native HTML button styling */
@@ -1207,7 +1295,8 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     }
 
     button.button-secondary:hover {
-      background: #2a2a2a;
+      background: #3a3a3a;
+      border-color: #505050;
     }
 
     button.button-secondary:active {
@@ -1217,9 +1306,9 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
 </head>
 <body>
   <div class="header">
-    <vscode-button class="back-btn" appearance="icon" aria-label="Back to main" id="back-btn">
-      <span slot="start" class="codicon codicon-arrow-left"></span>
-    </vscode-button>
+    <button class="back-btn" id="back-btn" title="Back to toolbox" aria-label="Back to main">
+      <span class="codicon codicon-arrow-left"></span>
+    </button>
     <h2>Settings</h2>
   </div>
 
@@ -1362,10 +1451,10 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     <!-- Action Buttons -->
     <section class="settings-section">
       <div class="button-group">
-        <button id="save-btn" class="button-primary">
+        <button id="save-btn" class="button-primary" title="Save all settings (Ctrl+S)">
           Save Settings
         </button>
-        <button id="reset-btn" class="button-secondary">
+        <button id="reset-btn" class="button-secondary" title="Reset to default values">
           Reset to Defaults
         </button>
       </div>
@@ -1385,13 +1474,7 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       // For now, using defaults
     }
 
-    // Back button handler
-    document.getElementById('back-btn').addEventListener('click', () => {
-      vscode.postMessage({ type: 'showMain' });
-    });
-
-    // Save button handler
-    document.getElementById('save-btn').addEventListener('click', () => {
+    function handleSaveSettings() {
       const settings = {
         headerSettings: {
           autoInsert: document.getElementById('auto-insert').checked,
@@ -1413,15 +1496,27 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       setTimeout(() => {
         saveBtn.textContent = originalText;
       }, 2000);
-    });
+    }
 
-    // Reset button handler
-    document.getElementById('reset-btn').addEventListener('click', () => {
+    function handleResetSettings() {
       document.getElementById('auto-insert').checked = false;
       document.getElementById('requires-version').value = 'AutoHotkey v2.1';
       document.getElementById('single-instance').value = 'Force';
       document.getElementById('include-format').value = 'Lib/{name}.ahk';
       document.getElementById('lib-folders').value = 'Lib, vendor';
+    }
+
+    // Button click handlers
+    document.getElementById('back-btn')?.addEventListener('click', () => {
+      vscode.postMessage({ type: 'showMain' });
+    });
+
+    document.getElementById('save-btn')?.addEventListener('click', () => {
+      handleSaveSettings();
+    });
+
+    document.getElementById('reset-btn')?.addEventListener('click', () => {
+      handleResetSettings();
     });
 
     // Keyboard shortcuts
@@ -1429,7 +1524,7 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 's') {
           e.preventDefault();
-          document.getElementById('save-btn').click();
+          handleSaveSettings();
         }
       }
     });
@@ -1478,6 +1573,10 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       font-family: var(--vscode-font-family);
       font-size: var(--vscode-font-size);
       background: var(--vscode-sideBar-background);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     .header {
@@ -1487,9 +1586,7 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       display: flex;
       align-items: center;
       gap: 4px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      flex-shrink: 0;
     }
 
     .header h2 {
@@ -1500,30 +1597,84 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       flex: 1;
     }
 
-    vscode-button[appearance="icon"] {
-      width: 32px;
-      height: 32px;
-      min-width: 32px;
-      min-height: 32px;
+    /* Back button (icon style) */
+    .back-btn {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
       padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    vscode-button[appearance="icon"]::part(control) {
+      cursor: pointer;
       background: transparent;
       border: none;
-      padding: 0;
-      transition: background 0.1s ease;
+      border-radius: 4px;
+      color: var(--vscode-foreground);
+      transition: background 0.15s ease;
     }
 
-    vscode-button[appearance="icon"]:hover::part(control) {
-      background: rgba(255, 255, 255, 0.1);
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
     }
 
-    vscode-button[appearance="icon"]:active::part(control) {
+    .back-btn:active {
       background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Primary button (Save) */
+    .btn-primary {
+      flex: 1;
+      height: 32px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      background: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
+      border: none;
+      border-radius: 2px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: background 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--vscode-button-hoverBackground);
+    }
+
+    .btn-primary:active {
+      opacity: 0.9;
+    }
+
+    /* Secondary button (Cancel) */
+    .btn-secondary {
+      flex: 1;
+      height: 32px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: #2e2e2e;
+      color: #cccccc;
+      border: 1px solid #3c3c3c;
+      border-radius: 2px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #3a3a3a;
+      border-color: #505050;
+    }
+
+    .btn-secondary:active {
+      background: #242424;
     }
 
     .file-path {
@@ -1535,31 +1686,27 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     }
 
     .content {
-      padding: 16px 24px 16px 16px;
+      padding: 12px 16px;
       overflow-y: auto;
+      display: grid;
+      row-gap: 8px;
+      flex: 1;
+      min-height: 0;
     }
 
     .section {
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .section:last-child {
-      border-bottom: none;
-    }
-
-    .section-title {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      color: var(--vscode-descriptionForeground);
-      margin-bottom: 12px;
+      display: grid;
+      row-gap: 6px;
+      margin: 0;
+      padding: 0;
+      border: none;
     }
 
     .field {
-      margin-bottom: 12px;
+      display: grid;
+      row-gap: 4px;
+      margin: 0;
+      padding: 0;
     }
 
     .field-label {
@@ -1597,35 +1744,7 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     }
 
     .field-help {
-      font-size: 10px;
-      color: var(--vscode-descriptionForeground);
-      margin-top: 4px;
-    }
-
-    .file-info {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      padding: 8px 12px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.05);
-      align-items: center;
-    }
-
-    .file-info-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--vscode-descriptionForeground);
-      text-transform: uppercase;
-    }
-
-    .file-info-path {
-      font-family: var(--vscode-editor-font-family);
-      font-size: 12px;
-      color: var(--vscode-foreground);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      display: none;
     }
 
     input[type="text"],
@@ -1654,6 +1773,17 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       box-shadow: 0 0 0 1px var(--vscode-focusBorder);
     }
 
+    /* Calendar icon styling - match text color */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.8);
+      cursor: pointer;
+      opacity: 0.7;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator:hover {
+      opacity: 1;
+    }
+
     textarea {
       min-height: 60px;
       resize: vertical;
@@ -1668,42 +1798,14 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     .button-group {
       display: flex;
       gap: 8px;
-      margin-top: 20px;
-      padding-top: 16px;
+      padding: 12px 16px;
       border-top: 1px solid var(--vscode-sideBarSectionHeader-border);
-      position: sticky;
-      bottom: 0;
       background: var(--vscode-sideBar-background);
     }
 
-    button {
-      flex: 1;
-      background: var(--vscode-button-background);
-      color: var(--vscode-button-foreground);
-      border: none;
-      padding: 8px 16px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 500;
-      transition: background 0.15s ease;
-    }
-
-    button:hover {
-      background: var(--vscode-button-hoverBackground);
-    }
-
-    button:active {
-      transform: translateY(1px);
-    }
-
-    button.secondary {
-      background: var(--vscode-button-secondaryBackground);
-      color: var(--vscode-button-secondaryForeground);
-    }
-
-    button.secondary:hover {
-      background: var(--vscode-button-secondaryHoverBackground);
+    .footer {
+      flex-shrink: 0;
+      background: var(--vscode-sideBar-background);
     }
 
     .help-text {
@@ -1716,20 +1818,14 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
 </head>
 <body>
   <div class="header">
-    <vscode-button appearance="icon" aria-label="Back to main" id="back-btn">
+    <button class="back-btn" id="back-btn" title="Back to toolbox" aria-label="Back to main" onclick="goBack()">
       <span class="codicon codicon-arrow-left"></span>
-    </vscode-button>
+    </button>
     <h2>Edit Metadata</h2>
   </div>
 
-  <div class="content">
-    <div class="file-info">
-      <div class="file-info-label">File:</div>
-      <div class="file-info-path">${escapeText(filePath)}</div>
-    </div>
-
+    <div class="content">
     <div class="section">
-      <div class="section-title">Basic Information</div>
       <div class="field">
         <label for="title" class="field-label">Title</label>
         <input type="text" id="title" class="field-input" value="${escapeAttr(metadata.title)}" placeholder="Short module title" />
@@ -1738,14 +1834,9 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
         <label for="description" class="field-label">Description</label>
         <textarea id="description" class="field-textarea" rows="3" placeholder="Full explanation of purpose and features">${escapeTextarea(metadata.description)}</textarea>
       </div>
-      <div class="field">
-        <label for="abstract" class="field-label">Abstract</label>
-        <textarea id="abstract" class="field-textarea" rows="2" placeholder="1-2 sentence overview">${escapeTextarea(metadata.abstract)}</textarea>
-      </div>
     </div>
 
     <div class="section">
-      <div class="section-title">Authorship</div>
       <div class="field">
         <label for="author" class="field-label">Author</label>
         <input type="text" id="author" class="field-input" value="${escapeAttr(metadata.author)}" placeholder="Name &lt;email&gt;" />
@@ -1757,7 +1848,6 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     </div>
 
     <div class="section">
-      <div class="section-title">Version Information</div>
       <div class="field">
         <label for="version" class="field-label">Version</label>
         <input type="text" id="version" class="field-input" value="${escapeAttr(metadata.version)}" placeholder="1.0.0" />
@@ -1774,7 +1864,6 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     </div>
 
     <div class="section">
-      <div class="section-title">Links & References</div>
       <div class="field">
         <label for="repository" class="field-label">Repository</label>
         <input type="url" id="repository" class="field-input" value="${escapeAttr(metadata.repository)}" placeholder="https://github.com/user/repo" />
@@ -1786,7 +1875,6 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     </div>
 
     <div class="section">
-      <div class="section-title">Classification</div>
       <div class="field">
         <label for="category" class="field-label">Category</label>
         <select id="category" class="field-select">
@@ -1804,12 +1892,10 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       <div class="field">
         <label for="keywords" class="field-label">Keywords</label>
         <input type="text" id="keywords" class="field-input" value="${escapeAttr(metadata.keywords)}" placeholder="json, parsing, data, autohotkey" />
-        <div class="field-help">Comma-separated topical terms</div>
       </div>
     </div>
 
     <div class="section">
-      <div class="section-title">Technical Details</div>
       <div class="field">
         <label for="ahkVersion" class="field-label">AHK Version</label>
         <input type="text" id="ahkVersion" class="field-input" value="${escapeAttr(metadata['ahk-version'])}" placeholder="v2.0+" />
@@ -1827,13 +1913,13 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
 
   <div class="footer">
     <div class="button-group">
-      <vscode-button id="save-btn" appearance="primary">
-        <span slot="start" class="codicon codicon-save"></span>
-        Save Metadata
-      </vscode-button>
-      <vscode-button id="cancel-btn" appearance="secondary">
+      <button class="btn-primary" id="save-btn" title="Save metadata to file (Ctrl+S)" onclick="handleSave()">
+        <span class="codicon codicon-save"></span>
+        Save
+      </button>
+      <button class="btn-secondary" id="cancel-btn" title="Discard changes and go back" onclick="goBack()">
         Cancel
-      </vscode-button>
+      </button>
     </div>
   </div>
 
@@ -1842,17 +1928,11 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
     const originalMetadata = ${originalMetadataJson};
     const filePathValue = ${filePathJson};
 
-    const backButton = document.getElementById('back-btn');
-    backButton?.addEventListener('click', () => {
+    // Navigation function - called by onclick handlers
+    function goBack() {
       vscode.postMessage({ type: 'showMain' });
-    });
+    }
 
-    const cancelButton = document.getElementById('cancel-btn');
-    cancelButton?.addEventListener('click', () => {
-      vscode.postMessage({ type: 'showMain' });
-    });
-
-    const saveButton = document.getElementById('save-btn');
     const getElementValue = (id) => {
       const element = document.getElementById(id);
       return element && 'value' in element ? element.value : '';
@@ -1876,12 +1956,11 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
       }
     };
 
-    saveButton?.addEventListener('click', () => {
+    function handleSave() {
       const payload = { ...originalMetadata };
 
       setValue(payload, 'title', getTrimmedValue('title'));
       setValue(payload, 'description', getElementValue('description').trim());
-      setValue(payload, 'abstract', getElementValue('abstract').trim());
       setValue(payload, 'author', getTrimmedValue('author'));
       setValue(payload, 'license', getTrimmedValue('license'));
       setValue(payload, 'version', getTrimmedValue('version'));
@@ -1913,12 +1992,13 @@ export class ToolboxSidebarProvider implements vscode.WebviewViewProvider {
         filePath: filePathValue,
         metadata: payload
       });
-    });
+    }
 
+    // Keyboard shortcut for save
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
-        saveButton?.click();
+        handleSave();
       }
     });
   </script>

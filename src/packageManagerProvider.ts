@@ -1,13 +1,16 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs/promises';
+import type { Stats } from 'fs';
 import { insertIncludeLine, previewIncludeInsertion } from './includeLineInserter';
 import { PackageSearchService, PackageSearchResult, SearchFilters } from './packageSearchService';
+import { LibraryDetailPanel, LibraryDetailData, LibraryDetailPanelActions } from './libraryDetailPanel';
 
 /**
  * Represents a package or library item in the package manager
  */
 export class PackageItem extends vscode.TreeItem {
+  public readonly packageDescription?: string;
   constructor(
     public readonly packageName: string,
     public readonly version: string,
@@ -23,10 +26,11 @@ export class PackageItem extends vscode.TreeItem {
     public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None
   ) {
     super(packageName, collapsibleState);
+    this.packageDescription = description;
 
     // Set the label with version
     this.label = packageName;
-    
+
     // For available packages from search, show stars in description
     if (packageType === 'available' && metadata?.stars !== undefined) {
       // Use text representation for better cross-platform compatibility
@@ -385,6 +389,15 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
     // Mock data - in reality, this would fetch from a package registry
     this.availablePackages = [
       {
+        name: 'WinRT',
+        version: 'alpha',
+        description: 'Windows Runtime (WinRT) API bindings for AHK v2 - by Lexikos',
+        path: 'https://raw.githubusercontent.com/Lexikos/winrt.ahk/alpha/WinRT.ahk',
+        author: 'Lexikos',
+        repositoryUrl: 'https://github.com/Lexikos/winrt.ahk',
+        category: 'WinAPI'
+      },
+      {
         name: 'JSON',
         version: '2.0.0',
         description: 'JSON parsing and stringification for AHK v2',
@@ -446,64 +459,361 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
    * Install a package
    */
   async installPackage(packageItem: PackageItem): Promise<void> {
-    vscode.window.showInformationMessage(`Installing ${packageItem.packageName}...`);
-
-    // TODO: Implement actual package installation
-    // This would download the package and place it in the Lib folder
-
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate installation
-
-    // Determine where the package was installed
-    let installedPath = packageItem.packagePath;
-
-    // If this is a new installation (from available packages), it would be in Lib/
-    if (this.workspaceRoot && packageItem.packageType === 'available') {
-      installedPath = path.join(this.workspaceRoot, 'Lib', `${packageItem.packageName}.ahk`);
+    if (!this.workspaceRoot) {
+      vscode.window.showErrorMessage('No workspace folder open');
+      return;
     }
 
-    // Show success notification with "Open" and "Add #Include" buttons
-    const action = await vscode.window.showInformationMessage(
-      `${packageItem.packageName} installed successfully!`,
-      'Add #Include',
-      'Open',
-      'Dismiss'
-    );
+    try {
+      // Get available install locations
+      const locations = await this.getInstallLocations();
 
-    // Handle user action
-    if (action === 'Add #Include') {
-      await this.addIncludeToActiveFile(packageItem.packageName);
-    } else if (action === 'Open') {
-      try {
-        // Check if file exists, if not try to find it in installed packages
-        let fileToOpen = installedPath;
+      // Let user choose install location
+      const selectedLocation = await vscode.window.showQuickPick(
+        locations.map(loc => ({
+          label: loc.label,
+          description: loc.description,
+          detail: loc.path,
+          location: loc
+        })),
+        {
+          placeHolder: `Choose install location for ${packageItem.packageName}`,
+          title: 'Install Library'
+        }
+      );
 
-        // For mock installations, try to find an existing file with the same name
-        const existingPackage = this.installedPackages.find(
-          pkg => pkg.name === packageItem.packageName
-        );
+      if (!selectedLocation) {
+        return; // User cancelled
+      }
 
-        if (existingPackage) {
-          fileToOpen = existingPackage.path;
+      const targetDir = selectedLocation.location.path;
+
+      vscode.window.showInformationMessage(`Installing ${packageItem.packageName} to ${selectedLocation.label}...`);
+
+      let installedPath: string;
+
+      // Handle different package sources
+      if (packageItem.packageType === 'available') {
+        // Install from available packages (likely from search results)
+        installedPath = await this.downloadPackageToLocation(packageItem.packageName, packageItem.packagePath, targetDir, packageItem.metadata?.repositoryUrl);
+      } else if (packageItem.packagePath.startsWith('http')) {
+        // Direct URL installation
+        installedPath = await this.downloadPackageToLocation(packageItem.packageName, packageItem.packagePath, targetDir, packageItem.metadata?.repositoryUrl);
+      } else {
+        // Mock installation (existing package)
+        installedPath = packageItem.packagePath;
+        vscode.window.showInformationMessage(`${packageItem.packageName} already installed at ${installedPath}`);
+      }
+
+      if (installedPath) {
+        // Add to installed packages list
+        const packageInfo: PackageInfo = {
+          name: packageItem.packageName,
+          version: packageItem.version,
+          description: packageItem.description,
+          author: packageItem.metadata?.author,
+          path: installedPath,
+          stars: packageItem.metadata?.stars,
+          category: packageItem.metadata?.category,
+          repositoryUrl: packageItem.metadata?.repositoryUrl
+        };
+
+        // Check if package already exists in installed list
+        const existingIndex = this.installedPackages.findIndex(pkg => pkg.name === packageItem.packageName);
+        if (existingIndex >= 0) {
+          this.installedPackages[existingIndex] = packageInfo;
+        } else {
+          this.installedPackages.push(packageInfo);
         }
 
-        // Try to open the file
-        if (fileToOpen.endsWith('.ahk')) {
-          const doc = await vscode.workspace.openTextDocument(fileToOpen);
-          await vscode.window.showTextDocument(doc);
-        } else {
-          // If path is a URL or directory, show info
-          vscode.window.showInformationMessage(
-            `Package location: ${fileToOpen}`
+        // Show success notification with "Open" and "Add #Include" buttons
+        const action = await vscode.window.showInformationMessage(
+          `${packageItem.packageName} installed successfully!`,
+          'Add #Include',
+          'Open',
+          'Dismiss'
+        );
+
+        // Handle user action
+        if (action === 'Add #Include') {
+          await this.addIncludeToActiveFile(packageItem.packageName);
+        } else if (action === 'Open') {
+          try {
+            // Try to open the installed file
+            if (installedPath.endsWith('.ahk')) {
+              const doc = await vscode.workspace.openTextDocument(installedPath);
+              await vscode.window.showTextDocument(doc);
+            } else {
+              vscode.window.showInformationMessage(`Package installed at: ${installedPath}`);
+            }
+          } catch (error) {
+            vscode.window.showWarningMessage(`Could not open ${packageItem.packageName}. File may not exist.`);
+          }
+        }
+
+        // Trigger symbol index refresh so the new library is immediately available
+        // for imports and IntelliSense
+        try {
+          await vscode.commands.executeCommand('ahk.reindexWorkspace');
+        } catch {
+          // Command may not be registered if import manager isn't initialized
+          console.log('Symbol reindex skipped - import manager not available');
+        }
+
+        this.refresh();
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      vscode.window.showErrorMessage(`Failed to install ${packageItem.packageName}: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Download package to a specific location
+   * Supports GitHub repositories, raw URLs, and constructs proper AHK v2 modules
+   */
+  private async downloadPackageToLocation(packageName: string, packageUrl: string, targetDir: string, repositoryUrl?: string): Promise<string> {
+    const targetPath = path.join(targetDir, `${packageName}.ahk`);
+    return this.downloadPackageFromUrlToPath(packageName, packageUrl, targetPath, repositoryUrl);
+  }
+
+  /**
+   * Download package from URL (legacy - uses workspace Lib)
+   * Supports GitHub repositories, raw URLs, and constructs proper AHK v2 modules
+   */
+  private async downloadPackageFromUrl(packageName: string, packageUrl: string, repositoryUrl?: string): Promise<string> {
+    if (!this.workspaceRoot) {
+      throw new Error('No workspace folder open');
+    }
+
+    const targetPath = path.join(this.workspaceRoot, 'Lib', `${packageName}.ahk`);
+    return this.downloadPackageFromUrlToPath(packageName, packageUrl, targetPath, repositoryUrl);
+  }
+
+  /**
+   * Core download logic - downloads package to a specific path
+   */
+  private async downloadPackageFromUrlToPath(packageName: string, packageUrl: string, targetPath: string, repositoryUrl?: string): Promise<string> {
+
+    try {
+      // Construct download URL based on the source
+      let downloadUrl = packageUrl;
+      const downloadUrls: string[] = [];
+
+      // If it's a GitHub repository URL, try multiple file locations
+      if (repositoryUrl && repositoryUrl.includes('github.com')) {
+        const repoMatch = repositoryUrl.match(/github\.com\/([^\/]+)\/([^\/\?#]+)/);
+        if (repoMatch) {
+          const [, owner, repo] = repoMatch;
+          const cleanRepo = repo.replace(/\.git$/, '');
+
+          // Try common file locations in order of likelihood
+          downloadUrls.push(
+            // Main branch, root file with package name
+            `https://raw.githubusercontent.com/${owner}/${cleanRepo}/main/${packageName}.ahk`,
+            // Main branch, Lib folder
+            `https://raw.githubusercontent.com/${owner}/${cleanRepo}/main/Lib/${packageName}.ahk`,
+            // Main branch, src folder
+            `https://raw.githubusercontent.com/${owner}/${cleanRepo}/main/src/${packageName}.ahk`,
+            // Master branch variants
+            `https://raw.githubusercontent.com/${owner}/${cleanRepo}/master/${packageName}.ahk`,
+            `https://raw.githubusercontent.com/${owner}/${cleanRepo}/master/Lib/${packageName}.ahk`,
+            // v2 branch variants (common for AHK libraries)
+            `https://raw.githubusercontent.com/${owner}/${cleanRepo}/v2/${packageName}.ahk`,
+            `https://raw.githubusercontent.com/${owner}/${cleanRepo}/v2/Lib/${packageName}.ahk`,
+            // Alpha branch variants (for pre-release libraries like winrt.ahk)
+            `https://raw.githubusercontent.com/${owner}/${cleanRepo}/alpha/${packageName}.ahk`,
+            `https://raw.githubusercontent.com/${owner}/${cleanRepo}/alpha/Lib/${packageName}.ahk`
           );
         }
-      } catch (error) {
-        vscode.window.showWarningMessage(
-          `Could not open ${packageItem.packageName}. File may not exist yet.`
-        );
       }
+
+      // Also try the direct URL if it looks like a raw URL
+      if (packageUrl.includes('raw.githubusercontent.com') || packageUrl.endsWith('.ahk')) {
+        downloadUrls.unshift(packageUrl);
+      }
+
+      // Try each URL until one succeeds
+      let content: string | null = null;
+      let lastError: Error | null = null;
+
+      for (const url of downloadUrls) {
+        try {
+          const response = await fetch(url, {
+            headers: {
+              'Accept': 'text/plain, application/octet-stream, */*',
+              'User-Agent': 'AHK-Converter-VSCode-Extension'
+            }
+          });
+
+          if (response.ok) {
+            content = await response.text();
+
+            // Validate it looks like AHK code (not a GitHub 404 page)
+            if (content && !content.includes('<!DOCTYPE html>') && !content.includes('<html')) {
+              break;
+            }
+            content = null;
+          }
+        } catch (urlError) {
+          lastError = urlError instanceof Error ? urlError : new Error(String(urlError));
+        }
+      }
+
+      if (content) {
+        // Ensure Lib directory exists
+        const libDir = path.dirname(targetPath);
+        await fs.mkdir(libDir, { recursive: true });
+
+        // Write the downloaded content to file
+        await fs.writeFile(targetPath, content, 'utf-8');
+        return targetPath;
+      }
+
+      throw lastError || new Error('No valid download URL found');
+    } catch (error) {
+      // If download fails, create a proper AHK v2 module placeholder
+      const placeholderContent = this.generateModulePlaceholder(packageName, packageUrl, repositoryUrl);
+
+      const libDir = path.dirname(targetPath);
+      await fs.mkdir(libDir, { recursive: true });
+      await fs.writeFile(targetPath, placeholderContent, 'utf-8');
+
+      throw new Error(`Failed to download package. Created placeholder file at: ${targetPath}`);
+    }
+  }
+
+  /**
+   * Generate a proper AHK v2 module placeholder with correct syntax
+   * Supports both #Include and native import methods
+   */
+  private generateModulePlaceholder(packageName: string, packageUrl: string, repositoryUrl?: string): string {
+    const date = new Date().toISOString().split('T')[0];
+
+    // Generate a module that works with BOTH #Include and import statements
+    return `/************************************************************************
+ * @file: ${packageName}.ahk
+ * @description: Placeholder module - download manually from repository
+ * @author: Auto-generated
+ * @version: 0.0.0
+ * @date: ${date}
+ * @repository: ${repositoryUrl || packageUrl}
+ * @ahk-version: v2.0+
+ * @module: ${packageName}
+ * @exports: ${packageName}
+ ***********************************************************************/
+
+#Requires AutoHotkey v2.0
+
+; ============================================================================
+; PLACEHOLDER MODULE - MANUAL DOWNLOAD REQUIRED
+; ============================================================================
+; This file was auto-generated because the package could not be downloaded.
+;
+; To get the actual library:
+;   1. Visit: ${repositoryUrl || packageUrl}
+;   2. Download the ${packageName}.ahk file
+;   3. Replace this placeholder with the downloaded file
+;
+; Usage with #Include (AHK v2.0+):
+;   #Include <${packageName}>
+;   #Include Lib/${packageName}.ahk
+;
+; Usage with import (AHK v2.1-alpha.11+):
+;   import ${packageName}
+;   import {${packageName}} from ${packageName}
+; ============================================================================
+
+; Module declaration for native import support (v2.1-alpha+)
+; Uncomment the next line if using native imports:
+; #Module ${packageName}
+
+/**
+ * Placeholder class for ${packageName}
+ * Replace this entire file with the actual library implementation
+ */
+class ${packageName} {
+    /**
+     * Constructor - placeholder
+     */
+    __New() {
+        throw Error("${packageName} is a placeholder. Download the actual library from:\`n${repositoryUrl || packageUrl}")
     }
 
-    this.refresh();
+    /**
+     * Static placeholder method
+     */
+    static Placeholder() {
+        MsgBox("${packageName} needs to be downloaded manually.\`n\`nVisit: ${repositoryUrl || packageUrl}", "${packageName} - Placeholder", "Icon!")
+    }
+}
+
+; Export for native import support (uncomment if using #Module above)
+; export ${packageName}
+`;
+  }
+
+  /**
+   * Get available install locations
+   */
+  private async getInstallLocations(): Promise<{ label: string; path: string; description: string }[]> {
+    const locations: { label: string; path: string; description: string }[] = [];
+
+    // Workspace Lib folder (default)
+    if (this.workspaceRoot) {
+      locations.push({
+        label: 'Workspace Lib',
+        path: path.join(this.workspaceRoot, 'Lib'),
+        description: 'Project-specific library folder'
+      });
+    }
+
+    // User Documents AutoHotkey Lib
+    const userDocuments = process.env.USERPROFILE
+      ? path.join(process.env.USERPROFILE, 'Documents', 'AutoHotkey', 'Lib')
+      : null;
+
+    if (userDocuments) {
+      locations.push({
+        label: 'User Library',
+        path: userDocuments,
+        description: '%A_MyDocuments%/AutoHotkey/Lib - Available to all scripts'
+      });
+    }
+
+    // AHK v2 installation Lib (if found)
+    const ahkV2Lib = this.findAhkV2LibPath();
+    if (ahkV2Lib) {
+      locations.push({
+        label: 'System Library',
+        path: ahkV2Lib,
+        description: 'AHK v2 installation Lib folder - Available globally'
+      });
+    }
+
+    return locations;
+  }
+
+  /**
+   * Find AHK v2 installation Lib path
+   */
+  private findAhkV2LibPath(): string | null {
+    const possiblePaths = [
+      path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'AutoHotkey', 'v2', 'Lib'),
+      'C:\\Program Files\\AutoHotkey\\v2\\Lib',
+      '/mnt/c/Program Files/AutoHotkey/v2/Lib'
+    ];
+
+    for (const libPath of possiblePaths) {
+      try {
+        if (require('fs').existsSync(libPath)) {
+          return libPath;
+        }
+      } catch {
+        // Path doesn't exist
+      }
+    }
+    return null;
   }
 
   /**
@@ -517,9 +827,35 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
     );
 
     if (answer === 'Yes') {
-      // TODO: Implement actual package removal
-      vscode.window.showInformationMessage(`${packageItem.packageName} uninstalled.`);
-      this.refresh();
+      try {
+        // Remove from installed packages list
+        const packageIndex = this.installedPackages.findIndex(pkg => pkg.name === packageItem.packageName);
+        if (packageIndex >= 0) {
+          const packageToRemove = this.installedPackages[packageIndex];
+
+          // Remove the actual file if it exists and is in the workspace
+          if (packageToRemove.path.startsWith(this.workspaceRoot || '')) {
+            try {
+              await fs.unlink(packageToRemove.path);
+              vscode.window.showInformationMessage(`Removed ${packageItem.packageName} from ${packageToRemove.path}`);
+            } catch (fileError) {
+              // File might not exist or be protected
+              console.warn(`Could not remove file ${packageToRemove.path}:`, fileError);
+              vscode.window.showInformationMessage(`${packageItem.packageName} removed from package list (file may be protected)`);
+            }
+          } else {
+            vscode.window.showInformationMessage(`${packageItem.packageName} removed from package list`);
+          }
+
+          // Remove from installed packages array
+          this.installedPackages.splice(packageIndex, 1);
+        }
+
+        this.refresh();
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        vscode.window.showErrorMessage(`Failed to uninstall ${packageItem.packageName}: ${errorMessage}`);
+      }
     }
   }
 
@@ -527,46 +863,83 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
    * Update a package
    */
   async updatePackage(packageItem: PackageItem): Promise<void> {
-    vscode.window.showInformationMessage(`Updating ${packageItem.packageName}...`);
+    try {
+      vscode.window.showInformationMessage(`Updating ${packageItem.packageName}...`);
 
-    // TODO: Implement actual package update
-
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate update
-
-    // Show success notification with "Open" button
-    const action = await vscode.window.showInformationMessage(
-      `${packageItem.packageName} updated successfully!`,
-      'Open',
-      'Dismiss'
-    );
-
-    // If user clicks "Open", open the updated file
-    if (action === 'Open') {
-      try {
-        // Try to find the installed package
-        const installedPackage = this.installedPackages.find(
-          pkg => pkg.name === packageItem.packageName
-        );
-
-        if (installedPackage && installedPackage.path.endsWith('.ahk')) {
-          const doc = await vscode.workspace.openTextDocument(installedPackage.path);
-          await vscode.window.showTextDocument(doc);
-        } else if (packageItem.packagePath.endsWith('.ahk')) {
-          const doc = await vscode.workspace.openTextDocument(packageItem.packagePath);
-          await vscode.window.showTextDocument(doc);
-        } else {
-          vscode.window.showInformationMessage(
-            `Package location: ${packageItem.packagePath}`
-          );
-        }
-      } catch (error) {
-        vscode.window.showWarningMessage(
-          `Could not open ${packageItem.packageName}. File may not exist yet.`
-        );
+      // Find the installed package to update
+      const installedPackage = this.installedPackages.find(pkg => pkg.name === packageItem.packageName);
+      if (!installedPackage) {
+        throw new Error(`Package ${packageItem.packageName} not found in installed packages`);
       }
-    }
 
-    this.refresh();
+      let newVersion = packageItem.version;
+      let downloadUrl = packageItem.packagePath;
+      let repositoryUrl = packageItem.metadata?.repositoryUrl;
+
+      // If it's an update from the updates list, extract new version
+      if (packageItem.packageType === 'updates') {
+        const versionMatch = packageItem.version.match(/.*→\s*([\d.]+)/);
+        if (versionMatch) {
+          newVersion = versionMatch[1];
+        }
+      }
+
+      // Create backup of current version
+      const backupPath = `${installedPackage.path}.backup`;
+      try {
+        await fs.copyFile(installedPackage.path, backupPath);
+      } catch (backupError) {
+        console.warn(`Could not create backup:`, backupError);
+      }
+
+      // Download new version if we have a repository URL or direct URL
+      if (repositoryUrl || downloadUrl.startsWith('http')) {
+        try {
+          // Use the same download logic as install
+          const updatedPath = await this.downloadPackageFromUrl(packageItem.packageName, downloadUrl, repositoryUrl);
+
+          // Update the package info
+          installedPackage.path = updatedPath;
+          installedPackage.version = newVersion;
+
+          vscode.window.showInformationMessage(`${packageItem.packageName} updated to version ${newVersion}`);
+        } catch (downloadError) {
+          const errorMessage = downloadError instanceof Error ? downloadError.message : 'Unknown error';
+          vscode.window.showErrorMessage(`Failed to download updated version: ${errorMessage}`);
+          return;
+        }
+      } else {
+        // For packages without update sources, just update version info
+        installedPackage.version = newVersion;
+        vscode.window.showInformationMessage(`${packageItem.packageName} version updated to ${newVersion}`);
+      }
+
+      // Show success notification with "Open" button
+      const action = await vscode.window.showInformationMessage(
+        `${packageItem.packageName} updated successfully!`,
+        'Open',
+        'Dismiss'
+      );
+
+      // If user clicks "Open", open the updated file
+      if (action === 'Open') {
+        try {
+          if (installedPackage.path.endsWith('.ahk')) {
+            const doc = await vscode.workspace.openTextDocument(installedPackage.path);
+            await vscode.window.showTextDocument(doc);
+          } else {
+            vscode.window.showInformationMessage(`Package location: ${installedPackage.path}`);
+          }
+        } catch (error) {
+          vscode.window.showWarningMessage(`Could not open ${packageItem.packageName}.`);
+        }
+      }
+
+      this.refresh();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      vscode.window.showErrorMessage(`Failed to update ${packageItem.packageName}: ${errorMessage}`);
+    }
   }
 
   /**
@@ -672,14 +1045,134 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
     });
   }
 
+  private async tryGetFileStats(targetPath: string): Promise<Stats | null> {
+    try {
+      return await fs.stat(targetPath);
+    } catch {
+      return null;
+    }
+  }
+
+  private getRelativePathLabel(targetPath: string): string {
+    const relative = vscode.workspace.asRelativePath(targetPath, false);
+    return relative.replace(/\\/g, '/');
+  }
+
+  private getIncludePreview(packageName: string): string {
+    const config = vscode.workspace.getConfiguration('ahkv2Toolbox');
+    const includeFormat = config.get<string>('includeFormat', 'Lib/{name}.ahk');
+    return `#Include ${includeFormat.replace('{name}', packageName)}`;
+  }
+
+  private formatFileSize(size: number): string {
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    let value = size;
+    let unitIndex = 0;
+
+    while (value >= 1024 && unitIndex < units.length - 1) {
+      value /= 1024;
+      unitIndex++;
+    }
+
+    const formatted = unitIndex === 0 ? value.toString() : value.toFixed(value >= 10 ? 0 : 1);
+    return `${formatted} ${units[unitIndex]}`;
+  }
+
+  private formatDate(date: Date): string {
+    return new Intl.DateTimeFormat(undefined, {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    }).format(date);
+  }
+
+  private async openPackageFile(filePath: string): Promise<void> {
+    try {
+      const document = await vscode.workspace.openTextDocument(filePath);
+      await vscode.window.showTextDocument(document, { preview: false });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      vscode.window.showWarningMessage(`Unable to open file: ${message}`);
+    }
+  }
+
+  private async revealInExplorer(targetPath: string): Promise<void> {
+    try {
+      await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(targetPath));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      vscode.window.showWarningMessage(`Unable to reveal item: ${message}`);
+    }
+  }
+
   /**
    * Show package details
    */
   async showPackageDetails(packageItem: PackageItem): Promise<void> {
-    // Open the package file or show details in a webview
-    if (packageItem.packagePath.endsWith('.ahk')) {
-      const doc = await vscode.workspace.openTextDocument(packageItem.packagePath);
-      await vscode.window.showTextDocument(doc);
+    try {
+      const installedInfo = this.installedPackages.find(pkg => pkg.name === packageItem.packageName);
+      const absolutePath = installedInfo?.path || packageItem.packagePath;
+      const stats = absolutePath ? await this.tryGetFileStats(absolutePath) : null;
+      const relativePath = absolutePath ? this.getRelativePathLabel(absolutePath) : undefined;
+      const includePreview = this.getIncludePreview(packageItem.packageName);
+      const repositoryUrl = packageItem.metadata?.repositoryUrl || installedInfo?.repositoryUrl;
+
+      const detailData: LibraryDetailData = {
+        name: packageItem.packageName,
+        version: packageItem.version,
+        description: installedInfo?.description || packageItem.packageDescription,
+        packageType: packageItem.packageType,
+        absolutePath,
+        relativePath,
+        includePreview,
+        author: packageItem.metadata?.author || installedInfo?.author,
+        category: packageItem.metadata?.category || installedInfo?.category,
+        stars: packageItem.metadata?.stars ?? installedInfo?.stars,
+        repositoryUrl,
+        lastModifiedLabel: stats?.mtime
+          ? this.formatDate(stats.mtime)
+          : installedInfo?.lastModified
+            ? this.formatDate(installedInfo.lastModified)
+            : undefined,
+        sizeLabel: stats?.isFile() ? this.formatFileSize(stats.size) : undefined
+      };
+
+      const actions: LibraryDetailPanelActions = {};
+
+      if (packageItem.packageType === 'installed') {
+        actions.onAddInclude = async () => {
+          await this.addIncludeToActiveFile(packageItem.packageName);
+        };
+      }
+
+      if (absolutePath && stats?.isFile()) {
+        actions.onOpenFile = async () => {
+          await this.openPackageFile(absolutePath);
+        };
+      }
+
+      if (absolutePath && stats) {
+        actions.onRevealInExplorer = async () => {
+          await this.revealInExplorer(absolutePath);
+        };
+      }
+
+      if (absolutePath) {
+        actions.onCopyPath = async () => {
+          await vscode.env.clipboard.writeText(absolutePath);
+          vscode.window.showInformationMessage('Library path copied to clipboard.');
+        };
+      }
+
+      if (repositoryUrl) {
+        actions.onOpenRepository = async () => {
+          await vscode.env.openExternal(vscode.Uri.parse(repositoryUrl));
+        };
+      }
+
+      LibraryDetailPanel.show(this.context, detailData, actions);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      vscode.window.showErrorMessage(`Unable to load library details: ${errorMessage}`);
     }
   }
 
@@ -783,7 +1276,7 @@ export class PackageManagerProvider implements vscode.TreeDataProvider<PackageIt
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             vscode.window.showErrorMessage(`Search failed: ${errorMessage}`);
-            
+
             // If rate limited, provide helpful message
             if (errorMessage.includes('rate limit')) {
               vscode.window.showWarningMessage(

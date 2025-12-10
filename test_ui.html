@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Metadata - TestFile.ahk</title>
+  <style>
+    :root {
+      --vscode-foreground: #cccccc;
+      --vscode-font-family: "Segoe WPC", "Segoe UI", sans-serif;
+      --vscode-font-size: 13px;
+      --vscode-editor-background: #1e1e1e;
+      --vscode-panel-border: #80808059;
+      --vscode-input-background: #3c3c3c;
+      --vscode-input-foreground: #cccccc;
+      --vscode-input-border: #3c3c3c;
+      --vscode-button-background: #0e639c;
+      --vscode-button-foreground: #ffffff;
+      --vscode-button-hoverBackground: #1177bb;
+      --vscode-button-secondaryBackground: #3a3d41;
+      --vscode-button-secondaryForeground: #ffffff;
+      --vscode-button-secondaryHoverBackground: #45494e;
+      --vscode-badge-background: #4d4d4d;
+      --vscode-badge-foreground: #ffffff;
+      --vscode-textBlockQuote-background: #222222;
+      --vscode-textLink-foreground: #3794ff;
+      --vscode-descriptionForeground: #8b949e;
+      --vscode-errorBackground: #f14c4c;
+      --vscode-errorForeground: #f14c4c;
+    }
+    body {
+      padding: 12px;
+      color: var(--vscode-foreground);
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size);
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: #1e1e1e;
+    }
+    h1 {
+      margin-bottom: 8px;
+      padding: 12px;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    h1.file-mismatch {
+      background-color: var(--vscode-errorBackground, #ff00001a);
+      border: 2px solid var(--vscode-errorForeground, #f14c4c);
+    }
+    .file-path {
+      color: var(--vscode-descriptionForeground);
+      font-size: 0.9em;
+      margin-bottom: 24px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-mismatch-warning {
+      display: none;
+      background: var(--vscode-errorBackground);
+      border-left: 4px solid var(--vscode-errorForeground);
+      padding: 12px;
+      margin: 16px 0;
+      font-size: 0.9em;
+      color: var(--vscode-errorForeground);
+      font-weight: 600;
+    }
+    .file-mismatch-warning.visible {
+      display: block;
+    }
+    .section {
+      background: var(--vscode-editor-background);
+      border: 1px solid var(--vscode-panel-border);
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    .field {
+      margin-bottom: 8px;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 500;
+      font-size: 0.9em;
+    }
+    input[type="text"],
+    input[type="url"],
+    input[type="date"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      background: var(--vscode-input-background);
+      color: var(--vscode-input-foreground);
+      border: 1px solid var(--vscode-input-border);
+      border-radius: 2px;
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size);
+      box-sizing: border-box;
+    }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+      font-family: var(--vscode-editor-font-family);
+    }
+    .help-text {
+      font-size: 0.85em;
+      color: var(--vscode-descriptionForeground);
+      margin-top: 4px;
+    }
+    button {
+      background: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: var(--vscode-font-size);
+      margin-right: 8px;
+    }
+    button:hover {
+      background: var(--vscode-button-hoverBackground);
+    }
+    button.secondary {
+      background: var(--vscode-button-secondaryBackground);
+      color: var(--vscode-button-secondaryForeground);
+    }
+    button.secondary:hover {
+      background: var(--vscode-button-secondaryHoverBackground);
+    }
+    .button-group {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--vscode-panel-border);
+    }
+    .tag-input-group {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .tag-input-group input {
+      flex: 1;
+    }
+    .tag-input-group button {
+      padding: 6px 12px;
+    }
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .tag {
+      background: var(--vscode-badge-background);
+      color: var(--vscode-badge-foreground);
+      padding: 4px 8px;
+      border-radius: 2px;
+      font-size: 0.85em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tag button {
+      background: transparent;
+      border: none;
+      color: inherit;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      font-size: 1.1em;
+      line-height: 1;
+    }
+    .info-box {
+      background: var(--vscode-textBlockQuote-background);
+      border-left: 4px solid var(--vscode-textLink-foreground);
+      padding: 8px;
+      margin: 8px 0;
+      font-size: 0.9em;
+    }
+    .metadata-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 3px;
+      font-size: 0.85em;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .metadata-status.has-metadata {
+      background: #1a7f37;
+      color: #ffffff;
+    }
+    .metadata-status.no-metadata {
+      background: #6e6e6e;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="pageTitle">📝 File: TestFile.ahk</h1>
+
+  <div class="file-mismatch-warning" id="fileMismatchWarning">
+    ⚠️ WARNING: You are no longer editing this file! Please switch back to the correct file tab or your changes may be applied to the wrong library.
+  </div>
+
+  <div class="metadata-status has-metadata">
+    ✓ Has JSDoc comment block
+  </div>
+
+  <div class="info-box">
+    💡 <strong>Tip:</strong> Fill in as many fields as possible to help LLMs and package managers understand your library. Leave fields empty if not applicable.
+  </div>
+
+  <div class="section">
+    <div class="field-row">
+      <div class="field">
+        <label for="file">File Name</label>
+        <input type="text" id="file" value="TestFile.ahk" />
+      </div>
+      <div class="field">
+        <label for="title">Title</label>
+        <input type="text" id="title" value="Test Library" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="fileoverview">File Overview (one sentence)</label>
+      <input type="text" id="fileoverview" value="A test library for demonstration." />
+      <div class="help-text">Concise one-sentence description</div>
+    </div>
+
+    <div class="field">
+      <label for="abstract">Abstract (1-2 sentences)</label>
+      <textarea id="abstract" rows="2">This is an abstract.</textarea>
+      <div class="help-text">Short high-level overview</div>
+    </div>
+
+    <div class="field">
+      <label for="description">Description (2-6 sentences)</label>
+      <textarea id="description" rows="4">This is a description.</textarea>
+      <div class="help-text">Include purpose, core features, I/O, and side effects</div>
+    </div>
+  </div>
+
+  <div class="button-group">
+    <button class="secondary" id="backButton">← Back</button>
+    <button id="saveButton">💾 Save Metadata</button>
+    <button class="secondary" id="cancelButton">✕ Cancel</button>
+  </div>
+</body>
+</html>

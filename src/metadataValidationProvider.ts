@@ -51,6 +51,18 @@ export class MetadataValidationProvider implements vscode.CodeActionProvider {
     discoverAction.isPreferred = true;
     actions.push(discoverAction);
 
+    const chatAction = new vscode.CodeAction(
+      'Generate metadata JSON with Copilot',
+      vscode.CodeActionKind.QuickFix
+    );
+    chatAction.command = {
+      title: 'Generate metadata JSON with Copilot',
+      command: 'ahkv2Toolbox.generateMetadataJsonComment',
+      arguments: [document.uri]
+    };
+    chatAction.diagnostics = metadataDiagnostics;
+    actions.push(chatAction);
+
     // Create action to disable validation for this file
     const disableAction = new vscode.CodeAction(
       'Disable metadata validation for this file',
@@ -118,7 +130,8 @@ export class MetadataValidationProvider implements vscode.CodeActionProvider {
     }
 
     const message = `Missing library metadata fields: ${missingFields.map(f => `\`${f}\``).join(', ')}. ` +
-                    `Consider using "Discover Library Metadata" to auto-fill these fields.`;
+                    `This appears because the file is inside a "Lib" folder. ` +
+                    `Use "Discover Library Metadata" (Quick Fix) to auto-fill required fields.`;
 
     const diagnostic = new vscode.Diagnostic(
       range,

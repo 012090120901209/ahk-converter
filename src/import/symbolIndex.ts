@@ -252,6 +252,13 @@ export class SymbolIndex {
   }
 
   /**
+   * Remove a file from the index (exposed for external watchers)
+   */
+  public removeFileFromIndex(uri: vscode.Uri): void {
+    this.removeFile(uri);
+  }
+
+  /**
    * Detect circular dependencies
    */
   public detectCircularDependencies(startModule: string): string[][] {

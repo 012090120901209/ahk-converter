@@ -549,7 +549,7 @@ export class MetadataEditorProvider {
       <label>Contributors</label>
       <div class="tag-input-group">
         <input type="text" id="contributorInput" placeholder="Contributor name" />
-        <button onclick="addContributor()">Add</button>
+        <button id="addContributorBtn">Add</button>
       </div>
       <div class="tag-list" id="contributorsList"></div>
     </div>
@@ -600,7 +600,7 @@ export class MetadataEditorProvider {
       <label>Additional Links</label>
       <div class="tag-input-group">
         <input type="url" id="linkInput" placeholder="https://..." />
-        <button onclick="addLink()">Add</button>
+        <button id="addLinkBtn">Add</button>
       </div>
       <div class="tag-list" id="linksList"></div>
     </div>
@@ -609,7 +609,7 @@ export class MetadataEditorProvider {
       <label>See Also</label>
       <div class="tag-input-group">
         <input type="text" id="seeInput" placeholder="Related reference" />
-        <button onclick="addSee()">Add</button>
+        <button id="addSeeBtn">Add</button>
       </div>
       <div class="tag-list" id="seeList"></div>
     </div>
@@ -649,7 +649,7 @@ export class MetadataEditorProvider {
       <label>Requires</label>
       <div class="tag-input-group">
         <input type="text" id="requiresInput" placeholder="Library, DLL, or tool" />
-        <button onclick="addRequires()">Add</button>
+        <button id="addRequiresBtn">Add</button>
       </div>
       <div class="tag-list" id="requiresList"></div>
       <div class="help-text">Dependencies: libraries, DLLs, external tools</div>
@@ -659,7 +659,7 @@ export class MetadataEditorProvider {
       <label>Imports</label>
       <div class="tag-input-group">
         <input type="text" id="importsInput" placeholder="Module or file" />
-        <button onclick="addImports()">Add</button>
+        <button id="addImportsBtn">Add</button>
       </div>
       <div class="tag-list" id="importsList"></div>
     </div>
@@ -668,7 +668,7 @@ export class MetadataEditorProvider {
       <label>Exports</label>
       <div class="tag-input-group">
         <input type="text" id="exportsInput" placeholder="Class, function, or hotkey" />
-        <button onclick="addExports()">Add</button>
+        <button id="addExportsBtn">Add</button>
       </div>
       <div class="tag-list" id="exportsList"></div>
       <div class="help-text">Main public classes, functions, hotkeys</div>
@@ -727,7 +727,7 @@ export class MetadataEditorProvider {
       <label>TODO Items</label>
       <div class="tag-input-group">
         <input type="text" id="todoInput" placeholder="TODO item" />
-        <button onclick="addTodo()">Add</button>
+        <button id="addTodoBtn">Add</button>
       </div>
       <div class="tag-list" id="todoList"></div>
     </div>
@@ -740,9 +740,9 @@ export class MetadataEditorProvider {
   </div>
 
   <div class="button-group">
-    <button class="secondary" onclick="goBack()">← Back</button>
-    <button onclick="saveMetadata()">💾 Save Metadata</button>
-    <button class="secondary" onclick="cancelEdit()">✕ Cancel</button>
+    <button class="secondary" id="backButton">← Back</button>
+    <button id="saveButton">💾 Save Metadata</button>
+    <button class="secondary" id="cancelButton">✕ Cancel</button>
   </div>
 
   <script>
@@ -754,12 +754,39 @@ export class MetadataEditorProvider {
     // Initialize array fields
     const metadata = ${JSON.stringify(metadata)};
 
+    const normalizeArrayField = (fieldName) => {
+      const value = metadata[fieldName];
+      if (Array.isArray(value)) {
+        return;
+      }
+      if (typeof value === 'string') {
+        metadata[fieldName] = value
+          .split(/\r?\n/)
+          .map(item => item.trim())
+          .filter(Boolean);
+        return;
+      }
+      metadata[fieldName] = [];
+    };
+
+    const arrayFields = ['link', 'see', 'requires', 'imports', 'exports', 'todo', 'contributors'];
+    arrayFields.forEach(normalizeArrayField);
+
     function renderArrayField(fieldName, containerId) {
       const container = document.getElementById(containerId);
-      const items = metadata[fieldName] || [];
-      container.innerHTML = items.map(item =>
-        \`<div class="tag">\${item}<button onclick="remove\${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}('\${item}')">×</button></div>\`
+      const items = Array.isArray(metadata[fieldName]) ? metadata[fieldName] : [];
+      container.innerHTML = items.map((item, index) =>
+        \`<div class="tag">\${item}<button class="remove-btn" data-field="\${fieldName}" data-item="\${item}">×</button></div>\`
       ).join('');
+
+      // Attach event listeners to remove buttons
+      container.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const field = this.getAttribute('data-field');
+          const item = this.getAttribute('data-item');
+          removeArrayItem(field, containerId, item);
+        });
+      });
     }
 
     function addArrayItem(fieldName, inputId, containerId) {
@@ -767,19 +794,19 @@ export class MetadataEditorProvider {
       const value = input.value.trim();
       if (!value) return;
 
-      if (!metadata[fieldName]) metadata[fieldName] = [];
-      if (!metadata[fieldName].includes(value)) {
-        metadata[fieldName].push(value);
+      const target = Array.isArray(metadata[fieldName]) ? metadata[fieldName] : [];
+      metadata[fieldName] = target;
+      if (!target.includes(value)) {
+        target.push(value);
         renderArrayField(fieldName, containerId);
         input.value = '';
       }
     }
 
     function removeArrayItem(fieldName, containerId, value) {
-      if (metadata[fieldName]) {
-        metadata[fieldName] = metadata[fieldName].filter(item => item !== value);
-        renderArrayField(fieldName, containerId);
-      }
+      const target = Array.isArray(metadata[fieldName]) ? metadata[fieldName] : [];
+      metadata[fieldName] = target.filter(item => item !== value);
+      renderArrayField(fieldName, containerId);
     }
 
     // Array field handlers
@@ -902,6 +929,63 @@ export class MetadataEditorProvider {
           // File matches - hide warning
           pageTitle.classList.remove('file-mismatch');
           warning.classList.remove('visible');
+        }
+      }
+    });
+
+    // Initialize button event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOMContentLoaded - initializing buttons');
+
+      const saveButton = document.getElementById('saveButton');
+      const backButton = document.getElementById('backButton');
+      const cancelButton = document.getElementById('cancelButton');
+
+      if (saveButton) {
+        saveButton.addEventListener('click', function() {
+          console.log('Save button clicked');
+          saveMetadata();
+        });
+      }
+
+      if (backButton) {
+        backButton.addEventListener('click', function() {
+          console.log('Back button clicked');
+          goBack();
+        });
+      }
+
+      if (cancelButton) {
+        cancelButton.addEventListener('click', function() {
+          console.log('Cancel button clicked');
+          cancelEdit();
+        });
+      }
+
+      // Initialize array field rendering
+      renderArrayField('link', 'linksList');
+      renderArrayField('see', 'seeList');
+      renderArrayField('requires', 'requiresList');
+      renderArrayField('imports', 'importsList');
+      renderArrayField('exports', 'exportsList');
+      renderArrayField('todo', 'todoList');
+      renderArrayField('contributors', 'contributorsList');
+
+      // Initialize Add button event listeners
+      const addButtons = {
+        'addContributorBtn': () => addContributor(),
+        'addLinkBtn': () => addLink(),
+        'addSeeBtn': () => addSee(),
+        'addRequiresBtn': () => addRequires(),
+        'addImportsBtn': () => addImports(),
+        'addExportsBtn': () => addExports(),
+        'addTodoBtn': () => addTodo()
+      };
+
+      for (const [btnId, handler] of Object.entries(addButtons)) {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          btn.addEventListener('click', handler);
         }
       }
     });

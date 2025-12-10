@@ -10,7 +10,7 @@
         "--disable-extension=ms-edgedevtools.vscode-edge-devtools",
         "--disable-extension=artalatarta.unofficial-material-icon-theme",
         "--disable-extension=vsls-contrib.gistfs",
-        "C:\\Users\\uphol\\Documents\\Design\\Coding\\ahk-converter\\ahk-converter.code-workspace"
+        "C:\\Users\\uphol\\Documents\\Design\\Coding\\ahk-converter"
       ],
       "outFiles": [
         "${workspaceFolder}/dist/**/*.js"
@@ -26,12 +26,29 @@
         "--disable-extension=ms-edgedevtools.vscode-edge-devtools",
         "--disable-extension=artalatarta.unofficial-material-icon-theme",
         "--disable-extension=vsls-contrib.gistfs",
-        "C:\\Users\\uphol\\Documents\\Design\\Coding\\ahk-converter\\ahk-converter.code-workspace"
+        "C:\\Users\\uphol\\Documents\\Design\\Coding\\ahk-converter"
       ],
       "outFiles": [
         "${workspaceFolder}/dist/**/*.js"
       ],
       "preLaunchTask": "npm: watch"
+    },
+    {
+      "name": "Test Package Manager",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--disable-extension=ms-edgedevtools.vscode-edge-devtools",
+        "${workspaceFolder}/test/package-manager"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
+      "preLaunchTask": "npm: compile",
+      "env": {
+        "TEST_PACKAGE_MANAGER": "true"
+      }
     },
     {
       "name": "Extension Tests",

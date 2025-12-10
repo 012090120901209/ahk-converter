@@ -36,8 +36,13 @@ export class ModuleResolver {
       this.searchPaths = [
         '.', // Current directory
         path.join(process.env.USERPROFILE || process.env.HOME || '', 'Documents', 'AutoHotkey'),
-        // AHK installation directory would be determined at runtime
       ];
+
+      // Add AHK v2 Lib directory if configured
+      const ahkLibPath = this.getAhkV2LibPath();
+      if (ahkLibPath) {
+        this.searchPaths.push(ahkLibPath);
+      }
     }
 
     // Add workspace folders
@@ -46,6 +51,46 @@ export class ModuleResolver {
         this.searchPaths.push(folder.uri.fsPath);
       }
     }
+  }
+
+  /**
+   * Get the AHK v2 Lib directory path from configuration
+   */
+  private getAhkV2LibPath(): string | null {
+    try {
+      // Try to get from configuration
+      const config = vscode.workspace.getConfiguration('ahkConverter');
+      const ahkExePath = config.get<string>('autoHotkeyV2Path');
+
+      if (ahkExePath) {
+        // Remove quotes and get directory
+        const cleanPath = ahkExePath.replace(/"/g, '');
+        const ahkDir = path.dirname(cleanPath);
+        const libPath = path.join(ahkDir, 'Lib');
+
+        // Verify the path exists
+        if (fs.existsSync(libPath)) {
+          return libPath;
+        }
+      }
+
+      // Try common installation paths
+      const commonPaths = [
+        '/mnt/c/Program Files/AutoHotkey/v2/Lib',
+        'C:\\Program Files\\AutoHotkey\\v2\\Lib',
+        path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'AutoHotkey', 'v2', 'Lib'),
+      ];
+
+      for (const libPath of commonPaths) {
+        if (fs.existsSync(libPath)) {
+          return libPath;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to get AHK v2 Lib path:', error);
+    }
+
+    return null;
   }
 
   /**
@@ -62,6 +107,22 @@ export class ModuleResolver {
    */
   public clearCache(): void {
     this.resolutionCache.clear();
+  }
+
+  /**
+   * Refresh search paths (useful when configuration changes)
+   */
+  public refreshSearchPaths(): void {
+    this.searchPaths = [];
+    this.initializeSearchPaths();
+    this.resolutionCache.clear();
+  }
+
+  /**
+   * Get current search paths for debugging
+   */
+  public getSearchPaths(): string[] {
+    return [...this.searchPaths];
   }
 
   /**

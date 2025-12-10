@@ -203,6 +203,13 @@ Access via Command Palette (`Ctrl+Shift+P`):
 | `AHK: Reindex Workspace` | Rebuild the module and symbol index |
 | `AHK: Show Module Exports` | Browse all exports from any module |
 | `AHK: Add Import` | Interactively add an import statement |
+| `AHK: Include User Library` | Pick a library from `%USERPROFILE%/AutoHotkey/**/Lib` (configurable) and auto-insert the `#Include` plus optional export stubs |
+
+### User Library Integration
+
+- Configure additional search paths with `ahkv2Toolbox.userLibraryPaths` (defaults to `~/AutoHotkey/v2/Lib`, `~/AutoHotkey/Lib`, and their Documents variants). Libraries found there are indexed just like workspace modules, so completions and diagnostics work for files such as `ArrayHelpers.ahk` or `StringHelpers.ahk`.
+- Run **AHK: Include User Library** to insert a user-friendly `#Include` line. The template used for the include statement is configurable via `ahkv2Toolbox.userLibraryIncludeFormat` and supports both `{name}` and `{filePath}` placeholders so paths remain username-agnostic (default uses `%A_AppData%/../../AutoHotkey/v2/Lib/{name}.ahk`).
+- After choosing a library, the command surfaces its exports (functions, classes, variables) and can insert ready-to-edit stubs for the selected symbols directly into the current script.
 
 ## Module System Basics
 

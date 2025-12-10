@@ -25,6 +25,9 @@ import { MetadataEditorProvider } from './metadataEditorProvider';
 import { registerAHKChatParticipant } from './chatParticipant';
 import { registerLibraryAttributionParticipant } from './libraryAttributionParticipant';
 import { ImportManager } from './import';
+import { registerMetadataQuickFix } from './metadataQuickFix';
+import { MetadataHoverProvider } from './metadataHoverProvider';
+import { ImportsGuidePanel } from './importsGuidePanel';
 
 type RunResult = { stdout: string; stderr: string; code: number };
 
@@ -850,8 +853,10 @@ export async function activate(ctx: vscode.ExtensionContext) {
     dispose: () => importManager.dispose()
   });
 
+  registerMetadataQuickFix(ctx);
+
   // Initialize Toolbox Sidebar Provider
-  const toolboxProvider = new ToolboxSidebarProvider(ctx.extensionUri);
+  const toolboxProvider = new ToolboxSidebarProvider(ctx.extensionUri, ctx.extension.id);
   ctx.subscriptions.push(
     vscode.window.registerWebviewViewProvider('ahkv2Toolbox', toolboxProvider)
   );
@@ -921,6 +926,9 @@ export async function activate(ctx: vscode.ExtensionContext) {
     }),
     vscode.commands.registerCommand('ahkv2Toolbox.installLSP', async () => {
       await lspIntegration.showLSPNotInstalledWarning();
+    }),
+    vscode.commands.registerCommand('ahkv2Toolbox.showImportsGuide', () => {
+      ImportsGuidePanel.show(ctx);
     }),
     vscode.commands.registerCommand('ahkv2Toolbox.testChatParticipant', async () => {
       // Test command for chat participant functionality
@@ -1241,8 +1249,31 @@ export async function activate(ctx: vscode.ExtensionContext) {
   // Register Metadata Validation Provider
   try {
     const { registerMetadataValidation } = await import('./metadataValidationProvider');
-    const metadataValidation = registerMetadataValidation(ctx);
-    ctx.subscriptions.push(metadataValidation);
+  const metadataValidation = registerMetadataValidation(ctx);
+  const metadataHover = vscode.languages.registerHoverProvider(
+    ['ahk', 'ahk2'],
+    new MetadataHoverProvider()
+  );
+
+  const openMetadataPageCommand = vscode.commands.registerCommand(
+    'ahkv2Toolbox.openLibraryMetadataPage',
+    async (target?: vscode.Uri) => {
+      const uri = target ?? vscode.window.activeTextEditor?.document.uri;
+      if (!uri) {
+        vscode.window.showWarningMessage('Open a library file to view its metadata.');
+        return;
+      }
+
+      try {
+        await MetadataEditorProvider.show(ctx, uri.fsPath);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        vscode.window.showErrorMessage(`Unable to open library metadata: ${message}`);
+      }
+    }
+  );
+
+  ctx.subscriptions.push(metadataValidation, metadataHover, openMetadataPageCommand);
     console.log('Metadata Validation Provider registered');
   } catch (error) {
     console.log('Metadata Validation Provider not initialized:', error);
@@ -1945,6 +1976,34 @@ Suggestions: ${debugData.debugData.suggestions.length}
         }
       } catch (error) {
         await handleError(error, 'Update Header');
+      }
+    }),
+
+    // Smart Save commands
+    vscode.commands.registerCommand('ahk.smartSaveScript', async () => {
+      try {
+        const { smartSaveScript } = await import('./smartScriptSaver');
+        await smartSaveScript();
+      } catch (error) {
+        await handleError(error, 'Smart Save Script');
+      }
+    }),
+
+    vscode.commands.registerCommand('ahk.configureExamplesFolder', async () => {
+      try {
+        const { configureExamplesFolder } = await import('./smartScriptSaver');
+        await configureExamplesFolder();
+      } catch (error) {
+        await handleError(error, 'Configure Examples Folder');
+      }
+    }),
+
+    vscode.commands.registerCommand('ahk.previewScriptAnalysis', async () => {
+      try {
+        const { previewScriptAnalysis } = await import('./smartScriptSaver');
+        await previewScriptAnalysis();
+      } catch (error) {
+        await handleError(error, 'Preview Script Analysis');
       }
     })
   );

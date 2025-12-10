@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
-import { SymbolIndex } from './symbolIndex';
+import * as path from 'path';
+import * as os from 'os';
+import * as fs from 'fs';
+import { SymbolIndex, SymbolInfo } from './symbolIndex';
 import { ModuleResolver } from './moduleResolver';
 import { ImportCompletionProvider } from './completionProvider';
 import { ImportHoverProvider } from './hoverProvider';
@@ -10,6 +13,8 @@ import {
   ImportReferenceProvider,
   ImportPeekDefinitionProvider
 } from './definitionProvider';
+import { UserLibraryIndexer, UserLibraryEntry } from './userLibraryIndexer';
+import { insertIncludeLine } from '../includeLineInserter';
 
 /**
  * Main manager for the import library feature
@@ -20,6 +25,7 @@ export class ImportManager {
   private symbolIndex: SymbolIndex;
   private moduleResolver: ModuleResolver;
   private diagnosticProvider: ImportDiagnosticProvider;
+  private userLibraryIndexer: UserLibraryIndexer;
   private subscriptions: vscode.Disposable[] = [];
   private isInitialized = false;
 
@@ -30,6 +36,7 @@ export class ImportManager {
       this.symbolIndex,
       this.moduleResolver
     );
+    this.userLibraryIndexer = new UserLibraryIndexer(this.symbolIndex);
   }
 
   public static getInstance(): ImportManager {
@@ -54,6 +61,8 @@ export class ImportManager {
 
     // Register all providers
     this.registerProviders(context);
+
+    await this.userLibraryIndexer.initialize(context);
 
     // Register commands
     this.registerCommands(context);
@@ -188,6 +197,20 @@ export class ImportManager {
       })
     );
 
+    // Include user library command
+    this.subscriptions.push(
+      vscode.commands.registerCommand('ahk.includeUserLibrary', async () => {
+        await this.includeUserLibrary();
+      })
+    );
+
+    // Show module search paths command (for debugging)
+    this.subscriptions.push(
+      vscode.commands.registerCommand('ahk.showModuleSearchPaths', async () => {
+        await this.showModuleSearchPaths();
+      })
+    );
+
     console.log('Import commands registered');
   }
 
@@ -291,11 +314,12 @@ export class ImportManager {
       async (progress) => {
         progress.report({ increment: 0 });
 
-        // Clear module resolver cache
-        this.moduleResolver.clearCache();
+        // Refresh module resolver search paths and clear cache
+        this.moduleResolver.refreshSearchPaths();
 
         // Reindex all files
         await this.symbolIndex.indexWorkspace();
+        await this.userLibraryIndexer.reindex();
 
         progress.report({ increment: 100 });
         vscode.window.showInformationMessage('Workspace reindexed successfully');
@@ -424,6 +448,164 @@ export class ImportManager {
   }
 
   /**
+   * Show current module search paths for debugging
+   */
+  private async showModuleSearchPaths(): Promise<void> {
+    const searchPaths = this.moduleResolver.getSearchPaths();
+
+    if (searchPaths.length === 0) {
+      vscode.window.showInformationMessage('No module search paths configured');
+      return;
+    }
+
+    const items = searchPaths.map((searchPath, index) => ({
+      label: `${index + 1}. ${searchPath}`,
+      description: fs.existsSync(searchPath) ? '✓ exists' : '✗ not found',
+      detail: searchPath
+    }));
+
+    await vscode.window.showQuickPick(items, {
+      placeHolder: 'Module search paths (in order of priority)',
+      canPickMany: false
+    });
+  }
+
+  private async includeUserLibrary(): Promise<void> {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      vscode.window.showInformationMessage('Open an AutoHotkey file to insert #Include statements.');
+      return;
+    }
+
+    const libraries = this.userLibraryIndexer.getLibraries();
+    if (libraries.length === 0) {
+      vscode.window.showWarningMessage('No user libraries were found. Configure ahkv2Toolbox.userLibraryPaths if needed.');
+      return;
+    }
+
+    const items = libraries.map(lib => this.toQuickPickItem(lib));
+    const selection = await vscode.window.showQuickPick(items, {
+      placeHolder: 'Select a user library to #Include',
+      matchOnDescription: true,
+      matchOnDetail: true
+    });
+
+    if (!selection) {
+      return;
+    }
+
+    const template = this.getUserIncludeTemplate();
+    const includeFormat = this.applyIncludeTemplate(template, selection.library);
+    const includeResult = await insertIncludeLine(editor.document, {
+      packageName: selection.library.moduleName,
+      includeFormat,
+      autoInsertHeaders: true
+    });
+
+    if (includeResult.status === 'error') {
+      vscode.window.showErrorMessage(`Failed to insert #Include: ${includeResult.message}`);
+      return;
+    }
+
+    vscode.window.showInformationMessage(`Added #Include for ${selection.library.moduleName}.`);
+
+    if (selection.library.exports.length === 0) {
+      return;
+    }
+
+    const exportPick = await vscode.window.showQuickPick(
+      selection.library.exports.map(symbol => ({
+        label: symbol.name,
+        description: symbol.type,
+        symbol
+      })),
+      {
+        placeHolder: 'Select exports to insert into the script (optional)',
+        canPickMany: true
+      }
+    );
+
+    if (!exportPick || exportPick.length === 0) {
+      return;
+    }
+
+    const snippet = this.buildExportSnippet(
+      selection.library.moduleName,
+      exportPick.map(item => item.symbol),
+      editor.document
+    );
+
+    await editor.edit(builder => {
+      builder.insert(editor.selection.active, snippet);
+    });
+  }
+
+  private toQuickPickItem(library: UserLibraryEntry): (vscode.QuickPickItem & { library: UserLibraryEntry }) {
+    return {
+      label: library.moduleName,
+      description: this.toTildePath(library.filePath),
+      detail: this.formatExportPreview(library),
+      library
+    };
+  }
+
+  private toTildePath(filePath: string): string {
+    const relative = path.relative(os.homedir(), filePath);
+    if (!relative.startsWith('..')) {
+      return path.join('~', relative);
+    }
+    return filePath;
+  }
+
+  private formatExportPreview(entry: UserLibraryEntry): string {
+    if (entry.exports.length === 0) {
+      return 'No exports detected';
+    }
+
+    const names = entry.exports.map(exp => exp.name);
+    const preview = names.slice(0, 3).join(', ');
+    const suffix = names.length > 3 ? ` (+${names.length - 3} more)` : '';
+    return `Exports: ${preview}${suffix}`;
+  }
+
+  private getUserIncludeTemplate(): string {
+    const config = vscode.workspace.getConfiguration('ahkv2Toolbox');
+    return config.get<string>('userLibraryIncludeFormat', '%A_AppData%/../../AutoHotkey/v2/Lib/{name}.ahk');
+  }
+
+  private applyIncludeTemplate(template: string, library: UserLibraryEntry): string {
+    const normalizedPath = this.toPosixPath(library.filePath);
+    return template.replace('{filePath}', normalizedPath);
+  }
+
+  private toPosixPath(filePath: string): string {
+    return filePath.replace(/\\/g, '/');
+  }
+
+  private buildExportSnippet(
+    moduleName: string,
+    symbols: SymbolInfo[],
+    document: vscode.TextDocument
+  ): string {
+    const eol = document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
+    const lines: string[] = ['', `; Exports from ${moduleName}`];
+
+    for (const symbol of symbols) {
+      if (symbol.type === 'class') {
+        lines.push(`${symbol.name}Instance := ${symbol.name}()`);
+      } else if (symbol.type === 'variable') {
+        lines.push(`; Access ${symbol.name}`);
+        lines.push(symbol.name);
+      } else {
+        lines.push(`${symbol.name}()`);
+      }
+    }
+
+    lines.push('');
+    return lines.join(eol);
+  }
+
+  /**
    * Get symbol index (for external use)
    */
   public getSymbolIndex(): SymbolIndex {
@@ -447,6 +629,7 @@ export class ImportManager {
 
     this.diagnosticProvider.dispose();
     this.symbolIndex.dispose();
+    this.userLibraryIndexer.dispose();
 
     this.isInitialized = false;
     console.log('AHK Import Manager disposed');
