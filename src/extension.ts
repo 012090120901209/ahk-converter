@@ -118,6 +118,14 @@ class NotificationManager {
       this.outputChannel.appendLine(`Details: ${details}`);
     }
 
+    // Respect the enableNotifications setting for non-error toasts; errors always surface.
+    const notificationsEnabled = vscode.workspace
+      .getConfiguration('ahkConverter')
+      .get<boolean>('enableNotifications', true);
+    if (!notificationsEnabled && type !== 'error') {
+      return undefined;
+    }
+
     // Prepare actions
     const notificationActions = [...actions];
     if (learnMoreUrl) {
@@ -638,8 +646,11 @@ async function replaceCurrentEditor(outText: string, editor: vscode.TextEditor) 
 
 function showConversionStats(stats: ConversionStats) {
   const message = `Conversion completed: ${stats.linesProcessed} lines processed, ${stats.warnings} warnings, ${stats.errors} errors (${stats.conversionTime}ms)`;
-  vscode.window.setStatusBarMessage(`AHKv2 Toolbox: ${message}`, 5000);
   getOutput().appendLine(`[stats] ${message}`);
+  const showStats = vscode.workspace.getConfiguration('ahkConverter').get<boolean>('showConversionStats', true);
+  if (showStats) {
+    vscode.window.setStatusBarMessage(`AHKv2 Toolbox: ${message}`, 5000);
+  }
 }
 
 // Enhanced error handling with user-friendly messages
@@ -848,13 +859,13 @@ export async function activate(ctx: vscode.ExtensionContext) {
   const toolboxProvider = new ToolboxSidebarProvider(ctx, ctx.extension.id);
   ctx.subscriptions.push(
     vscode.window.registerWebviewViewProvider('ahkv2Toolbox', toolboxProvider),
-    vscode.commands.registerCommand('ahkv2Toolbox.showMain', async () => {
+    vscode.commands.registerCommand('ahkv2Toolbox.open', async () => {
       const log = getOutput();
-      log.appendLine('[showMain] command entered');
+      log.appendLine('[open] command entered');
       await vscode.commands.executeCommand('workbench.view.extension.ahkv2-toolbox');
-      log.appendLine('[showMain] view revealed');
+      log.appendLine('[open] view revealed');
       toolboxProvider.showMainView();
-      log.appendLine('[showMain] showMainView called');
+      log.appendLine('[open] showMainView called');
     })
   );
 
@@ -888,6 +899,14 @@ export async function activate(ctx: vscode.ExtensionContext) {
       codeMapProvider.showOnly('function');
       codeMapProvider.toggleFilter('method'); // Include methods with functions
       vscode.window.showInformationMessage('Code Map: Showing only functions and methods');
+    }),
+    vscode.commands.registerCommand('codeMap.showOnlyClasses', () => {
+      codeMapProvider.showOnly('class');
+      vscode.window.showInformationMessage('Code Map: Showing only classes');
+    }),
+    vscode.commands.registerCommand('codeMap.showOnlyVariables', () => {
+      codeMapProvider.showOnly('variable');
+      vscode.window.showInformationMessage('Code Map: Showing only variables');
     }),
     vscode.commands.registerCommand('codeMap.toggleFilter', (filter) => {
       codeMapProvider.toggleFilter(filter);
@@ -1604,7 +1623,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
         } as any);
 
         const config = vscode.workspace.getConfiguration('ahkConverter');
-        const selectedProfile = config.get<string>('selectedProfile', 'normal');
+        const selectedProfile = config.get<string>('selectedProfile', 'conservative');
         const profile = profileManager.getProfile(selectedProfile);
 
         if (!profile) {

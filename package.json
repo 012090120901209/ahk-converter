@@ -258,26 +258,6 @@
         "icon": "$(symbol-variable)"
       },
       {
-        "command": "codeMap.toggleClasses",
-        "title": "Toggle Classes",
-        "category": "Code Map"
-      },
-      {
-        "command": "codeMap.toggleFunctions",
-        "title": "Toggle Functions",
-        "category": "Code Map"
-      },
-      {
-        "command": "codeMap.toggleMethods",
-        "title": "Toggle Methods",
-        "category": "Code Map"
-      },
-      {
-        "command": "codeMap.toggleVariables",
-        "title": "Toggle Variables",
-        "category": "Code Map"
-      },
-      {
         "command": "codeMap.scopeToItem",
         "title": "Scope to Item",
         "category": "Code Map",
@@ -342,6 +322,56 @@
         "title": "Preview Script Analysis",
         "category": "AHK Development",
         "icon": "$(inspect)"
+      },
+      {
+        "command": "ahk.organizeImports",
+        "title": "Organize Imports",
+        "category": "AHK Development"
+      },
+      {
+        "command": "ahk.reindexWorkspace",
+        "title": "Reindex Workspace",
+        "category": "AHK Development"
+      },
+      {
+        "command": "ahk.showModuleExports",
+        "title": "Show Module Exports",
+        "category": "AHK Development"
+      },
+      {
+        "command": "ahk.addImport",
+        "title": "Add Import",
+        "category": "AHK Development"
+      },
+      {
+        "command": "ahk.selectProfile",
+        "title": "Select Conversion Profile",
+        "category": "AHK Converter"
+      },
+      {
+        "command": "ahk.manageProfiles",
+        "title": "Manage Conversion Profiles",
+        "category": "AHK Converter"
+      },
+      {
+        "command": "ahk.convertWithProfile",
+        "title": "Convert to v2 (With Profile)",
+        "category": "AHK Converter"
+      },
+      {
+        "command": "ahk.showTelemetry",
+        "title": "Show Telemetry",
+        "category": "AHKv2 Toolbox"
+      },
+      {
+        "command": "ahk.exportTelemetry",
+        "title": "Export Telemetry",
+        "category": "AHKv2 Toolbox"
+      },
+      {
+        "command": "ahk.clearTelemetry",
+        "title": "Clear Telemetry",
+        "category": "AHKv2 Toolbox"
       }
     ],
     "menus": {
@@ -538,6 +568,12 @@
           "type": "boolean",
           "default": true,
           "description": "If true, warn on non-Windows platforms.",
+          "scope": "window"
+        },
+        "ahkConverter.selectedProfile": {
+          "type": "string",
+          "default": "conservative",
+          "description": "Active conversion profile used by 'Convert to v2 (With Profile)'. Built-in profiles: conservative, aggressive, custom. Custom profiles created via 'Manage Conversion Profiles' are also valid.",
           "scope": "window"
         },
         "ahkConverter.defaultOutputNaming": {
