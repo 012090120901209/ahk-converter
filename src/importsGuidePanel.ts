@@ -46,7 +46,7 @@ export class ImportsGuidePanel {
   }
 
   private getHtmlContent(): string {
-    return `<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -145,6 +145,27 @@ export class ImportsGuidePanel {
       border-radius: 0;
       font-size: inherit;
     }
+
+    /* AHK v2 syntax highlighting (token colors aligned with VS Code Dark+). */
+    .tok-comment   { color: #6a9955; font-style: italic; }
+    .tok-keyword   { color: #569cd6; }
+    .tok-directive { color: #c586c0; }
+    .tok-string    { color: #ce9178; }
+    .tok-number    { color: #b5cea8; }
+    .tok-function  { color: #dcdcaa; }
+    .tok-type      { color: #4ec9b0; }
+    .tok-builtin   { color: #9cdcfe; }
+    .tok-operator  { color: #d4d4d4; }
+
+    body.vscode-light .tok-comment   { color: #008000; }
+    body.vscode-light .tok-keyword   { color: #0000ff; }
+    body.vscode-light .tok-directive { color: #af00db; }
+    body.vscode-light .tok-string    { color: #a31515; }
+    body.vscode-light .tok-number    { color: #098658; }
+    body.vscode-light .tok-function  { color: #795e26; }
+    body.vscode-light .tok-type      { color: #267f99; }
+    body.vscode-light .tok-builtin   { color: #0070c1; }
+    body.vscode-light .tok-operator  { color: #383838; }
 
     .info-box {
       background-color: var(--vscode-textBlockQuote-background);
@@ -598,5 +619,109 @@ export default BuildLabel(text) {
   </div>
 </body>
 </html>`;
+
+    return ImportsGuidePanel.highlightCodeBlocks(html);
+  }
+
+  private static readonly AHK_KEYWORDS = new Set([
+    'import', 'export', 'from', 'as', 'default', 'class', 'extends', 'return',
+    'if', 'else', 'while', 'for', 'in', 'loop', 'until', 'try', 'catch',
+    'finally', 'throw', 'break', 'continue', 'static', 'global', 'local',
+    'new', 'switch', 'case', 'and', 'or', 'not', 'goto'
+  ]);
+
+  // Built-in functions that are often called without parentheses, so the
+  // "identifier followed by (" heuristic alone would miss them.
+  private static readonly AHK_BUILTIN_FUNCS = new Set([
+    'MsgBox', 'StrSplit', 'StrUpper', 'StrLower', 'SubStr', 'StrLen',
+    'RegExReplace', 'RegExMatch', 'Trim', 'LTrim', 'RTrim', 'StrReplace',
+    'InStr', 'Format', 'Map', 'Array'
+  ]);
+
+  private static escapeHtml(text: string): string {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  private static unescapeHtml(text: string): string {
+    return text
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&amp;/g, '&');
+  }
+
+  /** Replace the guide's static code blocks with AHK v2 token-highlighted markup. */
+  private static highlightCodeBlocks(html: string): string {
+    return html.replace(
+      /<pre><code class="language-cpp">([\s\S]*?)<\/code><\/pre>/g,
+      (_match, inner: string) => {
+        const raw = ImportsGuidePanel.unescapeHtml(inner);
+        return `<pre><code class="language-ahk2">${ImportsGuidePanel.highlightAhk(raw)}</code></pre>`;
+      }
+    );
+  }
+
+  /**
+   * Lightweight AHK v2 tokenizer -> theme-colored spans. Not a full parser;
+   * it is tuned for the short, controlled snippets in this guide and handles
+   * comments, directives, strings, numbers, keywords, built-ins and call sites.
+   */
+  private static highlightAhk(code: string): string {
+    const esc = ImportsGuidePanel.escapeHtml;
+    const keywords = ImportsGuidePanel.AHK_KEYWORDS;
+    const builtinFuncs = ImportsGuidePanel.AHK_BUILTIN_FUNCS;
+    const re = /(\s+)|(;[^\n]*)|(#\w+)|("(?:[^"`\n]|`.)*"|'(?:[^'`\n]|`.)*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)|(:=|=>|\.=)/g;
+
+    let out = '';
+    let last = 0;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(code)) !== null) {
+      if (m.index > last) {
+        // Punctuation and operators we do not specifically colour: emit escaped.
+        out += esc(code.slice(last, m.index));
+      }
+      const [, ws, comment, directive, str, num, ident, op] = m;
+      if (ws) {
+        out += esc(ws);
+      } else if (comment) {
+        out += `<span class="tok-comment">${esc(comment)}</span>`;
+      } else if (directive) {
+        out += `<span class="tok-directive">${esc(directive)}</span>`;
+      } else if (str) {
+        out += `<span class="tok-string">${esc(str)}</span>`;
+      } else if (num) {
+        out += `<span class="tok-number">${esc(num)}</span>`;
+      } else if (ident) {
+        out += ImportsGuidePanel.classifyIdentifier(ident, code.slice(re.lastIndex), keywords, builtinFuncs);
+      } else if (op) {
+        out += `<span class="tok-operator">${esc(op)}</span>`;
+      }
+      last = re.lastIndex;
+    }
+    if (last < code.length) {
+      out += esc(code.slice(last));
+    }
+    return out;
+  }
+
+  private static classifyIdentifier(
+    ident: string,
+    rest: string,
+    keywords: Set<string>,
+    builtinFuncs: Set<string>
+  ): string {
+    const esc = ImportsGuidePanel.escapeHtml;
+    let cls = '';
+    if (keywords.has(ident.toLowerCase())) {
+      cls = 'tok-keyword';
+    } else if (/^A_/i.test(ident)) {
+      cls = 'tok-builtin';
+    } else if (builtinFuncs.has(ident) || /^\s*\(/.test(rest)) {
+      cls = 'tok-function';
+    } else if (/^[A-Z]/.test(ident) && /^\s*\./.test(rest)) {
+      cls = 'tok-type';
+    }
+    return cls ? `<span class="${cls}">${esc(ident)}</span>` : esc(ident);
   }
 }
